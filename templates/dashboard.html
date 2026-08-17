@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel · Suite ENS</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system,'Segoe UI',Roboto,sans-serif; background:#0b0f1a; color:#e2e8f0; min-height:100vh; }
+  .franja { background:#1e3a5f; text-align:center; padding:4px; font-size:11px; letter-spacing:3px; color:#93c5fd; font-family:'Courier New',monospace; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:16px 28px; border-bottom:1px solid #1f2937; flex-wrap:wrap; gap:10px; }
+  header h1 { font-size:18px; color:#22d3ee; }
+  .usuario { display:flex; align-items:center; gap:14px; font-size:13px; color:#94a3b8; }
+  .salir { background:#1f2937; color:#e2e8f0; border:1px solid #334155; padding:7px 14px; border-radius:6px; cursor:pointer; text-decoration:none; font-size:13px; }
+  .salir:hover { background:#374151; }
+  main { max-width:1100px; margin:0 auto; padding:36px 24px; }
+  h2 { font-size:15px; color:#64748b; text-transform:uppercase; letter-spacing:2px; margin-bottom:20px; }
+  .rejilla { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:18px; }
+  .herr {
+    background:#111827; border:1px solid #1f2937; border-radius:12px;
+    padding:24px; text-decoration:none; color:inherit;
+    transition: all .2s; display:block;
+  }
+  .herr:hover { border-color:#22d3ee; transform:translateY(-3px); }
+  .icono { font-size:32px; margin-bottom:12px; }
+  .herr h3 { font-size:16px; color:#f1f5f9; margin-bottom:4px; }
+  .norma { font-size:11px; color:#22d3ee; font-family:'Courier New',monospace; margin-bottom:10px; }
+  .desc { font-size:13px; color:#94a3b8; line-height:1.5; margin-bottom:14px; }
+  .badge { display:inline-block; font-size:11px; padding:4px 10px; border-radius:20px; background:#1e3a5f; color:#93c5fd; }
+  .estado { text-align:center; margin-top:40px; font-size:12px; color:#475569; }
+</style>
+</head>
+<body>
+  <div class="franja">SIN CLASIFICAR</div>
+  <header>
+    <h1>🛡️ Suite ENS de Ciberseguridad</h1>
+    <div class="usuario">
+      <span>👤 {{ usuario }}</span>
+      <a class="salir" href="/logout">Cerrar sesión →</a>
+    </div>
+  </header>
+  <main>
+    <h2>Herramientas disponibles</h2>
+    <div class="rejilla">
+      <a class="herr" href="/tool/metalimpio">
+        <div class="icono">🧹</div>
+        <h3>MetaLimpio ENS</h3>
+        <div class="norma">CCN-STIC-835 · [mp.info.5]</div>
+        <p class="desc">Borrado de metadatos y datos ocultos en documentos electrónicos.</p>
+        <span class="badge">Fase 2 · Próxima</span>
+      </a>
+      <a class="herr" href="/tool/passpolicy">
+        <div class="icono">🔐</div>
+        <h3>PassPolicy ENS</h3>
+        <div class="norma">CCN-STIC-807 · CCN-STIC-140</div>
+        <p class="desc">Verificación y generación de contraseñas conformes al ENS.</p>
+        <span class="badge">Fase 3</span>
+      </a>
+      <a class="herr" href="/tool/anonimizador">
+        <div class="icono">🕶️</div>
+        <h3>AnonimizadorPD</h3>
+        <div class="norma">PDPC/AEPD · RGPD Art. 4(1)</div>
+        <p class="desc">Anonimización de datos personales en documentos.</p>
+        <span class="badge">Fase 4</span>
+      </a>
+      <a class="herr" href="/tool/tls_checker">
+        <div class="icono">🔒</div>
+        <h3>TLS Privacy Checker</h3>
+        <div class="norma">RGPD · LOPD-GDD</div>
+        <p class="desc">Verificador de cifrado y protocolos TLS/SSL.</p>
+        <span class="badge">Fase 5</span>
+      </a>
+    </div>
+    <p class="estado">✅ Actualización automática desde GitHub activa · Plataforma gratuita</p>
+  </main>
+</body>
+</html>
