@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso · Suite ENS</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #0b0f1a; color: #e2e8f0;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .franja {
+    background: #1e3a5f; text-align: center; padding: 4px;
+    font-size: 11px; letter-spacing: 3px; color: #93c5fd;
+    font-family: 'Courier New', monospace;
+  }
+  .contenedor {
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; padding: 20px;
+  }
+  .tarjeta {
+    background: #111827; border: 1px solid #1f2937;
+    border-radius: 12px; padding: 40px; width: 100%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .escudo { text-align: center; font-size: 48px; margin-bottom: 12px; }
+  h1 { text-align: center; font-size: 20px; color: #22d3ee; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 28px; }
+  label { display: block; font-size: 12px; color: #94a3b8; margin: 16px 0 6px; }
+  input {
+    width: 100%; padding: 12px; background: #0b0f1a;
+    border: 1px solid #334155; border-radius: 8px;
+    color: #e2e8f0; font-size: 15px;
+  }
+  input:focus { outline: none; border-color: #22d3ee; }
+  button {
+    width: 100%; margin-top: 24px; padding: 13px;
+    background: #0891b2; color: white; border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #06b6d4; }
+  .error {
+    background: #451a1a; border: 1px solid #dc2626; color: #fca5a5;
+    padding: 10px; border-radius: 6px; font-size: 13px;
+    text-align: center; margin-top: 16px;
+  }
+  .pie { text-align: center; font-size: 11px; color: #475569; padding: 16px; }
+</style>
+</head>
+<body>
+  <div class="franja">SIN CLASIFICAR · ACCESO RESTRINGIDO</div>
+  <div class="contenedor">
+    <div class="tarjeta">
+      <div class="escudo">🛡️</div>
+      <h1>Suite ENS de Ciberseguridad</h1>
+      <p class="sub">Introduce tus credenciales para continuar</p>
+      <form method="POST">
+        <label>Usuario</label>
+        <input type="text" name="usuario" required autofocus autocomplete="username">
+        <label>Contraseña</label>
+        <input type="password" name="password" required autocomplete="current-password">
+        <button type="submit">🔐 Acceder</button>
+        {% with mensajes = get_flashed_messages() %}
+          {% if mensajes %}
+            {% for m in mensajes %}<div class="error">⚠ {{ m }}</div>{% endfor %}
+          {% endif %}
+        {% endwith %}
+      </form>
+    </div>
+  </div>
+  <div class="pie">Procesamiento local · Sin transferencia de datos a terceros</div>
+</body>
+</html>
