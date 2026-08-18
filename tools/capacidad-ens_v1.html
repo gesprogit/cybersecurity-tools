@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapacidadENS — Gestión de la Capacidad · ENS op.pl.4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#1e6f7a;--teal-deep:#145560;--teal-darker:#0d3d47;
+  --gold:#ffe855;--gold-mid:#fcc123;--gold-dark:#b18a20;
+  --cyan-light:#a0d8e0;--cyan:#4ab4c2;--blue-mid:#2a86a0;
+  --green:#1a7a4a;--green-light:#22a860;
+  --amber:#b18a20;--red:#b83232;--red-light:#d44444;--orange:#c25a1a;
+  --purple:#6b3fa0;--purple-light:#8a5fc0;
+  --bg:#f3f9fa;--surface:#ffffff;--surface2:#e8f4f6;--surface3:#d4ecf0;
+  --border:rgba(20,85,96,0.13);--border-med:rgba(20,85,96,0.22);
+  --text:#0d2f35;--text-mid:#2a5560;--text-muted:#4a808a;--text-dim:#80b0b8;
+  --r4:4px;--r6:6px;--r8:8px;
+  --shadow:0 1px 4px rgba(20,85,96,0.09),0 0 0 1px rgba(20,85,96,0.07);
+  --shadow-md:0 4px 20px rgba(20,85,96,0.12),0 0 0 1px rgba(20,85,96,0.08)
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;line-height:1.6;min-height:100vh}
+
+/* ── TOP BARS ── */
+.clf-bar{background:linear-gradient(90deg,var(--teal-darker) 0%,var(--teal-deep) 40%,var(--teal) 100%);color:#fff;padding:6px 20px 7px;font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
+.clf-bar .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,228,85,.35);border-radius:2px;padding:1px 8px;color:var(--gold)}
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:2px solid var(--teal-deep);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:54px;box-shadow:0 2px 8px rgba(20,85,96,.08)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--teal-deep) 0%,var(--teal) 100%);border-radius:var(--r4);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;color:var(--gold);letter-spacing:-.5px;flex-shrink:0}
+.brand-name{font-family:'IBM Plex Serif',serif;font-size:1.05rem;font-weight:600;color:var(--teal-deep);letter-spacing:-.3px}
+.brand-sep{width:1px;height:22px;background:var(--border-med);margin:0 4px}
+.brand-norm{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--text-muted);letter-spacing:1px}
+.local-badge{font-size:.65rem;font-family:'IBM Plex Mono',monospace;background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25);padding:4px 10px;border-radius:3px;letter-spacing:.5px}
+
+/* ── APP LAYOUT ── */
+.app{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:36px 32px 80px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;margin-bottom:32px}
+.page-eyebrow{font-size:.68rem;font-family:'IBM Plex Mono',monospace;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-family:'IBM Plex Serif',serif;font-size:2rem;font-weight:600;color:var(--teal-darker);line-height:1.15;margin-bottom:12px}
+.page-desc{color:var(--text-mid);max-width:560px;font-size:.88rem;line-height:1.65}
+.norm-ref{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:var(--r6);padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--text-muted);line-height:1.9;min-width:240px;flex-shrink:0}
+.norm-ref strong{color:var(--teal-deep);display:block;margin-bottom:6px;font-size:.72rem}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);padding:14px 16px;box-shadow:var(--shadow)}
+.stat-label{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:1.7rem;font-weight:600;color:var(--teal-deep);line-height:1;margin-bottom:3px}
+.stat-value.green{color:var(--green-light)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}.stat-value.blue{color:var(--blue-mid)}.stat-value.purple{color:var(--purple)}
+.stat-sub{font-size:.68rem;color:var(--text-dim)}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{background:var(--surface3);border-radius:4px;height:6px;overflow:hidden;margin-top:6px}
+.progress-bar{height:100%;border-radius:4px;transition:width .4s ease;background:linear-gradient(90deg,var(--teal-deep),var(--cyan))}
+.progress-bar.amber{background:linear-gradient(90deg,var(--amber),var(--gold-mid))}
+.progress-bar.red{background:linear-gradient(90deg,var(--red),var(--red-light))}
+.progress-bar.green{background:linear-gradient(90deg,var(--green),var(--green-light))}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 18px;font-size:.82rem;font-weight:500;color:var(--text-muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;font-family:'IBM Plex Sans',sans-serif}
+.tab:hover{color:var(--teal)}.tab.active{color:var(--teal-deep);border-bottom-color:var(--teal-deep);font-weight:600}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── PANELS ── */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+.panel-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:.78rem;font-weight:600;color:var(--teal-deep);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border-med)}
+.dot.green{background:var(--green-light)}.dot.amber{background:var(--gold-mid)}.dot.red{background:var(--red-light)}.dot.blue{background:var(--teal)}.dot.orange{background:var(--orange)}.dot.purple{background:var(--purple)}
+.panel-body{padding:18px 16px}
+.section-title{font-size:.82rem;font-weight:700;color:var(--teal-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
+/* ── FORM FIELDS ── */
+.field-group{margin-bottom:16px}
+.field-row{display:grid;gap:12px}
+.field-row.cols2{grid-template-columns:1fr 1fr}.field-row.cols3{grid-template-columns:1fr 1fr 1fr}.field-row.cols4{grid-template-columns:1fr 1fr 1fr 1fr}
+.field-label{display:block;font-size:.75rem;font-weight:600;color:var(--text-mid);margin-bottom:6px;letter-spacing:.3px}
+.norm-tag{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--teal);background:rgba(30,111,122,.08);border:1px solid rgba(30,111,122,.2);padding:1px 5px;border-radius:3px;margin-left:6px}
+.req-tag{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--red);background:rgba(184,50,50,.08);border:1px solid rgba(184,50,50,.2);padding:1px 5px;border-radius:3px;margin-left:6px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;background:var(--bg);border:1px solid var(--border-med);border-radius:var(--r6);padding:8px 12px;font-size:.85rem;font-family:'IBM Plex Sans',sans-serif;color:var(--text);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,111,122,.12)}
+textarea{resize:vertical;min-height:80px}
+input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}
+.range-labels{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-dim);margin-top:2px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r6);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;border:none}
+.btn-primary{background:var(--teal-deep);color:#fff}.btn-primary:hover{background:var(--teal-darker)}
+.btn-secondary{background:transparent;color:var(--teal-deep);border:1px solid var(--border-med)}.btn-secondary:hover{background:var(--surface2);border-color:var(--teal)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#9a2020}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#145a38}
+.btn-sm{padding:5px 12px;font-size:.75rem}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* ── TABLES ── */
+.data-table{width:100%;border-collapse:collapse;font-size:.79rem}
+.data-table th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:.67rem;font-weight:600;color:var(--text-muted);letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}.data-table tr:hover td{background:var(--surface2)}
+
+/* ── MONO / CODES ── */
+.mono{font-family:'IBM Plex Mono',monospace;font-size:.73rem}
+.ens-code{font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;color:var(--teal);background:rgba(30,111,122,.08);border:1px solid rgba(30,111,122,.2);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.badge{display:inline-block;font-size:.63rem;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.badge-ok{background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25)}
+.badge-warn{background:rgba(177,138,32,.13);color:#7a5800;border:1px solid rgba(177,138,32,.3)}
+.badge-crit{background:rgba(184,50,50,.1);color:var(--red);border:1px solid rgba(184,50,50,.25)}
+.badge-info{background:rgba(30,111,122,.1);color:var(--teal-deep);border:1px solid rgba(30,111,122,.25)}
+
+/* ── NIVEL CAPACIDAD INDICATOR ── */
+.nivel-bar{display:flex;gap:4px;align-items:center;margin-top:8px}
+.nivel-seg{height:10px;flex:1;border-radius:2px;background:var(--surface3)}
+.nivel-seg.fill-green{background:var(--green-light)}
+.nivel-seg.fill-amber{background:var(--gold-mid)}
+.nivel-seg.fill-red{background:var(--red-light)}
+
+/* ── CAPACITY GAUGE ── */
+.gauge-wrap{display:flex;gap:12px;align-items:center;margin-top:10px}
+.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:1.2rem;font-weight:600;min-width:52px;text-align:right}
+.gauge-bar-outer{flex:1;background:var(--surface3);border-radius:4px;height:14px;overflow:hidden}
+.gauge-bar-inner{height:100%;border-radius:4px;transition:width .5s ease}
+.gauge-ok .gauge-bar-inner{background:linear-gradient(90deg,var(--green),var(--green-light))}
+.gauge-warn .gauge-bar-inner{background:linear-gradient(90deg,var(--amber),var(--gold-mid))}
+.gauge-crit .gauge-bar-inner{background:linear-gradient(90deg,var(--red),var(--red-light))}
+.gauge-ok .gauge-label{color:var(--green-light)}
+.gauge-warn .gauge-label{color:var(--amber)}
+.gauge-crit .gauge-label{color:var(--red)}
+
+/* ── LOG ── */
+.log-panel{background:var(--teal-darker);border-radius:var(--r8);padding:14px 16px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--cyan-light);max-height:140px;overflow-y:auto;line-height:1.7}
+.log-entry{display:flex;gap:12px}
+.log-time{color:var(--text-dim);flex-shrink:0}
+.log-msg.ok{color:#6ee09a}.log-msg.warn{color:var(--gold)}.log-msg.err{color:#f08080}.log-msg.info{color:var(--cyan-light)}
+
+/* ── REPORT ── */
+.report-out{background:var(--teal-darker);color:var(--cyan-light);font-family:'IBM Plex Mono',monospace;font-size:.72rem;line-height:1.7;padding:20px 24px;border-radius:var(--r8);white-space:pre-wrap;overflow:auto;max-height:580px}
+
+/* ── TOAST ── */
+#toastArea{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--teal-deep);color:#fff;padding:10px 18px;border-radius:6px;font-size:.8rem;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:auto;max-width:340px;font-family:'IBM Plex Sans',sans-serif}
+.toast-item.ok{background:#1a7a4a}.toast-item.warn{background:#b18a20}.toast-item.err{background:#b83232}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,47,53,.55);z-index:8000;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border-radius:var(--r8);width:min(560px,94vw);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.modal-head-title{font-weight:700;font-size:.9rem;color:var(--teal-deep)}
+.modal-close-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1}
+.modal-body{padding:20px}
+
+/* ── INFO BOXES ── */
+.info-box{background:rgba(30,111,122,.05);border:1px solid rgba(30,111,122,.2);border-left:3px solid var(--teal);border-radius:var(--r6);padding:12px 16px;font-size:.8rem;color:var(--text-mid);line-height:1.6;margin-bottom:16px}
+.warn-box{background:rgba(177,138,32,.06);border:1px solid rgba(177,138,32,.25);border-left:3px solid var(--amber);border-radius:var(--r6);padding:12px 16px;font-size:.8rem;color:var(--text-mid);line-height:1.6;margin-bottom:16px}
+.crit-box{background:rgba(184,50,50,.06);border:1px solid rgba(184,50,50,.25);border-left:3px solid var(--red);border-radius:var(--r6);padding:12px 16px;font-size:.8rem;color:var(--text-mid);line-height:1.6;margin-bottom:16px}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-dim)}
+.empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.6}
+.empty-title{font-size:.88rem;font-weight:600;color:var(--text-muted);margin-bottom:6px}
+.empty-sub{font-size:.78rem}
+
+/* ── GRIDS ── */
+.main-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.main-cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ── DIMENSION CARD ── */
+.dim-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r8);padding:16px 18px;margin-bottom:12px;transition:border-color .15s}
+.dim-card:hover{border-color:var(--teal)}
+.dim-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dim-card-title{font-size:.82rem;font-weight:700;color:var(--teal-deep);display:flex;align-items:center;gap:8px}
+.dim-icon{font-size:1.1rem}
+
+/* ── TIMELINE STEPS ── */
+.step-flow{display:flex;flex-direction:column;gap:10px}
+.step-item{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--teal)}
+.step-item.green{border-left-color:var(--green)}.step-item.amber{border-left-color:var(--amber)}.step-item.blue{border-left-color:var(--cyan)}.step-item.red{border-left-color:var(--red)}.step-item.purple{border-left-color:var(--purple)}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:700;color:var(--teal);background:rgba(30,111,122,.12);padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:2px}
+.step-content .step-t{font-weight:700;font-size:.8rem;color:var(--teal-deep);margin-bottom:3px}
+.step-content .step-d{font-size:.75rem;color:var(--text-muted)}
+
+/* ── SEMÁFORO ── */
+.semaforo{display:flex;gap:6px;align-items:center}
+.sem-dot{width:11px;height:11px;border-radius:50%;opacity:.25;transition:opacity .3s}
+.sem-dot.active{opacity:1}
+.sem-red{background:var(--red-light)}.sem-amber{background:var(--gold-mid)}.sem-green{background:var(--green-light)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .main-cols,.main-cols3{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .field-row.cols2,.field-row.cols3,.field-row.cols4{grid-template-columns:1fr}
+  .page-header{flex-direction:column}
+  .topbar{padding:0 16px}
+  .app{padding:24px 16px 60px}
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-med);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="clf-bar">
+  <span class="pill">SIN CLASIFICAR</span>
+  <span>ENS op.pl.4 · Dimensionamiento / Gestión de la Capacidad · RD 311/2022</span>
+  <span class="pill">Procesamiento 100% local · Sin transferencia de datos</span>
+</div>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">GC</div>
+    <span class="brand-name">CapacidadENS</span>
+    <div class="brand-sep"></div>
+    <span class="brand-norm">v1 · ENS [op.pl.4] · RD 311/2022</span>
+  </div>
+  <div class="local-badge">Gestión 100% local · Sin servidores</div>
+</nav>
+
+<div class="app">
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">Herramienta de gestión de la capacidad</div>
+      <h1 class="page-title">Dimensionamiento &amp;<br>Gestión de la Capacidad</h1>
+      <p class="page-desc">Estudio de necesidades de recursos y elaboración del <strong>Plan de Capacidad</strong> según el <strong>ENS op.pl.4</strong>. Cubre procesamiento, almacenamiento, comunicaciones, personal e instalaciones, con seguimiento y revisión periódica.</p>
+    </div>
+    <div class="norm-ref">
+      <strong>Base normativa</strong>
+      RD 311/2022 · ENS op.pl.4<br>
+      Anexo II — medida op.pl.4<br>
+      CCN-STIC-804 (Implantación)<br>
+      ISO/IEC 27001 — A.12.1.3<br>
+      ITIL Capacity Management
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Estudios activos</div><div class="stat-value" id="stEstudios">0</div><div class="stat-sub">en el repositorio local</div></div>
+    <div class="stat-card"><div class="stat-label">Uso procesamiento</div><div class="stat-value blue" id="stCPU">—</div><div class="stat-sub">media declarada</div></div>
+    <div class="stat-card"><div class="stat-label">Uso almacenamiento</div><div class="stat-value amber" id="stSTO">—</div><div class="stat-sub">capacidad utilizada</div></div>
+    <div class="stat-card"><div class="stat-label">Déficit personal</div><div class="stat-value red" id="stPers">0</div><div class="stat-sub">puestos sin cubrir</div></div>
+    <div class="stat-card"><div class="stat-label">Planes generados</div><div class="stat-value green" id="stPlanes">0</div><div class="stat-sub">documentos emitidos</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="gotoTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="gotoTab('estudio',this)">🔬 Nuevo estudio</button>
+    <button class="tab" onclick="gotoTab('procesamiento',this)">⚙️ Procesamiento</button>
+    <button class="tab" onclick="gotoTab('almacenamiento',this)">🗄️ Almacenamiento</button>
+    <button class="tab" onclick="gotoTab('comunicaciones',this)">🌐 Comunicaciones</button>
+    <button class="tab" onclick="gotoTab('personal',this)">👥 Personal</button>
+    <button class="tab" onclick="gotoTab('instalaciones',this)">🏢 Instalaciones</button>
+    <button class="tab" onclick="gotoTab('plan',this)">📄 Plan de Capacidad</button>
+  </div>
+
+  <!-- ═══════════════ DASHBOARD ═══════════════ -->
+  <div id="tab-dashboard" class="tab-panel active">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Estado global de la capacidad</span></div>
+          <div class="panel-body" id="dashCapacidad">
+            <div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">Sin datos aún</div><div class="empty-sub">Crea un estudio para ver el resumen</div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Alertas de capacidad</span></div>
+          <div class="panel-body" id="dashAlertas">
+            <div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin alertas</div><div class="empty-sub">Completa el estudio para detectar déficits</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Proceso ENS op.pl.4</span></div>
+          <div class="panel-body">
+            <div class="step-flow">
+              <div class="step-item"><span class="step-num">1</span><div class="step-content"><div class="step-t">ANÁLISIS DE NECESIDADES</div><div class="step-d">Procesamiento, almacenamiento, comunicaciones, personal e instalaciones</div></div></div>
+              <div class="step-item amber"><span class="step-num">2</span><div class="step-content"><div class="step-t">PREVISIÓN DE CRECIMIENTO</div><div class="step-d">Proyección a 12, 24 y 36 meses con margen de seguridad</div></div></div>
+              <div class="step-item blue"><span class="step-num">3</span><div class="step-content"><div class="step-t">IDENTIFICACIÓN DE DÉFICITS</div><div class="step-d">Brecha entre capacidad actual y necesidades proyectadas</div></div></div>
+              <div class="step-item purple"><span class="step-num">4</span><div class="step-content"><div class="step-t">PLAN DE CAPACIDAD</div><div class="step-d">Acciones, responsables, plazos y presupuesto para cada dimensión</div></div></div>
+              <div class="step-item green"><span class="step-num">5</span><div class="step-content"><div class="step-t">REVISIÓN Y ACTUALIZACIÓN</div><div class="step-d">Seguimiento periódico y ajuste del plan según evolución real</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Registro de actividad</span><button class="btn btn-sm btn-secondary" onclick="clearLog()">Limpiar</button></div>
+          <div class="panel-body" style="padding:12px">
+            <div class="log-panel" id="actLog">
+              <div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">CapacidadENS v1 iniciado</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estudios guardados -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot blue"></span>Estudios guardados</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm btn-secondary" onclick="exportarJSON()">⬆ Exportar JSON</button>
+          <button class="btn btn-sm btn-secondary" onclick="abrirImportar()">⬇ Importar JSON</button>
+        </div>
+      </div>
+      <div id="tablaEstudios" style="padding:0"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ NUEVO ESTUDIO ═══════════════ -->
+  <div id="tab-estudio" class="tab-panel">
+    <div class="info-box">📋 <strong>ENS op.pl.4:</strong> El estudio de dimensionamiento debe realizarse para cada sistema o servicio, identificando las necesidades actuales y futuras en todas las dimensiones de capacidad.</div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Identificación del estudio</span></div>
+      <div class="panel-body">
+        <div class="field-row cols3">
+          <div class="field-group">
+            <label class="field-label">ID del estudio <span class="req-tag">AUTO</span></label>
+            <input type="text" id="nId" readonly placeholder="EST-00001" style="background:var(--surface2);color:var(--text-muted)">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fecha del estudio <span class="req-tag">REQ</span></label>
+            <input type="date" id="nFecha">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Próxima revisión</label>
+            <input type="date" id="nRevision">
+          </div>
+        </div>
+        <div class="field-row cols2">
+          <div class="field-group">
+            <label class="field-label">Sistema / Servicio objeto del estudio <span class="req-tag">REQ</span></label>
+            <input type="text" id="nSistema" placeholder="Ej: Sistema de gestión documental, Plataforma de identidad…">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Responsable del estudio <span class="req-tag">REQ</span></label>
+            <input type="text" id="nResponsable" placeholder="Nombre y cargo">
+          </div>
+        </div>
+        <div class="field-row cols3">
+          <div class="field-group">
+            <label class="field-label">Categoría ENS del sistema <span class="norm-tag">ENS</span></label>
+            <select id="nCategoria">
+              <option value="">— Seleccionar —</option>
+              <option value="BASICA">BÁSICA</option>
+              <option value="MEDIA">MEDIA</option>
+              <option value="ALTA">ALTA</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Horizonte de planificación</label>
+            <select id="nHorizonte">
+              <option value="12">12 meses</option>
+              <option value="24" selected>24 meses</option>
+              <option value="36">36 meses</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Estado del estudio</label>
+            <select id="nEstado">
+              <option value="borrador">Borrador</option>
+              <option value="en_curso">En curso</option>
+              <option value="completado">Completado</option>
+              <option value="aprobado">Aprobado</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Descripción y alcance del sistema</label>
+          <textarea id="nDescripcion" rows="3" placeholder="Descripción del sistema, usuarios afectados, dependencias con otros sistemas, nivel de criticidad para el servicio…"></textarea>
+        </div>
+        <div class="field-row cols2">
+          <div class="field-group">
+            <label class="field-label">Número de usuarios actuales</label>
+            <input type="number" id="nUsuarios" min="0" placeholder="0">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Crecimiento anual estimado (%)</label>
+            <input type="number" id="nCrecimiento" min="0" max="500" placeholder="Ej: 15">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Observaciones generales</label>
+          <textarea id="nObservaciones" rows="2" placeholder="Notas relevantes, restricciones, condiciones especiales…"></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="crearEstudio()">➕ Crear estudio</button>
+          <button class="btn btn-secondary" onclick="limpiarFormEstudio()">🗑 Limpiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROCESAMIENTO ═══════════════ -->
+  <div id="tab-procesamiento" class="tab-panel">
+    <div class="info-box">⚙️ <strong>Necesidades de procesamiento:</strong> Capacidad de cómputo (CPU, memoria RAM, GPU si aplica) necesaria para cubrir la carga actual y futura del sistema.</div>
+    <div class="field-group" style="margin-bottom:20px">
+      <label class="field-label">Estudio al que pertenece <span class="req-tag">REQ</span></label>
+      <select id="selEstPro"><option value="">— Seleccionar estudio —</option></select>
+    </div>
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Capacidad actual</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Núcleos CPU disponibles (total)</label>
+                <input type="number" id="pCpuAct" min="0" placeholder="Ej: 32" oninput="calcPro()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Uso medio CPU actual (%)</label>
+                <input type="number" id="pCpuUso" min="0" max="100" placeholder="Ej: 45" oninput="calcPro()">
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">RAM total (GB)</label>
+                <input type="number" id="pRamAct" min="0" placeholder="Ej: 256" oninput="calcPro()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Uso medio RAM actual (%)</label>
+                <input type="number" id="pRamUso" min="0" max="100" placeholder="Ej: 60" oninput="calcPro()">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Infraestructura de procesamiento</label>
+              <select id="pTipoInfra">
+                <option value="fisico">Servidores físicos propios</option>
+                <option value="virtual">Virtualización on-premise</option>
+                <option value="cloud_pub">Nube pública</option>
+                <option value="cloud_priv">Nube privada</option>
+                <option value="hibrido">Híbrido</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Pico de carga máxima observada (%)</label>
+              <input type="number" id="pPicoCPU" min="0" max="100" placeholder="Ej: 85" oninput="calcPro()">
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Proyección y necesidades futuras</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">CPU necesaria en horizonte (núcleos)</label>
+                <input type="number" id="pCpuNec" min="0" placeholder="Calculado o manual" oninput="calcPro()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">RAM necesaria en horizonte (GB)</label>
+                <input type="number" id="pRamNec" min="0" placeholder="Calculado o manual" oninput="calcPro()">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Margen de seguridad requerido (%)</label>
+              <input type="range" id="pMargenPro" min="10" max="50" value="20" oninput="document.getElementById('pMargenProVal').textContent=this.value+'%';calcPro()">
+              <div class="range-labels"><span>10%</span><span id="pMargenProVal">20%</span><span>50%</span></div>
+            </div>
+            <div id="resPro" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Análisis de la carga</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Patrón de carga de trabajo</label>
+              <select id="pPatron">
+                <option value="uniforme">Uniforme (constante)</option>
+                <option value="diurno">Diurno (pico en horario laboral)</option>
+                <option value="batch">Batch (procesos programados)</option>
+                <option value="estacional">Estacional (picos periódicos)</option>
+                <option value="variable">Variable / impredecible</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Servicios / procesos críticos para el procesamiento</label>
+              <textarea id="pServicios" rows="3" placeholder="Lista los procesos o servicios con mayor consumo de CPU/RAM…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Requisitos de alta disponibilidad</label>
+              <select id="pHA">
+                <option value="no">No requerida</option>
+                <option value="activo_pasivo">Activo-Pasivo</option>
+                <option value="activo_activo">Activo-Activo</option>
+                <option value="cluster">Cluster / N+1</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Observaciones y restricciones de procesamiento</label>
+              <textarea id="pObs" rows="3" placeholder="Limitaciones técnicas, dependencias, requerimientos normativos…"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot purple"></span>Acciones previstas</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Acción para cubrir el déficit de procesamiento</label>
+              <select id="pAccion">
+                <option value="">— Seleccionar —</option>
+                <option value="scale_up">Escalado vertical (ampliar servidor existente)</option>
+                <option value="scale_out">Escalado horizontal (añadir nodos)</option>
+                <option value="migracion_cloud">Migración a cloud / cloud burst</option>
+                <option value="optimizacion">Optimización de aplicaciones y procesos</option>
+                <option value="virtualizacion">Incremento de virtualización</option>
+                <option value="ninguna">Sin acción requerida (capacidad suficiente)</option>
+              </select>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Fecha estimada de implantación</label>
+                <input type="date" id="pFechaImpl">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Coste estimado (€)</label>
+                <input type="number" id="pCoste" min="0" placeholder="0">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Responsable de la acción</label>
+              <input type="text" id="pResponsable" placeholder="Nombre y cargo">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarDimension('procesamiento')">💾 Guardar datos de procesamiento</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ALMACENAMIENTO ═══════════════ -->
+  <div id="tab-almacenamiento" class="tab-panel">
+    <div class="info-box">🗄️ <strong>Necesidades de almacenamiento:</strong> Capacidad para datos en procesamiento activo y datos retenidos durante el periodo obligatorio (normativo, legal o de negocio).</div>
+    <div class="field-group" style="margin-bottom:20px">
+      <label class="field-label">Estudio al que pertenece <span class="req-tag">REQ</span></label>
+      <select id="selEstAlm"><option value="">— Seleccionar estudio —</option></select>
+    </div>
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Almacenamiento activo (procesamiento)</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Capacidad total disponible (TB)</label>
+                <input type="number" id="aStoTotal" min="0" step="0.1" placeholder="Ej: 20" oninput="calcAlm()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Capacidad utilizada actualmente (TB)</label>
+                <input type="number" id="aStoUsado" min="0" step="0.1" placeholder="Ej: 12" oninput="calcAlm()">
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Crecimiento mensual de datos (GB/mes)</label>
+                <input type="number" id="aCrecMes" min="0" placeholder="Ej: 200" oninput="calcAlm()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Tipo de almacenamiento activo</label>
+                <select id="aTipoAct">
+                  <option value="ssd_local">SSD local</option>
+                  <option value="san">SAN / NAS</option>
+                  <option value="cloud_bloque">Cloud (bloque)</option>
+                  <option value="cloud_objeto">Cloud (objeto)</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+            </div>
+            <div id="resAlm" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot orange"></span>Almacenamiento de retención</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Periodo de retención obligatorio (años)</label>
+                <input type="number" id="aRetAnios" min="0" max="50" placeholder="Ej: 5">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Base legal / normativa de retención</label>
+                <select id="aBaseLegal">
+                  <option value="">— Seleccionar —</option>
+                  <option value="rgpd">RGPD (5 años por defecto)</option>
+                  <option value="lopd">LOPDGDD</option>
+                  <option value="contable">Normativa contable (6 años)</option>
+                  <option value="laboral">Normativa laboral (4 años)</option>
+                  <option value="ens">Política ENS / seguridad (2 años logs)</option>
+                  <option value="sectorial">Normativa sectorial específica</option>
+                  <option value="negocio">Política interna de negocio</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Volumen actual en retención (TB)</label>
+                <input type="number" id="aRetVolAct" min="0" step="0.1" placeholder="Ej: 5">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Tipo de soporte de retención</label>
+                <select id="aTipoRet">
+                  <option value="disco_frio">Disco frío / nearline</option>
+                  <option value="cinta">Cinta magnética</option>
+                  <option value="cloud_archivo">Cloud archive (Glacier, etc.)</option>
+                  <option value="optico">Soporte óptico</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Política de cifrado del almacenamiento <span class="norm-tag">ENS</span></label>
+              <select id="aCifrado">
+                <option value="ninguno">Sin cifrado</option>
+                <option value="transito">Solo en tránsito</option>
+                <option value="reposo">Solo en reposo</option>
+                <option value="ambos">En tránsito y en reposo</option>
+                <option value="e2e">Extremo a extremo</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Política de copia de seguridad</label>
+              <textarea id="aBackup" rows="2" placeholder="Frecuencia, tipo (completa/incremental/diferencial), destino, pruebas de restauración…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot purple"></span>Clasificación y tipos de datos</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Clasificación de datos almacenados <span class="norm-tag">ENS</span></label>
+              <select id="aClasif" multiple size="4" style="height:auto">
+                <option value="datos_personales">Datos de carácter personal</option>
+                <option value="datos_sensibles">Datos especialmente sensibles (RGPD Art.9)</option>
+                <option value="datos_confidenciales">Información confidencial / clasificada</option>
+                <option value="logs">Registros de auditoría y logs</option>
+                <option value="copias_seguridad">Copias de seguridad</option>
+                <option value="configuraciones">Configuraciones y credenciales</option>
+                <option value="datos_publicos">Datos públicos / sin restricción</option>
+              </select>
+              <div style="font-size:.68rem;color:var(--text-dim);margin-top:4px">Ctrl+clic para selección múltiple</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Tasa de deduplicación / compresión estimada (%)</label>
+              <input type="number" id="aDedup" min="0" max="100" placeholder="Ej: 30">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Observaciones sobre almacenamiento</label>
+              <textarea id="aObs" rows="4" placeholder="Restricciones de soberanía de datos, requisitos de localización, dependencias…"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Acciones previstas</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Acción para cubrir el déficit de almacenamiento</label>
+              <select id="aAccion">
+                <option value="">— Seleccionar —</option>
+                <option value="ampliar_local">Ampliar capacidad local (discos / NAS)</option>
+                <option value="cloud_storage">Ampliar con cloud storage</option>
+                <option value="archivado">Implementar política de archivado / tiering</option>
+                <option value="dedup">Activar deduplicación / compresión</option>
+                <option value="ninguna">Sin acción requerida</option>
+              </select>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Fecha estimada</label>
+                <input type="date" id="aFechaImpl">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Coste estimado (€)</label>
+                <input type="number" id="aCoste" min="0" placeholder="0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarDimension('almacenamiento')">💾 Guardar datos de almacenamiento</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ COMUNICACIONES ═══════════════ -->
+  <div id="tab-comunicaciones" class="tab-panel">
+    <div class="info-box">🌐 <strong>Necesidades de comunicación:</strong> Ancho de banda, latencia, disponibilidad y seguridad de las comunicaciones necesarias para el sistema.</div>
+    <div class="field-group" style="margin-bottom:20px">
+      <label class="field-label">Estudio al que pertenece <span class="req-tag">REQ</span></label>
+      <select id="selEstCom"><option value="">— Seleccionar estudio —</option></select>
+    </div>
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Capacidad de red actual</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Ancho de banda disponible (Mbps)</label>
+                <input type="number" id="cBWAct" min="0" placeholder="Ej: 1000" oninput="calcCom()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Uso medio de ancho de banda (%)</label>
+                <input type="number" id="cBWUso" min="0" max="100" placeholder="Ej: 35" oninput="calcCom()">
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Latencia media (ms)</label>
+                <input type="number" id="cLatencia" min="0" placeholder="Ej: 5">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Tipo de conexión principal</label>
+                <select id="cTipoConex">
+                  <option value="fibra_simetrica">Fibra óptica simétrica</option>
+                  <option value="fibra_asinc">Fibra óptica asimétrica</option>
+                  <option value="mpls">MPLS / línea dedicada</option>
+                  <option value="vpn_internet">VPN sobre Internet</option>
+                  <option value="rdsi">RDSI / ADSL empresarial</option>
+                  <option value="satelite">Satélite</option>
+                </select>
+              </div>
+            </div>
+            <div id="resCom" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Seguridad de comunicaciones <span class="norm-tag">ENS</span></span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Segmentación de red implementada</label>
+              <select id="cSegmenta">
+                <option value="no">Sin segmentación</option>
+                <option value="vlans">VLANs</option>
+                <option value="dmz">DMZ</option>
+                <option value="microseg">Microsegmentación / SDN</option>
+                <option value="zero_trust">Zero Trust</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Cifrado de comunicaciones <span class="norm-tag">ENS</span></label>
+              <select id="cCifrado">
+                <option value="ninguno">Sin cifrado</option>
+                <option value="tls12">TLS 1.2</option>
+                <option value="tls13">TLS 1.3</option>
+                <option value="ipsec">IPSec</option>
+                <option value="mixto">Mixto (TLS + IPSec)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Redundancia de enlace</label>
+              <select id="cRedundancia">
+                <option value="ninguna">Sin redundancia</option>
+                <option value="failover">Failover automático (2 ISP)</option>
+                <option value="balanceo">Balanceo de carga activo</option>
+                <option value="sd_wan">SD-WAN</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Necesidades futuras y conectividad</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">BW necesario en horizonte (Mbps)</label>
+                <input type="number" id="cBWNec" min="0" placeholder="Manual o calculado" oninput="calcCom()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Margen de seguridad (%)</label>
+                <input type="number" id="cMargen" min="0" max="100" value="30" oninput="calcCom()">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Flujos de comunicación críticos</label>
+              <textarea id="cFlujos" rows="3" placeholder="Ej: usuarios → app (HTTPS), app → BBDD (TCP 5432), app → SIEM (syslog)…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Requerimientos de QoS / priorización</label>
+              <textarea id="cQoS" rows="2" placeholder="Tráfico prioritario, SLA de red, jitter máximo, pérdida de paquetes máxima…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Conexiones con redes externas o terceros</label>
+              <textarea id="cExterno" rows="2" placeholder="Interconexiones con SARA, cloud, proveedores, organismos externos…"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot purple"></span>Acciones previstas</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Acción para cubrir el déficit de comunicaciones</label>
+              <select id="cAccion">
+                <option value="">— Seleccionar —</option>
+                <option value="ampliar_bw">Ampliar ancho de banda contratado</option>
+                <option value="sdwan">Implementar SD-WAN</option>
+                <option value="redundancia">Añadir enlace redundante</option>
+                <option value="qos">Implantar QoS / priorización</option>
+                <option value="cifrado">Reforzar cifrado de comunicaciones</option>
+                <option value="ninguna">Sin acción requerida</option>
+              </select>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Fecha estimada</label>
+                <input type="date" id="cFechaImpl">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Coste estimado (€)</label>
+                <input type="number" id="cCoste" min="0" placeholder="0">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Observaciones</label>
+              <textarea id="cObs" rows="2" placeholder="Notas adicionales…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarDimension('comunicaciones')">💾 Guardar datos de comunicaciones</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PERSONAL ═══════════════ -->
+  <div id="tab-personal" class="tab-panel">
+    <div class="info-box">👥 <strong>Necesidades de personal:</strong> Cantidad y cualificación del personal necesario para operar, administrar y mantener el sistema con los niveles de servicio requeridos por el ENS.</div>
+    <div class="field-group" style="margin-bottom:20px">
+      <label class="field-label">Estudio al que pertenece <span class="req-tag">REQ</span></label>
+      <select id="selEstPer"><option value="">— Seleccionar estudio —</option></select>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot blue"></span>Perfiles de personal — estado actual y necesidades</span>
+        <button class="btn btn-sm btn-secondary" onclick="addPerfil()">+ Añadir perfil</button>
+      </div>
+      <div class="panel-body">
+        <div class="info-box">Registra cada perfil de personal necesario para el sistema: operadores, administradores, responsables de seguridad, soporte, etc.</div>
+        <div id="listPerfiles">
+          <!-- Los perfiles se añaden aquí dinámicamente -->
+        </div>
+        <div id="resPersonal" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Cualificación y formación requerida</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Certificaciones requeridas (ENS / seguridad) <span class="norm-tag">ENS</span></label>
+              <textarea id="perCertif" rows="3" placeholder="Ej: CISA, CISSP, CCN-STIC, Administrador ENS, ISO 27001 Lead Auditor…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Plan de formación y actualización</label>
+              <textarea id="perFormacion" rows="3" placeholder="Cursos anuales, simulacros, ejercicios de seguridad, jornadas de sensibilización…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Cobertura horaria requerida</label>
+              <select id="perHorario">
+                <option value="8x5">8×5 (laboral)</option>
+                <option value="12x5">12×5 (ampliado laboral)</option>
+                <option value="24x5">24×5 (sin festivos)</option>
+                <option value="24x7">24×7 (completo)</option>
+                <option value="guardia">Servicio de guardia / on-call</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot purple"></span>Externalización y proveedores</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Funciones externalizadas</label>
+              <textarea id="perExternal" rows="3" placeholder="Ej: SOC externalizado, mantenimiento hardware, soporte nivel 1, gestión de CPD…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Gestión de proveedores críticos <span class="norm-tag">ENS</span></label>
+              <textarea id="perProveed" rows="3" placeholder="Proveedores con acceso al sistema, nivel de acceso, acuerdos de nivel de servicio…"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Plan de continuidad del personal</label>
+              <textarea id="perContinuidad" rows="2" placeholder="Sustituciones, polivalencia, documentación de procedimientos, conocimiento compartido…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarDimension('personal')">💾 Guardar datos de personal</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ INSTALACIONES ═══════════════ -->
+  <div id="tab-instalaciones" class="tab-panel">
+    <div class="info-box">🏢 <strong>Necesidades de instalaciones y medios auxiliares:</strong> Espacio físico, alimentación eléctrica, climatización, seguridad física y otros medios necesarios para alojar los recursos del sistema.</div>
+    <div class="field-group" style="margin-bottom:20px">
+      <label class="field-label">Estudio al que pertenece <span class="req-tag">REQ</span></label>
+      <select id="selEstIns"><option value="">— Seleccionar estudio —</option></select>
+    </div>
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Espacio físico y ubicación</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Tipo de instalación</label>
+              <select id="iTipo">
+                <option value="cpd_propio">CPD propio</option>
+                <option value="cpd_colocacion">Colocation / Housing</option>
+                <option value="cloud_puro">Cloud puro (sin instalaciones físicas propias)</option>
+                <option value="hibrido">Híbrido (CPD + cloud)</option>
+                <option value="oficina">Sala de servidores en oficina</option>
+              </select>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Rack Units disponibles (U)</label>
+                <input type="number" id="iRackAct" min="0" placeholder="Ej: 42" oninput="calcIns()">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Rack Units ocupados actualmente (U)</label>
+                <input type="number" id="iRackUso" min="0" placeholder="Ej: 28" oninput="calcIns()">
+              </div>
+            </div>
+            <div id="resIns" style="margin-top:8px"></div>
+            <div class="field-group" style="margin-top:12px">
+              <label class="field-label">Rack Units necesarios en horizonte (U)</label>
+              <input type="number" id="iRackNec" min="0" placeholder="Ej: 38" oninput="calcIns()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Nivel Tier del CPD (Uptime Institute)</label>
+              <select id="iTier">
+                <option value="">No aplica / No determinado</option>
+                <option value="1">Tier I (básico)</option>
+                <option value="2">Tier II (componentes redundantes)</option>
+                <option value="3">Tier III (mantenimiento sin interrupción)</option>
+                <option value="4">Tier IV (tolerante a fallos)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Alimentación eléctrica</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Potencia contratada (kW)</label>
+                <input type="number" id="iElecKW" min="0" placeholder="Ej: 50">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Consumo actual (kW)</label>
+                <input type="number" id="iElecUso" min="0" placeholder="Ej: 32">
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">SAI / UPS disponible</label>
+                <select id="iSAI">
+                  <option value="no">Sin SAI</option>
+                  <option value="si_basico">SAI básico (< 15 min)</option>
+                  <option value="si_extendido">SAI extendido (> 15 min)</option>
+                  <option value="grupo_electrogeno">Grupo electrógeno</option>
+                  <option value="dual_sai_ge">SAI + Grupo electrógeno</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">PUE (Power Usage Effectiveness)</label>
+                <input type="number" id="iPUE" min="1" max="3" step="0.01" placeholder="Ej: 1.8">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Climatización y condiciones ambientales</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Potencia de refrigeración disponible (kW)</label>
+                <input type="number" id="iRefKW" min="0" placeholder="Ej: 60">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sistema de climatización</label>
+                <select id="iRefTipo">
+                  <option value="aire_acond">Aire acondicionado de precisión</option>
+                  <option value="free_cooling">Free cooling</option>
+                  <option value="liquido">Refrigeración líquida</option>
+                  <option value="pasillo_frio">Pasillo frío / caliente</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Temperatura operativa (°C)</label>
+                <input type="number" id="iTemp" min="10" max="35" placeholder="Ej: 21">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Humedad relativa (%)</label>
+                <input type="number" id="iHumedad" min="0" max="100" placeholder="Ej: 50">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Monitorización ambiental</label>
+              <select id="iMonitAmb">
+                <option value="no">Sin monitorización</option>
+                <option value="basica">Básica (temperatura)</option>
+                <option value="completa">Completa (temp + humedad + energía)</option>
+                <option value="dcim">DCIM / gestión integral</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot red"></span>Seguridad física <span class="norm-tag">ENS</span></span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Control de acceso físico implementado</label>
+              <select id="iAccFisico">
+                <option value="ninguno">Sin control de acceso</option>
+                <option value="llave">Llave / cerradura</option>
+                <option value="tarjeta">Tarjeta de proximidad</option>
+                <option value="biometrico">Biométrico</option>
+                <option value="doble_factor">Doble factor (tarjeta + pin/bio)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Sistema de CCTV / videovigilancia</label>
+              <select id="iCCTV">
+                <option value="no">Sin CCTV</option>
+                <option value="grabacion">CCTV con grabación</option>
+                <option value="tiempo_real">CCTV tiempo real + grabación</option>
+                <option value="analitica">CCTV con analítica de video</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Detección y extinción de incendios</label>
+              <select id="iIncendio">
+                <option value="ninguno">Sin sistema</option>
+                <option value="deteccion">Solo detección</option>
+                <option value="agua">Rociadores de agua</option>
+                <option value="gas_inerte">Gas inerte (Argonita, Inergen)</option>
+                <option value="fm200">FM-200 / Novec</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Observaciones sobre instalaciones y medios auxiliares</label>
+              <textarea id="iObs" rows="2" placeholder="Mejoras previstas, restricciones, contratos de mantenimiento…"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot purple"></span>Acciones previstas</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Acción para cubrir déficit de instalaciones</label>
+              <select id="iAccion">
+                <option value="">— Seleccionar —</option>
+                <option value="ampliar_rack">Ampliar espacio de rack</option>
+                <option value="nuevo_cpd">Migrar / construir nuevo CPD</option>
+                <option value="colocacion">Contratar colocation</option>
+                <option value="potencia">Ampliar potencia eléctrica</option>
+                <option value="refrigeracion">Ampliar refrigeración</option>
+                <option value="seguridad_fisica">Mejorar seguridad física</option>
+                <option value="ninguna">Sin acción requerida</option>
+              </select>
+            </div>
+            <div class="field-row cols2">
+              <div class="field-group">
+                <label class="field-label">Fecha estimada</label>
+                <input type="date" id="iFechaImpl">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Coste estimado (€)</label>
+                <input type="number" id="iCoste" min="0" placeholder="0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarDimension('instalaciones')">💾 Guardar datos de instalaciones</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PLAN DE CAPACIDAD ═══════════════ -->
+  <div id="tab-plan" class="tab-panel">
+    <div class="info-box">📄 <strong>Plan de Capacidad (ENS op.pl.4):</strong> Documento formal que recoge el resultado del estudio de dimensionamiento, las acciones correctoras, responsables, plazos y presupuesto.</div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot green"></span>Generación del Plan de Capacidad</span>
+        <div style="display:flex;gap:8px">
+          <select id="selEstPlan" style="width:280px;font-size:.8rem;padding:5px 10px;border-radius:var(--r6);border:1px solid var(--border-med);background:var(--bg);color:var(--text)">
+            <option value="">— Seleccionar estudio —</option>
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="generarPlan()">🔄 Generar plan</button>
+          <button class="btn btn-sm btn-secondary" onclick="copiarPlan()">📋 Copiar</button>
+          <button class="btn btn-sm btn-secondary" onclick="exportarPlan()">⬇ Exportar TXT</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <!-- Sección de aprobación -->
+        <div class="main-cols" style="margin-bottom:16px">
+          <div class="field-group">
+            <label class="field-label">Aprobado por (Responsable del sistema)</label>
+            <input type="text" id="planAprobador" placeholder="Nombre, cargo">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fecha de aprobación del plan</label>
+            <input type="date" id="planFechaApro">
+          </div>
+        </div>
+        <div class="field-group" style="margin-bottom:16px">
+          <label class="field-label">Conclusiones y recomendaciones del Responsable de Seguridad <span class="norm-tag">ENS</span></label>
+          <textarea id="planConclusiones" rows="3" placeholder="Valoración de la situación, prioridades de actuación, riesgos residuales de capacidad…"></textarea>
+        </div>
+        <!-- Plan generado -->
+        <div id="planOutput" class="report-out" style="min-height:200px">Selecciona un estudio y pulsa "Generar plan" para obtener el Plan de Capacidad completo.</div>
+      </div>
+    </div>
+
+    <!-- Tabla de acciones del plan -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Tabla de acciones del Plan de Capacidad</span></div>
+      <div id="tablaAcciones" style="padding:0">
+        <div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin acciones registradas</div><div class="empty-sub">Genera el plan para ver la tabla de acciones</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div id="toastArea"></div>
+
+<!-- MODAL IMPORTAR -->
+<div class="modal-overlay" id="modalImportar">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title">Importar estudios desde JSON</span>
+      <button class="modal-close-btn" onclick="cerrarImportar()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Seleccionar fichero JSON exportado</label>
+        <input type="file" id="fileJSON" accept=".json" onchange="leerFicheroImport(this.files[0])" style="font-size:.82rem">
+      </div>
+      <div id="impPreview" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;font-size:.8rem;margin-bottom:12px"></div>
+      <div id="impOps" style="display:none;margin-bottom:12px">
+        <label class="field-label">Modo de importación</label>
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:6px;cursor:pointer"><input type="radio" name="impModo" value="combinar" checked> <span style="font-size:.82rem">Combinar (añadir nuevos, conservar existentes)</span></label>
+        <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="radio" name="impModo" value="reemplazar"> <span style="font-size:.82rem">Reemplazar (borrar todos y cargar importados)</span></label>
+        <div id="avisoReemplazar" style="display:none;margin-top:8px" class="warn-box">⚠️ Esta acción eliminará todos los estudios actuales y los reemplazará por los del fichero.</div>
+      </div>
+      <div id="impAcciones" style="display:none;gap:8px">
+        <button class="btn btn-primary" onclick="confirmarImportar()">✔ Confirmar importación</button>
+        <button class="btn btn-secondary" onclick="cerrarImportar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERFIL PERSONAL -->
+<div class="modal-overlay" id="modalPerfil">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title">Perfil de personal</span>
+      <button class="modal-close-btn" onclick="gi('modalPerfil').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Denominación del puesto / perfil</label>
+        <input type="text" id="mpPuesto" placeholder="Ej: Administrador de sistemas, Responsable de Seguridad…">
+      </div>
+      <div class="field-row cols2">
+        <div class="field-group">
+          <label class="field-label">Efectivos actuales</label>
+          <input type="number" id="mpActual" min="0" value="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Efectivos necesarios</label>
+          <input type="number" id="mpNecesario" min="0" value="1">
+        </div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field-group">
+          <label class="field-label">Nivel de cualificación</label>
+          <select id="mpNivel">
+            <option value="tecnico">Técnico</option>
+            <option value="senior">Senior / Especialista</option>
+            <option value="experto">Experto / Arquitecto</option>
+            <option value="directivo">Directivo / Responsable</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Dedicación</label>
+          <select id="mpDedicacion">
+            <option value="completa">Jornada completa</option>
+            <option value="parcial">Jornada parcial</option>
+            <option value="guardia">Guardia / on-call</option>
+            <option value="externo">Personal externo</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Funciones principales</label>
+        <textarea id="mpFunciones" rows="3" placeholder="Describe las responsabilidades del puesto…"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Conocimientos / certificaciones requeridas</label>
+        <input type="text" id="mpCertif" placeholder="Ej: CISSP, RHCE, Azure Administrator…">
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="confirmarPerfil()">✔ Guardar perfil</button>
+        <button class="btn btn-secondary" onclick="gi('modalPerfil').classList.remove('open')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  UTILIDADES
+// ─────────────────────────────────────────────
+function gi(id){return document.getElementById(id);}
+function v(id){return (gi(id)||{}).value||'';}
+function sv(id,val){var el=gi(id);if(el)el.value=val||'';}
+function hoy(){return new Date().toISOString().split('T')[0];}
+function ahora(){return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function esc(s){return String(s||'—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function num(id){return parseFloat(v(id))||0;}
+function fmt(n,dec){dec=dec||0;return n.toLocaleString('es-ES',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+
+function toast(msg,tipo){
+  var area=gi('toastArea'),d=document.createElement('div');
+  d.className='toast-item'+(tipo?' '+tipo:'');d.textContent=msg;
+  area.appendChild(d);setTimeout(function(){d.remove();},4000);
+}
+function addLog(tipo,msg){
+  var p=gi('actLog'),e=document.createElement('div');
+  e.className='log-entry';
+  e.innerHTML='<span class="log-time">'+ahora()+'</span><span class="log-msg '+tipo+'">'+msg+'</span>';
+  p.appendChild(e);p.scrollTop=p.scrollHeight;
+}
+function clearLog(){gi('actLog').innerHTML='<div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">Log limpiado</span></div>';}
+
+// ─────────────────────────────────────────────
+//  TABS
+// ─────────────────────────────────────────────
+function gotoTab(id,el){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  gi('tab-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+//  ESTADO / PERSISTENCIA
+// ─────────────────────────────────────────────
+var estudios=[];
+var counter=0;
+var perfilesTmp=[];  // perfiles temporales para el modal de personal
+var impParsed=null;
+
+(function init(){
+  try{estudios=JSON.parse(localStorage.getItem('cap_ens_v1')||'[]').map(normalizarEst);}catch(e){estudios=[];}
+  try{counter=parseInt(localStorage.getItem('cap_ens_counter')||'0');}catch(e){counter=0;}
+})();
+
+function genId(){counter++;return 'EST-'+String(counter).padStart(5,'0');}
+
+function normalizarEst(e){
+  var d={
+    id:'',fecha:'',revision:'',sistema:'',responsable:'',categoria:'',horizonte:'24',estado:'borrador',descripcion:'',usuarios:0,crecimiento:0,observaciones:'',
+    procesamiento:{cpuAct:0,cpuUso:0,ramAct:0,ramUso:0,tipoInfra:'fisico',picoCPU:0,cpuNec:0,ramNec:0,margen:20,patron:'uniforme',servicios:'',ha:'no',obs:'',accion:'',fechaImpl:'',coste:0,responsable:''},
+    almacenamiento:{stoTotal:0,stoUsado:0,crecMes:0,tipoAct:'ssd_local',retAnios:0,baseLegal:'',retVolAct:0,tipoRet:'disco_frio',cifrado:'ambos',backup:'',clasif:[],dedup:0,obs:'',accion:'',fechaImpl:'',coste:0},
+    comunicaciones:{bwAct:0,bwUso:0,latencia:0,tipoConex:'fibra_simetrica',segmenta:'vlans',cifrado:'tls13',redundancia:'failover',bwNec:0,margen:30,flujos:'',qos:'',externo:'',obs:'',accion:'',fechaImpl:'',coste:0},
+    personal:{perfiles:[],certif:'',formacion:'',horario:'8x5',external:'',proveed:'',continuidad:''},
+    instalaciones:{tipo:'cpd_propio',rackAct:0,rackUso:0,rackNec:0,tier:'',elecKW:0,elecUso:0,sai:'no',pue:0,refKW:0,refTipo:'aire_acond',temp:0,humedad:0,monitAmb:'no',accFisico:'tarjeta',cctv:'grabacion',incendio:'gas_inerte',obs:'',accion:'',fechaImpl:'',coste:0},
+    planAprobador:'',planFechaApro:'',planConclusiones:'',planesGenerados:0
+  };
+  if(!e||typeof e!=='object')return d;
+  // Merge recursivo superficial
+  var out=JSON.parse(JSON.stringify(d));
+  ['id','fecha','revision','sistema','responsable','categoria','horizonte','estado','descripcion','usuarios','crecimiento','observaciones','planAprobador','planFechaApro','planConclusiones','planesGenerados'].forEach(function(k){if(e[k]!==undefined)out[k]=e[k];});
+  ['procesamiento','almacenamiento','comunicaciones','instalaciones'].forEach(function(dim){
+    if(e[dim]&&typeof e[dim]==='object')Object.assign(out[dim],e[dim]);
+  });
+  if(e.personal&&typeof e.personal==='object'){
+    Object.assign(out.personal,e.personal);
+    if(!Array.isArray(out.personal.perfiles))out.personal.perfiles=[];
+  }
+  return out;
+}
+
+function guardar(){
+  localStorage.setItem('cap_ens_v1',JSON.stringify(estudios));
+  localStorage.setItem('cap_ens_counter',String(counter));
+  actualizarStats();
+  actualizarSelects();
+  renderTabla();
+  renderDashCapacidad();
+}
+
+// ─────────────────────────────────────────────
+//  STATS
+// ─────────────────────────────────────────────
+function actualizarStats(){
+  gi('stEstudios').textContent=estudios.length;
+  // CPU media
+  var conCPU=estudios.filter(function(e){return e.procesamiento.cpuUso>0;});
+  gi('stCPU').textContent=conCPU.length?fmt(conCPU.reduce(function(a,e){return a+e.procesamiento.cpuUso;},0)/conCPU.length,0)+'%':'—';
+  // Almacenamiento medio
+  var conSto=estudios.filter(function(e){return e.almacenamiento.stoTotal>0;});
+  if(conSto.length){
+    var pct=conSto.reduce(function(a,e){return a+(e.almacenamiento.stoTotal>0?e.almacenamiento.stoUsado/e.almacenamiento.stoTotal*100:0);},0)/conSto.length;
+    gi('stSTO').textContent=fmt(pct,0)+'%';
+  }else{gi('stSTO').textContent='—';}
+  // Déficit personal
+  var deficit=estudios.reduce(function(a,e){
+    return a+e.personal.perfiles.reduce(function(b,p){return b+Math.max(0,p.necesario-p.actual);},0);
+  },0);
+  gi('stPers').textContent=deficit;
+  // Planes generados
+  gi('stPlanes').textContent=estudios.reduce(function(a,e){return a+(e.planesGenerados||0);},0);
+}
+
+function actualizarSelects(){
+  var opts='<option value="">— Seleccionar estudio —</option>';
+  estudios.forEach(function(e){opts+='<option value="'+e.id+'">'+esc(e.id)+' · '+esc(e.sistema||'Sin nombre')+'</option>';});
+  ['selEstPro','selEstAlm','selEstCom','selEstPer','selEstIns','selEstPlan'].forEach(function(sid){
+    var el=gi(sid);if(el){var prev=el.value;el.innerHTML=opts;el.value=prev;}
+  });
+}
+
+// ─────────────────────────────────────────────
+//  TABLA ESTUDIOS
+// ─────────────────────────────────────────────
+var ESTADO_LABEL={borrador:'Borrador',en_curso:'En curso',completado:'Completado',aprobado:'Aprobado'};
+var CAT_LABEL={BASICA:'BÁSICA',MEDIA:'MEDIA',ALTA:'ALTA'};
+
+function renderTabla(){
+  var c=gi('tablaEstudios');
+  if(!estudios.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-title">Sin estudios registrados</div><div class="empty-sub">Crea el primer estudio en la pestaña "Nuevo estudio"</div></div>';return;}
+  var h='<table class="data-table"><thead><tr><th>ID</th><th>Sistema</th><th>Fecha</th><th>Horizonte</th><th>Categoría ENS</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
+  estudios.forEach(function(e,i){
+    var est=ESTADO_LABEL[e.estado]||e.estado;
+    var badgeClass=e.estado==='aprobado'?'badge-ok':e.estado==='completado'?'badge-info':e.estado==='en_curso'?'badge-warn':'badge-info';
+    h+='<tr><td><span class="ens-code">'+esc(e.id)+'</span></td>'
+      +'<td>'+esc(e.sistema||'—')+'</td>'
+      +'<td class="mono">'+esc(e.fecha||'—')+'</td>'
+      +'<td class="mono">'+esc(e.horizonte||'—')+' m</td>'
+      +'<td>'+(e.categoria?'<span class="badge badge-info">'+esc(e.categoria)+'</span>':'—')+'</td>'
+      +'<td><span class="badge '+badgeClass+'">'+esc(est)+'</span></td>'
+      +'<td><div style="display:flex;gap:6px">'
+        +'<button class="btn btn-sm btn-secondary" onclick="editarEstudio('+i+')">✏ Editar</button>'
+        +'<button class="btn btn-sm btn-danger" onclick="eliminarEstudio('+i+')">🗑</button>'
+      +'</div></td></tr>';
+  });
+  h+='</tbody></table>';
+  c.innerHTML=h;
+}
+
+// ─────────────────────────────────────────────
+//  DASHBOARD CAPACIDAD
+// ─────────────────────────────────────────────
+function renderDashCapacidad(){
+  var c=gi('dashCapacidad');
+  var al=gi('dashAlertas');
+  if(!estudios.length){
+    c.innerHTML='<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">Sin datos aún</div><div class="empty-sub">Crea un estudio para ver el resumen</div></div>';
+    al.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin alertas</div><div class="empty-sub">Completa el estudio para detectar déficits</div></div>';
+    return;
+  }
+  var html='';
+  var alertasHtml='';
+  estudios.forEach(function(e){
+    html+='<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">'
+      +'<div style="font-weight:700;font-size:.82rem;color:var(--teal-deep);margin-bottom:8px">'+esc(e.id)+' · '+esc(e.sistema||'Sistema')+' <span class="badge badge-info" style="font-size:.6rem">'+esc(e.categoria||'—')+'</span></div>';
+    // CPU
+    if(e.procesamiento.cpuAct>0){
+      var pct=e.procesamiento.cpuUso;
+      var cls=pct>=85?'red':pct>=65?'amber':'ok';
+      html+=gaugeHtml('CPU',pct,cls);
+      if(pct>=85)alertasHtml+=alertaHtml('red','⚠ CPU crítica','Sistema <strong>'+esc(e.sistema)+'</strong>: uso de CPU al '+pct+'%');
+      else if(pct>=65)alertasHtml+=alertaHtml('amber','⚡ CPU elevada','Sistema <strong>'+esc(e.sistema)+'</strong>: uso de CPU al '+pct+'%');
+    }
+    // RAM
+    if(e.procesamiento.ramAct>0){
+      var rpct=e.procesamiento.ramUso;
+      var rcls=rpct>=85?'red':rpct>=65?'amber':'ok';
+      html+=gaugeHtml('RAM',rpct,rcls);
+      if(rpct>=85)alertasHtml+=alertaHtml('red','⚠ Memoria crítica','Sistema <strong>'+esc(e.sistema)+'</strong>: uso de RAM al '+rpct+'%');
+    }
+    // Storage
+    if(e.almacenamiento.stoTotal>0){
+      var spct=e.almacenamiento.stoTotal>0?Math.round(e.almacenamiento.stoUsado/e.almacenamiento.stoTotal*100):0;
+      var scls=spct>=90?'red':spct>=75?'amber':'ok';
+      html+=gaugeHtml('Almacenamiento',spct,scls);
+      if(spct>=90)alertasHtml+=alertaHtml('red','🗄 Almacenamiento crítico','Sistema <strong>'+esc(e.sistema)+'</strong>: '+spct+'% de capacidad utilizada');
+    }
+    // BW
+    if(e.comunicaciones.bwAct>0){
+      var bpct=e.comunicaciones.bwUso;
+      var bcls=bpct>=80?'red':bpct>=60?'amber':'ok';
+      html+=gaugeHtml('Ancho de banda',bpct,bcls);
+    }
+    // Rack
+    if(e.instalaciones.rackAct>0){
+      var rkpct=Math.round(e.instalaciones.rackUso/e.instalaciones.rackAct*100);
+      var rkcls=rkpct>=90?'red':rkpct>=70?'amber':'ok';
+      html+=gaugeHtml('Rack (U)',rkpct,rkcls);
+    }
+    // Personal
+    var deficit=e.personal.perfiles.reduce(function(b,p){return b+Math.max(0,p.necesario-p.actual);},0);
+    if(deficit>0)alertasHtml+=alertaHtml('red','👥 Déficit de personal','Sistema <strong>'+esc(e.sistema)+'</strong>: '+deficit+' puesto(s) sin cubrir');
+    html+='</div>';
+  });
+  c.innerHTML=html||'<div class="empty-state"><div class="empty-sub">Sin métricas registradas</div></div>';
+  al.innerHTML=alertasHtml||'<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin alertas activas</div><div class="empty-sub">Todos los indicadores dentro de umbrales</div></div>';
+}
+
+function gaugeHtml(label,pct,cls){
+  return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--text-muted);margin-bottom:3px"><span>'+label+'</span><span style="font-weight:600;color:var(--'+(cls==='red'?'red':cls==='amber'?'amber':'green-light')+')">'+pct+'%</span></div><div class="gauge-wrap gauge-'+cls+'" style="margin-top:0"><div class="gauge-bar-outer"><div class="gauge-bar-inner" style="width:'+Math.min(pct,100)+'%"></div></div></div></div>';
+}
+function alertaHtml(tipo,titulo,texto){
+  var color=tipo==='red'?'var(--red)':tipo==='amber'?'var(--amber)':'var(--green)';
+  var bg=tipo==='red'?'rgba(184,50,50,.06)':tipo==='amber'?'rgba(177,138,32,.06)':'rgba(26,122,74,.05)';
+  return '<div style="background:'+bg+';border:1px solid '+color+';border-radius:var(--r6);padding:10px 14px;margin-bottom:8px"><div style="font-weight:700;font-size:.78rem;color:'+color+'">'+titulo+'</div><div style="font-size:.75rem;color:var(--text-mid);margin-top:3px">'+texto+'</div></div>';
+}
+
+// ─────────────────────────────────────────────
+//  CREAR / EDITAR ESTUDIO
+// ─────────────────────────────────────────────
+function crearEstudio(){
+  var sistema=v('nSistema').trim();
+  if(!sistema){toast('El campo "Sistema / Servicio" es obligatorio','err');return;}
+  var resp=v('nResponsable').trim();
+  if(!resp){toast('El campo "Responsable" es obligatorio','err');return;}
+  var id=genId();
+  var est=normalizarEst({
+    id:id,fecha:v('nFecha'),revision:v('nRevision'),sistema:sistema,responsable:resp,
+    categoria:v('nCategoria'),horizonte:v('nHorizonte'),estado:v('nEstado'),
+    descripcion:v('nDescripcion'),usuarios:num('nUsuarios'),crecimiento:num('nCrecimiento'),
+    observaciones:v('nObservaciones')
+  });
+  estudios.push(est);
+  guardar();
+  limpiarFormEstudio();
+  addLog('ok','✚ Estudio creado: '+id+' · '+sistema);
+  toast('Estudio '+id+' creado','ok');
+  gotoTab('dashboard',document.querySelector('.tab'));
+}
+
+function limpiarFormEstudio(){
+  ['nId','nSistema','nResponsable','nDescripcion','nObservaciones','nRevision'].forEach(function(id){sv(id,'');});
+  sv('nFecha',hoy());sv('nCategoria','');sv('nHorizonte','24');sv('nEstado','borrador');
+  gi('nUsuarios').value='';gi('nCrecimiento').value='';
+}
+
+function editarEstudio(i){
+  var e=estudios[i];
+  sv('nId',e.id);sv('nFecha',e.fecha);sv('nRevision',e.revision);sv('nSistema',e.sistema);
+  sv('nResponsable',e.responsable);sv('nCategoria',e.categoria);sv('nHorizonte',e.horizonte);
+  sv('nEstado',e.estado);sv('nDescripcion',e.descripcion);
+  gi('nUsuarios').value=e.usuarios||'';gi('nCrecimiento').value=e.crecimiento||'';
+  sv('nObservaciones',e.observaciones);
+  gotoTab('estudio',document.querySelectorAll('.tab')[1]);
+  toast('Edita los campos y pulsa "Crear estudio" para guardar los cambios como nuevo registro, o edita directamente','warn');
+}
+
+function eliminarEstudio(i){
+  if(!confirm('¿Eliminar el estudio '+estudios[i].id+'? Esta acción no se puede deshacer.'))return;
+  var id=estudios[i].id;
+  estudios.splice(i,1);
+  guardar();
+  addLog('warn','🗑 Estudio eliminado: '+id);
+  toast('Estudio eliminado','warn');
+}
+
+// ─────────────────────────────────────────────
+//  GUARDAR DIMENSIÓN
+// ─────────────────────────────────────────────
+function getEstudio(selId){
+  var id=v(selId);
+  if(!id){toast('Selecciona un estudio primero','warn');return null;}
+  var est=estudios.find(function(e){return e.id===id;});
+  if(!est){toast('Estudio no encontrado','err');return null;}
+  return est;
+}
+
+function guardarDimension(dim){
+  var selId='selEst'+{procesamiento:'Pro',almacenamiento:'Alm',comunicaciones:'Com',personal:'Per',instalaciones:'Ins'}[dim];
+  var est=getEstudio(selId);
+  if(!est)return;
+  if(dim==='procesamiento'){
+    Object.assign(est.procesamiento,{
+      cpuAct:num('pCpuAct'),cpuUso:num('pCpuUso'),ramAct:num('pRamAct'),ramUso:num('pRamUso'),
+      tipoInfra:v('pTipoInfra'),picoCPU:num('pPicoCPU'),cpuNec:num('pCpuNec'),ramNec:num('pRamNec'),
+      margen:num('pMargenPro'),patron:v('pPatron'),servicios:v('pServicios'),ha:v('pHA'),obs:v('pObs'),
+      accion:v('pAccion'),fechaImpl:v('pFechaImpl'),coste:num('pCoste'),responsable:v('pResponsable')
+    });
+  } else if(dim==='almacenamiento'){
+    var clasifEl=gi('aClasif');
+    var clasif=Array.from(clasifEl.selectedOptions).map(function(o){return o.value;});
+    Object.assign(est.almacenamiento,{
+      stoTotal:num('aStoTotal'),stoUsado:num('aStoUsado'),crecMes:num('aCrecMes'),tipoAct:v('aTipoAct'),
+      retAnios:num('aRetAnios'),baseLegal:v('aBaseLegal'),retVolAct:num('aRetVolAct'),tipoRet:v('aTipoRet'),
+      cifrado:v('aCifrado'),backup:v('aBackup'),clasif:clasif,dedup:num('aDedup'),obs:v('aObs'),
+      accion:v('aAccion'),fechaImpl:v('aFechaImpl'),coste:num('aCoste')
+    });
+  } else if(dim==='comunicaciones'){
+    Object.assign(est.comunicaciones,{
+      bwAct:num('cBWAct'),bwUso:num('cBWUso'),latencia:num('cLatencia'),tipoConex:v('cTipoConex'),
+      segmenta:v('cSegmenta'),cifrado:v('cCifrado'),redundancia:v('cRedundancia'),
+      bwNec:num('cBWNec'),margen:num('cMargen'),flujos:v('cFlujos'),qos:v('cQoS'),externo:v('cExterno'),obs:v('cObs'),
+      accion:v('cAccion'),fechaImpl:v('cFechaImpl'),coste:num('cCoste')
+    });
+  } else if(dim==='personal'){
+    Object.assign(est.personal,{
+      perfiles:perfilesTmp.slice(),certif:v('perCertif'),formacion:v('perFormacion'),
+      horario:v('perHorario'),external:v('perExternal'),proveed:v('perProveed'),continuidad:v('perContinuidad')
+    });
+  } else if(dim==='instalaciones'){
+    Object.assign(est.instalaciones,{
+      tipo:v('iTipo'),rackAct:num('iRackAct'),rackUso:num('iRackUso'),rackNec:num('iRackNec'),tier:v('iTier'),
+      elecKW:num('iElecKW'),elecUso:num('iElecUso'),sai:v('iSAI'),pue:num('iPUE'),
+      refKW:num('iRefKW'),refTipo:v('iRefTipo'),temp:num('iTemp'),humedad:num('iHumedad'),monitAmb:v('iMonitAmb'),
+      accFisico:v('iAccFisico'),cctv:v('iCCTV'),incendio:v('iIncendio'),obs:v('iObs'),
+      accion:v('iAccion'),fechaImpl:v('iFechaImpl'),coste:num('iCoste')
+    });
+  }
+  guardar();
+  addLog('ok','💾 '+dim+' actualizado en '+est.id);
+  toast('Datos de '+dim+' guardados en '+est.id,'ok');
+}
+
+// ─────────────────────────────────────────────
+//  CÁLCULOS EN TIEMPO REAL
+// ─────────────────────────────────────────────
+function calcPro(){
+  var cpuAct=num('pCpuAct'),cpuUso=num('pCpuUso'),ramAct=num('pRamAct'),ramUso=num('pRamUso');
+  var cpuNec=num('pCpuNec'),ramNec=num('pRamNec'),margen=num('pMargenPro')||20;
+  var el=gi('resPro');if(!el)return;
+  var html='';
+  if(cpuAct>0&&cpuUso>0){
+    var cpuUsadoActual=cpuAct*(cpuUso/100);
+    if(cpuNec===0&&cpuAct>0){cpuNec=cpuUsadoActual*(1+margen/100);}
+    var defCPU=cpuNec>cpuAct?cpuNec-cpuAct:0;
+    var cls=cpuUso>=85?'crit':cpuUso>=65?'warn':'ok';
+    html+='<div style="margin-bottom:10px"><div style="font-size:.73rem;color:var(--text-muted);margin-bottom:4px">Uso CPU actual: <strong>'+fmt(cpuUso)+'%</strong> ('+fmt(cpuUsadoActual,1)+' de '+cpuAct+' núcleos)</div>'+gaugeHtml('CPU',cpuUso,cls);
+    if(defCPU>0)html+='<div class="warn-box" style="margin-top:6px;padding:8px 12px">⚡ Déficit estimado: <strong>'+fmt(defCPU,1)+' núcleos</strong> adicionales necesarios</div>';
+    else html+='<div class="info-box" style="margin-top:6px;padding:8px 12px">✅ Capacidad CPU suficiente con margen del '+margen+'%</div>';
+    html+='</div>';
+  }
+  if(ramAct>0&&ramUso>0){
+    var ramUsadoActual=ramAct*(ramUso/100);
+    if(ramNec===0)ramNec=ramUsadoActual*(1+margen/100);
+    var defRAM=ramNec>ramAct?ramNec-ramAct:0;
+    var rcls=ramUso>=85?'crit':ramUso>=65?'warn':'ok';
+    html+='<div><div style="font-size:.73rem;color:var(--text-muted);margin-bottom:4px">Uso RAM actual: <strong>'+fmt(ramUso)+'%</strong> ('+fmt(ramUsadoActual,0)+' de '+ramAct+' GB)</div>'+gaugeHtml('RAM',ramUso,rcls);
+    if(defRAM>0)html+='<div class="warn-box" style="margin-top:6px;padding:8px 12px">⚡ Déficit estimado: <strong>'+fmt(defRAM,0)+' GB</strong> adicionales de RAM</div>';
+    else html+='<div class="info-box" style="margin-top:6px;padding:8px 12px">✅ Capacidad RAM suficiente con margen del '+margen+'%</div>';
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+function calcAlm(){
+  var total=num('aStoTotal'),usado=num('aStoUsado'),crecMes=num('aCrecMes');
+  var el=gi('resAlm');if(!el)return;
+  if(total<=0){el.innerHTML='';return;}
+  var pct=Math.round(usado/total*100);
+  var cls=pct>=90?'crit':pct>=75?'warn':'ok';
+  var libre=total-usado;
+  var mesesHasta=crecMes>0?Math.floor(libre/crecMes*1024):999;
+  var html=gaugeHtml('Almacenamiento utilizado',pct,cls);
+  html+='<div style="font-size:.73rem;color:var(--text-muted);margin-top:6px">Libre: <strong>'+fmt(libre,2)+' TB</strong>';
+  if(crecMes>0)html+=' · Meses hasta saturación: <strong style="color:var(--'+(mesesHasta<6?'red':mesesHasta<12?'amber':'green')+')">'+mesesHasta+'</strong>';
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function calcCom(){
+  var bwAct=num('cBWAct'),bwUso=num('cBWUso'),bwNec=num('cBWNec'),margen=num('cMargen')||30;
+  var el=gi('resCom');if(!el)return;
+  if(bwAct<=0){el.innerHTML='';return;}
+  var pct=bwUso;
+  var cls=pct>=80?'crit':pct>=60?'warn':'ok';
+  var bwUsadoMbps=bwAct*(bwUso/100);
+  if(bwNec===0)bwNec=bwUsadoMbps*(1+margen/100);
+  var html=gaugeHtml('Ancho de banda utilizado',pct,cls);
+  if(bwNec>bwAct){
+    html+='<div class="warn-box" style="margin-top:6px;padding:8px 12px">⚡ BW necesario: <strong>'+fmt(bwNec,0)+' Mbps</strong> · Déficit: '+fmt(bwNec-bwAct,0)+' Mbps</div>';
+  } else {
+    html+='<div class="info-box" style="margin-top:6px;padding:8px 12px">✅ Ancho de banda suficiente con margen del '+margen+'%</div>';
+  }
+  el.innerHTML=html;
+}
+
+function calcIns(){
+  var rackAct=num('iRackAct'),rackUso=num('iRackUso'),rackNec=num('iRackNec');
+  var el=gi('resIns');if(!el)return;
+  if(rackAct<=0){el.innerHTML='';return;}
+  var pct=Math.round(rackUso/rackAct*100);
+  var cls=pct>=90?'crit':pct>=75?'warn':'ok';
+  var html=gaugeHtml('Rack utilizado',pct,cls);
+  if(rackNec>rackAct){
+    html+='<div class="warn-box" style="margin-top:6px;padding:8px 12px">⚡ Déficit de espacio: <strong>'+fmt(rackNec-rackAct,0)+' U</strong> adicionales necesarias</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ─────────────────────────────────────────────
+//  PERSONAL — PERFILES
+// ─────────────────────────────────────────────
+function addPerfil(){gi('modalPerfil').classList.add('open');}
+
+function confirmarPerfil(){
+  var puesto=v('mpPuesto').trim();
+  if(!puesto){toast('Indica el nombre del puesto','err');return;}
+  var p={puesto:puesto,actual:parseInt(v('mpActual'))||0,necesario:parseInt(v('mpNecesario'))||1,nivel:v('mpNivel'),dedicacion:v('mpDedicacion'),funciones:v('mpFunciones'),certif:v('mpCertif')};
+  perfilesTmp.push(p);
+  renderPerfiles();
+  gi('modalPerfil').classList.remove('open');
+  ['mpPuesto','mpFunciones','mpCertif'].forEach(function(id){sv(id,'');});
+  gi('mpActual').value=0;gi('mpNecesario').value=1;
+  toast('Perfil añadido: '+puesto,'ok');
+}
+
+function renderPerfiles(){
+  var c=gi('listPerfiles');
+  if(!perfilesTmp.length){c.innerHTML='<div class="empty-state" style="padding:24px"><div class="empty-icon">👤</div><div class="empty-title">Sin perfiles añadidos</div><div class="empty-sub">Pulsa "+ Añadir perfil" para comenzar</div></div>';return;}
+  var deficit=perfilesTmp.reduce(function(a,p){return a+Math.max(0,p.necesario-p.actual);},0);
+  var h='<table class="data-table"><thead><tr><th>Puesto</th><th>Actual</th><th>Necesario</th><th>Déficit</th><th>Nivel</th><th>Dedicación</th><th></th></tr></thead><tbody>';
+  perfilesTmp.forEach(function(p,i){
+    var def=Math.max(0,p.necesario-p.actual);
+    h+='<tr><td>'+esc(p.puesto)+'</td><td class="mono" style="text-align:center">'+p.actual+'</td><td class="mono" style="text-align:center">'+p.necesario+'</td>'
+      +'<td style="text-align:center">'+(def>0?'<span class="badge badge-crit">'+def+' pendiente'+(def>1?'s':'')+'</span>':'<span class="badge badge-ok">OK</span>')+'</td>'
+      +'<td>'+esc(p.nivel)+'</td><td>'+esc(p.dedicacion)+'</td>'
+      +'<td><button class="btn btn-sm btn-danger" onclick="eliminarPerfil('+i+')">✕</button></td></tr>';
+  });
+  h+='</tbody></table>';
+  if(deficit>0)h+='<div class="crit-box" style="margin-top:12px">👥 Déficit total: <strong>'+deficit+' puesto(s)</strong> sin cubrir en este sistema</div>';
+  gi('resPersonal').innerHTML='';
+  c.innerHTML=h;
+}
+
+function eliminarPerfil(i){perfilesTmp.splice(i,1);renderPerfiles();}
+
+// Cargar perfiles de un estudio al cambiar el selector
+gi('selEstPer').addEventListener('change',function(){
+  var id=this.value;
+  var est=estudios.find(function(e){return e.id===id;});
+  perfilesTmp=est?est.personal.perfiles.map(function(p){return Object.assign({},p);}):[];
+  renderPerfiles();
+  if(est){
+    sv('perCertif',est.personal.certif);sv('perFormacion',est.personal.formacion);
+    sv('perHorario',est.personal.horario);sv('perExternal',est.personal.external);
+    sv('perProveed',est.personal.proveed);sv('perContinuidad',est.personal.continuidad);
+  }
+});
+
+// ─────────────────────────────────────────────
+//  PLAN DE CAPACIDAD
+// ─────────────────────────────────────────────
+function generarPlan(){
+  var id=v('selEstPlan');
+  if(!id){toast('Selecciona un estudio','warn');return;}
+  var e=estudios.find(function(est){return est.id===id;});
+  if(!e){toast('Estudio no encontrado','err');return;}
+
+  var aprobador=v('planAprobador')||'[Sin definir]';
+  var fechaApro=v('planFechaApro')||hoy();
+  var conclusiones=v('planConclusiones')||'[Sin conclusiones registradas]';
+  var hte=e.horizonte||'24';
+
+  var lineas=[];
+  function L(t){lineas.push(t);}
+  var sep80='═'.repeat(80);
+  var sep80d='─'.repeat(80);
+
+  L(sep80);
+  L('  PLAN DE CAPACIDAD — ENS op.pl.4 · RD 311/2022');
+  L(sep80);
+  L('');
+  L('  Referencia del estudio : '+e.id);
+  L('  Sistema / Servicio     : '+(e.sistema||'—'));
+  L('  Responsable del estudio: '+(e.responsable||'—'));
+  L('  Fecha del estudio      : '+(e.fecha||'—'));
+  L('  Horizonte planificación: '+hte+' meses');
+  L('  Categoría ENS          : '+(e.categoria||'—'));
+  L('  Estado                 : '+(ESTADO_LABEL[e.estado]||e.estado));
+  L('  Próxima revisión       : '+(e.revision||'[Sin definir]'));
+  L('');
+  L('  Aprobado por           : '+aprobador);
+  L('  Fecha de aprobación    : '+fechaApro);
+  L('');
+  L(sep80d);
+  L('  DESCRIPCIÓN Y ALCANCE');
+  L(sep80d);
+  L('');
+  wrapText(e.descripcion||'[Sin descripción]',lineas,2);
+  L('');
+  if(e.usuarios>0)L('  Usuarios actuales: '+e.usuarios+(e.crecimiento?' · Crecimiento anual estimado: '+e.crecimiento+'%':''));
+  L('');
+
+  // ── 1. PROCESAMIENTO
+  L(sep80d);
+  L('  1. NECESIDADES DE PROCESAMIENTO');
+  L(sep80d);
+  L('');
+  var p=e.procesamiento;
+  L('  Infraestructura actual : '+p.tipoInfra);
+  L('  CPU disponible         : '+p.cpuAct+' núcleos');
+  L('  CPU uso medio          : '+p.cpuUso+'%'+(p.picoCPU?' · Pico máximo: '+p.picoCPU+'%':''));
+  L('  RAM disponible         : '+p.ramAct+' GB');
+  L('  RAM uso medio          : '+p.ramUso+'%');
+  L('  Patrón de carga        : '+p.patron);
+  L('  Alta disponibilidad    : '+p.ha);
+  L('');
+  if(p.cpuNec>0||p.ramNec>0){
+    L('  PROYECCIÓN A '+hte+' MESES:');
+    if(p.cpuNec>0)L('  → CPU necesaria: '+p.cpuNec+' núcleos (margen seguridad '+p.margen+'%)');
+    if(p.ramNec>0)L('  → RAM necesaria: '+p.ramNec+' GB (margen seguridad '+p.margen+'%)');
+    // Déficits
+    if(p.cpuNec>p.cpuAct)L('  ⚠ DÉFICIT CPU: '+fmt(p.cpuNec-p.cpuAct,0)+' núcleos adicionales requeridos');
+    if(p.ramNec>p.ramAct)L('  ⚠ DÉFICIT RAM: '+fmt(p.ramNec-p.ramAct,0)+' GB adicionales requeridos');
+    L('');
+  }
+  if(p.servicios){L('  Procesos/servicios críticos:');wrapText(p.servicios,lineas,4);L('');}
+  if(p.obs){L('  Observaciones:');wrapText(p.obs,lineas,4);L('');}
+  if(p.accion&&p.accion!=='ninguna'){
+    L('  ACCIÓN PLANIFICADA:');
+    L('  → Tipo         : '+p.accion);
+    L('  → Responsable  : '+(p.responsable||'[Por asignar]'));
+    L('  → Fecha impl.  : '+(p.fechaImpl||'[Por definir]'));
+    L('  → Coste estim. : '+(p.coste?fmt(p.coste)+' €':'[Por valorar]'));
+    L('');
+  }
+
+  // ── 2. ALMACENAMIENTO
+  L(sep80d);
+  L('  2. NECESIDADES DE ALMACENAMIENTO');
+  L(sep80d);
+  L('');
+  var a=e.almacenamiento;
+  L('  Almacenamiento disponible: '+a.stoTotal+' TB');
+  L('  Almacenamiento utilizado : '+a.stoUsado+' TB ('+(a.stoTotal>0?Math.round(a.stoUsado/a.stoTotal*100):0)+'%)');
+  L('  Crecimiento mensual      : '+a.crecMes+' GB/mes');
+  L('  Tipo de almacenamiento   : '+a.tipoAct);
+  L('  Cifrado                  : '+a.cifrado);
+  L('');
+  L('  RETENCIÓN DE DATOS:');
+  L('  Período de retención     : '+a.retAnios+' años');
+  L('  Base legal / normativa   : '+(a.baseLegal||'—'));
+  L('  Volumen en retención     : '+a.retVolAct+' TB');
+  L('  Soporte de retención     : '+a.tipoRet);
+  if(a.clasif&&a.clasif.length){L('  Tipos de datos            : '+a.clasif.join(', '));}
+  if(a.dedup>0){L('  Deduplicación/compresión  : '+a.dedup+'%');}
+  L('');
+  if(a.backup){L('  Política de copia de seguridad:');wrapText(a.backup,lineas,4);L('');}
+  if(a.obs){L('  Observaciones:');wrapText(a.obs,lineas,4);L('');}
+  if(a.accion&&a.accion!=='ninguna'){
+    L('  ACCIÓN PLANIFICADA:');
+    L('  → Tipo         : '+a.accion);
+    L('  → Fecha impl.  : '+(a.fechaImpl||'[Por definir]'));
+    L('  → Coste estim. : '+(a.coste?fmt(a.coste)+' €':'[Por valorar]'));
+    L('');
+  }
+
+  // ── 3. COMUNICACIONES
+  L(sep80d);
+  L('  3. NECESIDADES DE COMUNICACIÓN');
+  L(sep80d);
+  L('');
+  var c2=e.comunicaciones;
+  L('  Ancho de banda disponible: '+c2.bwAct+' Mbps');
+  L('  Uso medio BW             : '+c2.bwUso+'%');
+  L('  Latencia media           : '+c2.latencia+' ms');
+  L('  Tipo de conexión         : '+c2.tipoConex);
+  L('  Segmentación de red      : '+c2.segmenta);
+  L('  Cifrado comunicaciones   : '+c2.cifrado);
+  L('  Redundancia de enlace    : '+c2.redundancia);
+  if(c2.bwNec>0){
+    L('');
+    L('  PROYECCIÓN A '+hte+' MESES:');
+    L('  → BW necesario: '+c2.bwNec+' Mbps (margen '+c2.margen+'%)');
+    if(c2.bwNec>c2.bwAct)L('  ⚠ DÉFICIT BW: '+fmt(c2.bwNec-c2.bwAct,0)+' Mbps adicionales requeridos');
+  }
+  L('');
+  if(c2.flujos){L('  Flujos críticos:');wrapText(c2.flujos,lineas,4);L('');}
+  if(c2.externo){L('  Conexiones externas:');wrapText(c2.externo,lineas,4);L('');}
+  if(c2.obs){L('  Observaciones:');wrapText(c2.obs,lineas,4);L('');}
+  if(c2.accion&&c2.accion!=='ninguna'){
+    L('  ACCIÓN PLANIFICADA:');
+    L('  → Tipo         : '+c2.accion);
+    L('  → Fecha impl.  : '+(c2.fechaImpl||'[Por definir]'));
+    L('  → Coste estim. : '+(c2.coste?fmt(c2.coste)+' €':'[Por valorar]'));
+    L('');
+  }
+
+  // ── 4. PERSONAL
+  L(sep80d);
+  L('  4. NECESIDADES DE PERSONAL');
+  L(sep80d);
+  L('');
+  var per=e.personal;
+  L('  Cobertura horaria requerida: '+per.horario);
+  L('');
+  if(per.perfiles&&per.perfiles.length){
+    L('  PERFILES DE PERSONAL:');
+    L('  '+padR('Puesto',30)+padR('Actual',8)+padR('Nec.',8)+padR('Déficit',10)+'Nivel');
+    L('  '+sep80d.substring(0,70));
+    var totalDef=0;
+    per.perfiles.forEach(function(p2){
+      var def=Math.max(0,p2.necesario-p2.actual);totalDef+=def;
+      L('  '+padR(p2.puesto,30)+padR(p2.actual,8)+padR(p2.necesario,8)+padR(def>0?'⚠ '+def:'OK',10)+p2.nivel);
+    });
+    L('  '+sep80d.substring(0,70));
+    L('  DÉFICIT TOTAL: '+(totalDef>0?totalDef+' puesto(s) sin cubrir':'Sin déficit ✓'));
+    L('');
+  }
+  if(per.certif){L('  Certificaciones requeridas:');wrapText(per.certif,lineas,4);L('');}
+  if(per.formacion){L('  Plan de formación:');wrapText(per.formacion,lineas,4);L('');}
+  if(per.external){L('  Funciones externalizadas:');wrapText(per.external,lineas,4);L('');}
+
+  // ── 5. INSTALACIONES
+  L(sep80d);
+  L('  5. NECESIDADES DE INSTALACIONES Y MEDIOS AUXILIARES');
+  L(sep80d);
+  L('');
+  var ins=e.instalaciones;
+  L('  Tipo de instalación      : '+ins.tipo);
+  if(ins.tier)L('  Nivel Tier CPD           : Tier '+ins.tier);
+  L('  Rack disponible          : '+ins.rackAct+' U');
+  L('  Rack utilizado           : '+ins.rackUso+' U ('+(ins.rackAct>0?Math.round(ins.rackUso/ins.rackAct*100):0)+'%)');
+  if(ins.rackNec>0){
+    L('  Rack necesario (horizonte): '+ins.rackNec+' U');
+    if(ins.rackNec>ins.rackAct)L('  ⚠ DÉFICIT RACK: '+fmt(ins.rackNec-ins.rackAct,0)+' U adicionales');
+  }
+  L('');
+  L('  ALIMENTACIÓN ELÉCTRICA:');
+  L('  Potencia contratada      : '+ins.elecKW+' kW');
+  L('  Consumo actual           : '+ins.elecUso+' kW');
+  if(ins.pue>0)L('  PUE                      : '+ins.pue);
+  L('  SAI / UPS                : '+ins.sai);
+  L('');
+  L('  CLIMATIZACIÓN:');
+  L('  Refrigeración disponible : '+ins.refKW+' kW · '+ins.refTipo);
+  if(ins.temp>0)L('  Temperatura operativa    : '+ins.temp+' °C · Humedad: '+ins.humedad+'%');
+  L('  Monitorización ambiental : '+ins.monitAmb);
+  L('');
+  L('  SEGURIDAD FÍSICA:');
+  L('  Control acceso físico    : '+ins.accFisico);
+  L('  CCTV                     : '+ins.cctv);
+  L('  Detección/extinción inc. : '+ins.incendio);
+  if(ins.obs){L('');L('  Observaciones:');wrapText(ins.obs,lineas,4);}
+  if(ins.accion&&ins.accion!=='ninguna'){
+    L('');
+    L('  ACCIÓN PLANIFICADA:');
+    L('  → Tipo         : '+ins.accion);
+    L('  → Fecha impl.  : '+(ins.fechaImpl||'[Por definir]'));
+    L('  → Coste estim. : '+(ins.coste?fmt(ins.coste)+' €':'[Por valorar]'));
+  }
+  L('');
+
+  // ── RESUMEN DE ACCIONES
+  L(sep80);
+  L('  RESUMEN EJECUTIVO — TABLA DE ACCIONES DEL PLAN DE CAPACIDAD');
+  L(sep80);
+  L('');
+  var acciones=[];
+  if(p.accion&&p.accion!=='ninguna')acciones.push({dim:'Procesamiento',accion:p.accion,fecha:p.fechaImpl,coste:p.coste,resp:p.responsable});
+  if(a.accion&&a.accion!=='ninguna')acciones.push({dim:'Almacenamiento',accion:a.accion,fecha:a.fechaImpl,coste:a.coste,resp:'—'});
+  if(c2.accion&&c2.accion!=='ninguna')acciones.push({dim:'Comunicaciones',accion:c2.accion,fecha:c2.fechaImpl,coste:c2.coste,resp:'—'});
+  if(ins.accion&&ins.accion!=='ninguna')acciones.push({dim:'Instalaciones',accion:ins.accion,fecha:ins.fechaImpl,coste:ins.coste,resp:'—'});
+  var deficitPers=per.perfiles.reduce(function(a2,pp){return a2+Math.max(0,pp.necesario-pp.actual);},0);
+  if(deficitPers>0)acciones.push({dim:'Personal',accion:'Cubrir '+deficitPers+' puesto(s) con déficit',fecha:'',coste:0,resp:'RRHH'});
+  if(acciones.length){
+    var totalCoste=acciones.reduce(function(a2,ac){return a2+ac.coste;},0);
+    L('  '+padR('Dimensión',18)+padR('Acción',35)+padR('Fecha',12)+padR('Coste (€)',12)+'Responsable');
+    L('  '+sep80d.substring(0,78));
+    acciones.forEach(function(ac){
+      L('  '+padR(ac.dim,18)+padR(ac.accion,35)+padR(ac.fecha||'—',12)+padR(ac.coste>0?fmt(ac.coste):'—',12)+(ac.resp||'—'));
+    });
+    L('  '+sep80d.substring(0,78));
+    L('  COSTE TOTAL ESTIMADO: '+fmt(totalCoste)+' €');
+    L('');
+  } else {
+    L('  ✓ No se han identificado acciones correctoras. La capacidad actual es suficiente.');
+    L('');
+  }
+
+  // ── CONCLUSIONES
+  L(sep80d);
+  L('  CONCLUSIONES Y RECOMENDACIONES DEL RESPONSABLE DE SEGURIDAD');
+  L(sep80d);
+  L('');
+  wrapText(conclusiones,lineas,2);
+  L('');
+  L(sep80d);
+  L('  FIRMAS Y APROBACIÓN');
+  L(sep80d);
+  L('');
+  L('  Elaborado por  : '+(e.responsable||'—'));
+  L('  Aprobado por   : '+aprobador);
+  L('  Fecha aprobac. : '+fechaApro);
+  L('');
+  L('  Firma responsable del sistema:');
+  L('');
+  L('  _____________________________________________   Fecha: _______________');
+  L('');
+  L('  Firma Responsable de Seguridad:');
+  L('');
+  L('  _____________________________________________   Fecha: _______________');
+  L('');
+  L(sep80);
+  L('  Documento generado con CapacidadENS v1 · ENS op.pl.4 · RD 311/2022');
+  L('  Procesamiento 100% local — Sin transferencia de datos');
+  L(sep80);
+
+  gi('planOutput').textContent=lineas.join('\n');
+
+  // Tabla de acciones visual
+  renderTablaAcciones(acciones);
+
+  // Incrementar contador de planes
+  e.planesGenerados=(e.planesGenerados||0)+1;
+  guardar();
+  addLog('ok','📄 Plan de capacidad generado: '+e.id);
+  toast('Plan generado · '+acciones.length+' acción(es)','ok');
+}
+
+function padR(s,n){s=String(s);return s.length>=n?s.substring(0,n-1)+' ':s+' '.repeat(n-s.length);}
+
+function wrapText(text,lineas,indent){
+  var ind=' '.repeat(indent);
+  var words=(text||'').split(/\s+/);
+  var line=ind;
+  words.forEach(function(w){
+    if(!w)return;
+    if(line.length+w.length>78){lineas.push(line);line=ind+w+' ';}
+    else{line+=w+' ';}
+  });
+  if(line.trim())lineas.push(line);
+}
+
+function renderTablaAcciones(acciones){
+  var c=gi('tablaAcciones');
+  if(!acciones.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin acciones correctoras</div><div class="empty-sub">La capacidad actual cubre las necesidades proyectadas</div></div>';return;}
+  var totalCoste=acciones.reduce(function(a,ac){return a+ac.coste;},0);
+  var h='<table class="data-table"><thead><tr><th>Dimensión</th><th>Acción</th><th>Fecha estimada</th><th>Coste estimado</th><th>Responsable</th></tr></thead><tbody>';
+  acciones.forEach(function(ac){
+    h+='<tr><td><span class="badge badge-info">'+esc(ac.dim)+'</span></td><td>'+esc(ac.accion)+'</td><td class="mono">'+(ac.fecha||'—')+'</td><td class="mono">'+(ac.coste>0?fmt(ac.coste)+' €':'—')+'</td><td>'+esc(ac.resp||'—')+'</td></tr>';
+  });
+  h+='<tr style="background:var(--surface2)"><td colspan="3" style="text-align:right;font-weight:700;font-size:.78rem;color:var(--teal-deep)">COSTE TOTAL ESTIMADO</td><td class="mono" style="font-weight:700;color:var(--teal-deep)">'+fmt(totalCoste)+' €</td><td></td></tr>';
+  h+='</tbody></table>';
+  c.innerHTML=h;
+}
+
+function copiarPlan(){
+  var txt=gi('planOutput').textContent;
+  if(!txt||txt.indexOf('Selecciona')===0){toast('Genera el plan primero','warn');return;}
+  navigator.clipboard.writeText(txt).then(function(){toast('Plan copiado al portapapeles','ok');}).catch(function(){toast('Error al copiar','err');});
+}
+
+function exportarPlan(){
+  var txt=gi('planOutput').textContent;
+  if(!txt||txt.indexOf('Selecciona')===0){toast('Genera el plan primero','warn');return;}
+  var id=v('selEstPlan')||'plan';
+  var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plan-capacidad-'+id+'.txt';a.click();
+  toast('Plan exportado como TXT','ok');
+}
+
+// ─────────────────────────────────────────────
+//  EXPORTAR / IMPORTAR JSON
+// ─────────────────────────────────────────────
+function exportarJSON(){
+  if(!estudios.length){toast('No hay estudios que exportar','warn');return;}
+  var data={_meta:{tool:'CapacidadENS',version:'1',exportadoEn:new Date().toISOString(),norma:'ENS op.pl.4'},counter:counter,estudios:estudios};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='capacidad-ens-'+hoy()+'.json';a.click();
+  addLog('ok','⬆ Exportados '+estudios.length+' estudio(s)');
+  toast('Exportados '+estudios.length+' estudio(s)','ok');
+}
+
+function abrirImportar(){
+  impParsed=null;
+  gi('impPreview').style.display='none';gi('impOps').style.display='none';gi('impAcciones').style.display='none';gi('avisoReemplazar').style.display='none';
+  var r=document.querySelector('input[name="impModo"][value="combinar"]');if(r)r.checked=true;
+  gi('modalImportar').classList.add('open');
+}
+function cerrarImportar(){gi('modalImportar').classList.remove('open');gi('fileJSON').value='';}
+
+document.querySelectorAll('input[name="impModo"]').forEach(function(r){
+  r.addEventListener('change',function(){gi('avisoReemplazar').style.display=r.value==='reemplazar'&&r.checked?'block':'none';});
+});
+
+function leerFicheroImport(file){
+  if(!file)return;
+  if(!file.name.endsWith('.json')){toast('Solo ficheros .json','err');return;}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var raw=JSON.parse(ev.target.result);
+      if(!raw._meta||!Array.isArray(raw.estudios))throw new Error('Formato no reconocido');
+      impParsed={lista:raw.estudios,counter:raw.counter||0};
+      gi('impPreview').style.display='block';
+      gi('impPreview').innerHTML='<strong style="color:var(--teal-deep)">✔ Fichero válido</strong><br>'
+        +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:.72rem">'+raw.estudios.length+' estudio(s) · Exportado: '+(raw._meta.exportadoEn||'').split('T')[0]+'</span>';
+      gi('impOps').style.display='block';gi('impAcciones').style.display='flex';
+    }catch(er){
+      gi('impPreview').style.display='block';gi('impPreview').innerHTML='<span style="color:var(--red)">✕ Error: '+er.message+'</span>';
+      toast('Error al leer: '+er.message,'err');
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function confirmarImportar(){
+  if(!impParsed){toast('No hay fichero cargado','warn');return;}
+  var modoEl=document.querySelector('input[name="impModo"]:checked');
+  var modo=modoEl?modoEl.value:'combinar';
+  var lista=impParsed.lista.map(normalizarEst);
+  var importados=0,omitidos=0;
+  if(modo==='reemplazar'){estudios=lista;importados=lista.length;counter=impParsed.counter;}
+  else{var ids={};estudios.forEach(function(e){ids[e.id]=true;});lista.forEach(function(e){if(!ids[e.id]){estudios.push(e);importados++;}else{omitidos++;}});var maxId=Math.max.apply(null,estudios.map(function(e){return parseInt((e.id||'').replace(/\D/g,''))||0;}).concat([0]));if(maxId>counter)counter=maxId;}
+  guardar();cerrarImportar();
+  addLog('ok','⬇ '+importados+' importado(s)'+(omitidos?' · '+omitidos+' omitido(s)':''));
+  toast(importados+' importado(s)'+(omitidos?', '+omitidos+' omitido(s)':''),'ok');
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+gi('nFecha').value=hoy();
+gi('planFechaApro').value=hoy();
+renderPerfiles();
+actualizarStats();
+actualizarSelects();
+renderTabla();
+renderDashCapacidad();
+addLog('info','CapacidadENS v1 iniciado · Procesamiento 100% local · ENS op.pl.4');
+</script>
+</body>
+</html>
