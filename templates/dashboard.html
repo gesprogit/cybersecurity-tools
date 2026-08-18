@@ -24,6 +24,7 @@
   .s2 .herr { border-left-color:#34d399; }
   .s3 .herr { border-left-color:#fbbf24; }
   .s4 .herr { border-left-color:#a78bfa; }
+  .s5 .herr { border-left-color:#f87171; }
   .cab { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
   .icono { font-size:26px; }
   .herr h3 { font-size:15px; color:#f1f5f9; }
@@ -50,7 +51,7 @@
         <a class="herr" href="/tool/metalimpio">
           <div class="cab"><span class="icono">🧹</span><h3>MetaLimpio ENS</h3></div>
           <div class="norma">CCN-STIC-835 · [mp.info.5]</div>
-          <p class="desc">Inspección y borrado de metadatos y datos ocultos en documentos electrónicos.</p>
+          <p class="desc">Inspección y borrado de metadatos y datos ocultos en documentos.</p>
           <span class="badge">✅ Disponible</span>
         </a>
         <a class="herr" href="/tool/anonimizador">
@@ -68,7 +69,7 @@
         <a class="herr" href="/tool/passpolicy">
           <div class="cab"><span class="icono">🔐</span><h3>PassPolicy ENS</h3></div>
           <div class="norma">CCN-STIC-807 · CCN-STIC-140</div>
-          <p class="desc">Verificación y generación de contraseñas conformes al ENS. Exporta GPO/PAM.</p>
+          <p class="desc">Verificación y generación de contraseñas. Exporta GPO/PAM.</p>
           <span class="badge">✅ Disponible</span>
         </a>
         <a class="herr" href="/tool/tls_checker">
@@ -77,52 +78,88 @@
           <p class="desc">Verificador de cifrado y protocolos TLS/SSL con mapeo RGPD.</p>
           <span class="badge">✅ Disponible</span>
         </a>
+        <a class="herr" href="/tool/securevault">
+          <div class="cab"><span class="icono">🗄️</span><h3>CCN SecureVault</h3></div>
+          <div class="norma">CCN-STIC-807 · CAT-R</div>
+          <p class="desc">Cifrado local de archivos AES-256-GCM / ChaCha20 (CAT-R).</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
       </div>
     </div>
 
     <div class="seccion s3">
-      <h2>🗂 Gestión operacional ENS</h2>
+      <h2>🛠️ Gestión operacional ENS</h2>
       <div class="rejilla">
         <a class="herr" href="/tool/ciberlog">
           <div class="cab"><span class="icono">🚨</span><h3>CiberLog ENS</h3></div>
           <div class="norma">CCN-STIC-817 · ENS art. 24</div>
-          <p class="desc">Registro, evaluación de impacto y notificación obligatoria de ciberincidentes.</p>
+          <p class="desc">Registro, evaluación y notificación de ciberincidentes.</p>
           <span class="badge">✅ Disponible</span>
         </a>
         <a class="herr" href="/tool/cambiolog">
           <div class="cab"><span class="icono">📝</span><h3>CambioLog ENS</h3></div>
           <div class="norma">ENS op.exp.5 · RD 311/2022</div>
-          <p class="desc">Gestión del cambio: riesgos, autorización RSEG, pruebas y trazabilidad.</p>
+          <p class="desc">Gestión del cambio: riesgos, autorización RSEG y trazabilidad.</p>
           <span class="badge">✅ Disponible</span>
         </a>
         <a class="herr" href="/tool/biacalc">
           <div class="cab"><span class="icono">📊</span><h3>BIACalc</h3></div>
           <div class="norma">Continuidad de servicio · BIA</div>
-          <p class="desc">Análisis de impacto en el negocio, RTO/RPO y planes de continuidad.</p>
+          <p class="desc">Análisis de impacto, RTO/RPO y planes de continuidad.</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
+        <a class="herr" href="/tool/capacidad">
+          <div class="cab"><span class="icono">📈</span><h3>CapacidadENS</h3></div>
+          <div class="norma">ENS op.pl.4 · RD 311/2022</div>
+          <p class="desc">Dimensionamiento y Plan de Capacidad en 5 dimensiones.</p>
           <span class="badge">✅ Disponible</span>
         </a>
       </div>
     </div>
 
     <div class="seccion s4">
-      <h2>🧑‍ Desarrollo y bastionado</h2>
+      <h2>🧭 Gobierno y planificación</h2>
       <div class="rejilla">
-        <a class="herr" href="/tool/securedev">
-          <div class="cab"><span class="icono">💻</span><h3>SecureDev Analyzer</h3></div>
-          <div class="norma">CCN-CERT BP/28 · OWASP 2025</div>
-          <p class="desc">Análisis estático de código seguro con mapeo OWASP y controles ENS.</p>
+        <a class="herr" href="/tool/secinv">
+          <div class="cab"><span class="icono">🗂️</span><h3>SecInv</h3></div>
+          <div class="norma">Inventario de activos · ENS</div>
+          <p class="desc">Catálogo de activos: hardware, software, redes, datos, personas.</p>
           <span class="badge">✅ Disponible</span>
         </a>
-        <a class="herr" href="/tool/checklist_bastionado">
-          <div class="cab"><span class="icono">🧾</span><h3>Checklist de Bastionado</h3></div>
-          <div class="norma">ENS · CCN-STIC</div>
-          <p class="desc">Generador de checklists de bastionado auditable con IA (Anthropic/OpenRouter).</p>
+        <a class="herr" href="/tool/evaluacion">
+          <div class="cab"><span class="icono">🧭</span><h3>Evaluación de Proyectos</h3></div>
+          <div class="norma">Análisis de riesgos CID · ENS</div>
+          <p class="desc">Evaluación de seguridad temprana de nuevos proyectos.</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
+        <a class="herr" href="/tool/ticadq">
+          <div class="cab"><span class="icono">🛒</span><h3>TICAdq</h3></div>
+          <div class="norma">Adquisiciones TIC · ENS</div>
+          <p class="desc">Ciclo de adquisición: técnico, formación, financiación, riesgos.</p>
           <span class="badge">✅ Disponible</span>
         </a>
       </div>
     </div>
 
-    <p class="estado">🔒 9 herramientas · Acceso con credenciales · Originales sin modificar · Actualización automática activa</p>
+    <div class="seccion s5">
+      <h2>🧑‍💻 Desarrollo y bastionado</h2>
+      <div class="rejilla">
+        <a class="herr" href="/tool/securedev">
+          <div class="cab"><span class="icono">💻</span><h3>SecureDev Analyzer</h3></div>
+          <div class="norma">CCN-CERT BP/28 · OWASP 2025</div>
+          <p class="desc">Análisis estático de código seguro con mapeo OWASP y ENS.</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
+        <a class="herr" href="/tool/checklist_bastionado">
+          <div class="cab"><span class="icono">🧾</span><h3>Checklist de Bastionado</h3></div>
+          <div class="norma">ENS · CCN-STIC</div>
+          <p class="desc">Generador de checklists de bastionado auditable con IA.</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
+      </div>
+    </div>
+
+    <p class="estado">🔒 14 herramientas · Acceso con credenciales · Originales sin modificar · Actualización automática activa</p>
   </main>
 </body>
 </html>
