@@ -1,0 +1,3153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIACalc — Continuidad de Servicio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --ink:       #111318;
+  --ink-2:     #2b2f3a;
+  --ink-3:     #4a5168;
+  --ink-4:     #7a8199;
+  --rule:      #e2e5ef;
+  --rule-2:    #f0f2f9;
+  --paper:     #f7f8fc;
+  --white:     #ffffff;
+
+  --blue-dk:   #1a2c5e;
+  --blue-md:   #2a4db5;
+  --blue:      #3b68e0;
+  --blue-lt:   #7fa4f5;
+  --blue-bg:   #eef2fd;
+
+  --amber-dk:  #7a4200;
+  --amber:     #e07c00;
+  --amber-lt:  #f5b742;
+  --amber-bg:  #fff4e0;
+
+  --red-dk:    #6b1212;
+  --red:       #d42b2b;
+  --red-lt:    #f58080;
+  --red-bg:    #fff0f0;
+
+  --green-dk:  #14502e;
+  --green:     #1e9150;
+  --green-lt:  #6dcc9a;
+  --green-bg:  #e8f8ef;
+
+  --teal-dk:   #0e454a;
+  --teal:      #1a8a96;
+  --teal-lt:   #6dd4de;
+  --teal-bg:   #e4f7f9;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', 'Courier New', monospace;
+
+  --radius:    10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 4px rgba(17,19,24,0.06), 0 0 0 1px rgba(17,19,24,0.04);
+  --shadow-md: 0 4px 16px rgba(17,19,24,0.10), 0 0 0 1px rgba(17,19,24,0.04);
+  --shadow-lg: 0 12px 40px rgba(17,19,24,0.16), 0 0 0 1px rgba(17,19,24,0.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════ */
+.topbar {
+  background: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 24px;
+  height: 56px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  background: var(--blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.logo-tagline {
+  font-size: 11px;
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  border-left: 1px solid #333;
+  padding-left: 14px;
+  margin-left: 2px;
+  letter-spacing: 0.03em;
+}
+
+.topbar-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.tstat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ccc;
+}
+
+.tstat-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.tstat-num {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* ══════════════════════════════════════
+   NAV TABS
+══════════════════════════════════════ */
+.nav-tabs {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  padding: 0 28px;
+  gap: 0;
+  position: sticky;
+  top: 56px;
+  z-index: 190;
+  box-shadow: var(--shadow-sm);
+}
+
+.ntab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 20px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-4);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.ntab:hover { color: var(--ink-2); border-bottom-color: var(--rule); }
+.ntab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+
+.ntab-icon { font-size: 15px; }
+.ntab-badge {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.ntab.active .ntab-badge { background: var(--blue); color: #fff; }
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+.page {
+  display: none;
+  flex: 1;
+}
+.page.active { display: flex; flex-direction: column; }
+
+.inner {
+  max-width: 1260px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 32px 28px;
+}
+
+/* ══════════════════════════════════════
+   PAGE HEADERS
+══════════════════════════════════════ */
+.ph {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ph-left h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.ph-left p {
+  font-size: 13px;
+  color: var(--ink-4);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.ph-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.14s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue-md);
+  box-shadow: 0 1px 4px rgba(59,104,224,0.25);
+}
+.btn-primary:hover { background: var(--blue-md); }
+
+.btn-outline {
+  background: var(--white);
+  color: var(--ink-2);
+  border-color: var(--rule);
+  box-shadow: var(--shadow-sm);
+}
+.btn-outline:hover { border-color: var(--ink-4); background: var(--paper); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-3);
+  border-color: transparent;
+}
+.btn-ghost:hover { background: var(--rule-2); }
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red-lt);
+}
+.btn-danger:hover { background: var(--red-bg); }
+
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 6px; }
+
+/* ══════════════════════════════════════
+   CARDS & PANELS
+══════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-body { padding: 20px; }
+.card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--rule-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ══════════════════════════════════════
+   FORM ELEMENTS
+══════════════════════════════════════ */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: var(--font-mono);
+}
+
+.field-input, .field-select, .field-textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--blue-lt);
+  box-shadow: 0 0 0 3px rgba(59,104,224,0.1);
+}
+.field-textarea { resize: vertical; min-height: 72px; }
+.field-hint { font-size: 11px; color: var(--ink-4); }
+
+/* ══════════════════════════════════════
+   TAB 1 — SERVICES
+══════════════════════════════════════ */
+.services-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.svc-row {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s;
+}
+.svc-row:hover { box-shadow: var(--shadow-md); }
+
+.svc-row-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.svc-row-header:hover { background: var(--rule-2); }
+
+.svc-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--rule-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+.svc-info { flex: 1; min-width: 0; }
+.svc-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+.svc-meta { font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+
+.svc-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.tag-tic   { background: var(--blue-bg);  color: var(--blue-md);  border-color: var(--blue-lt); }
+.tag-neg   { background: var(--teal-bg);  color: var(--teal-dk);  border-color: var(--teal-lt); }
+.tag-sop   { background: var(--green-bg); color: var(--green-dk); border-color: var(--green-lt); }
+.tag-ext   { background: #f5f0ff; color: #5a2d9e; border-color: #c4a3e8; }
+
+.svc-crit-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.crit-alto   { background: var(--red-bg);   color: var(--red-dk);   border-color: var(--red-lt); }
+.crit-medio  { background: var(--amber-bg); color: var(--amber-dk); border-color: var(--amber-lt); }
+.crit-bajo   { background: var(--green-bg); color: var(--green-dk); border-color: var(--green-lt); }
+.crit-nd     { background: var(--rule-2);   color: var(--ink-4);    border-color: var(--rule); }
+
+.svc-chevron {
+  color: var(--ink-4);
+  transition: transform 0.2s;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.svc-row.open .svc-chevron { transform: rotate(90deg); }
+
+.svc-row-body {
+  display: none;
+  border-top: 1px solid var(--rule-2);
+}
+.svc-row.open .svc-row-body { display: block; }
+
+/* Editing panel inside svc row */
+.svc-edit-panel {
+  padding: 20px;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.fg-full { grid-column: 1 / -1; }
+
+.svc-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--white);
+  border-top: 1px solid var(--rule-2);
+  gap: 8px;
+}
+
+/* ══════════════════════════════════════
+   TAB 2 — IMPACT ANALYSIS
+══════════════════════════════════════ */
+.analysis-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.analysis-nav {
+  position: sticky;
+  top: 120px;
+}
+
+.anav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.anav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.12s;
+  font-size: 13px;
+}
+
+.anav-item:hover { background: var(--rule-2); }
+.anav-item.active { background: var(--blue-bg); color: var(--blue-md); font-weight: 500; }
+
+.anav-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  flex-shrink: 0;
+}
+
+.anav-item.done .anav-dot   { background: var(--green); border-color: var(--green); }
+.anav-item.active .anav-dot { background: var(--blue); border-color: var(--blue); }
+
+.anav-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.anav-crit { font-size: 10px; font-family: var(--font-mono); }
+
+/* Impact panel */
+.impact-panel { display: flex; flex-direction: column; gap: 20px; }
+
+.impact-card { background: var(--white); border: 1px solid var(--rule); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+
+.impact-card-header {
+  padding: 16px 22px;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.impact-card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.impact-card-meta { font-size: 11px; color: #aaa; font-family: var(--font-mono); margin-top: 1px; }
+
+/* Availability section */
+.avail-section { padding: 22px; border-bottom: 1px solid var(--rule-2); }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* Time frames grid */
+.tf-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tf-col { display: flex; flex-direction: column; gap: 6px; }
+
+.tf-label {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  padding: 6px 4px;
+  background: var(--paper);
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+}
+
+.tf-impact-sel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.imp-btn {
+  width: 100%;
+  padding: 7px 4px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.13s;
+  text-align: center;
+  letter-spacing: 0.04em;
+  background: var(--white);
+}
+
+.imp-btn-bajo  { border-color: var(--rule); color: var(--ink-4); }
+.imp-btn-medio { border-color: var(--rule); color: var(--ink-4); }
+.imp-btn-alto  { border-color: var(--rule); color: var(--ink-4); }
+.imp-btn-critico { border-color: var(--rule); color: var(--ink-4); }
+
+.imp-btn-bajo.sel  { background: var(--green-bg);  border-color: var(--green-lt);  color: var(--green-dk); }
+.imp-btn-medio.sel { background: var(--amber-bg);  border-color: var(--amber-lt);  color: var(--amber-dk); }
+.imp-btn-alto.sel  { background: var(--red-bg);    border-color: var(--red-lt);    color: var(--red-dk); }
+.imp-btn-critico.sel { background: #1a0a2e; border-color: #5a2d9e; color: #e0d0f5; }
+
+.imp-btn:hover { transform: scale(1.03); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+/* Impact description */
+.imp-desc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* Availability params */
+.avail-params {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.avail-box {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: var(--paper);
+}
+
+.avail-box-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-4);
+  margin-bottom: 6px;
+}
+
+.avail-box-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.avail-box-sub { font-size: 11px; color: var(--ink-4); margin-top: 3px; }
+
+.avail-box-input {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  border: none;
+  border-bottom: 2px solid var(--rule);
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 2px 0;
+  transition: border-color 0.14s;
+}
+.avail-box-input:focus { border-bottom-color: var(--blue); }
+
+/* ══════════════════════════════════════
+   CRITICAL ELEMENTS
+══════════════════════════════════════ */
+.critical-section { padding: 22px; border-bottom: 1px solid var(--rule-2); }
+
+.crit-elements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.crit-element {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.crit-element-type {
+  flex-shrink: 0;
+}
+
+.crit-element-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.crit-element-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+
+.crit-el-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-body);
+  padding: 0;
+  border-bottom: 1px dashed var(--rule);
+  transition: border-color 0.14s;
+}
+.crit-el-name:focus { border-bottom-color: var(--blue); }
+.crit-el-name::placeholder { color: var(--ink-4); }
+
+.crit-el-desc {
+  font-size: 12px;
+  color: var(--ink-4);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-body);
+  padding: 0;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.14s;
+}
+.crit-el-desc:focus { border-bottom-color: var(--rule); }
+
+.crit-el-type-sel {
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: var(--white);
+  color: var(--ink-2);
+  cursor: pointer;
+  outline: none;
+}
+
+.crit-el-impact-sel {
+  display: flex;
+  gap: 4px;
+}
+
+.crit-el-impact-btn {
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  background: var(--white);
+  color: var(--ink-4);
+  transition: all 0.12s;
+}
+
+.crit-el-impact-btn.alto   { }
+.crit-el-impact-btn.sel-alto   { background: var(--red-bg);   border-color: var(--red-lt);   color: var(--red-dk); }
+.crit-el-impact-btn.sel-medio  { background: var(--amber-bg); border-color: var(--amber-lt); color: var(--amber-dk); }
+.crit-el-impact-btn.sel-bajo   { background: var(--green-bg); border-color: var(--green-lt); color: var(--green-dk); }
+
+.crit-add-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.crit-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink-4);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.13s;
+  font-family: var(--font-body);
+}
+.crit-add-btn:hover { background: var(--rule-2); border-color: var(--ink-4); color: var(--ink-2); }
+
+/* ══════════════════════════════════════
+   TAB 3 — CONTINUITY PLANS
+══════════════════════════════════════ */
+.plan-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.plan-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.plan-header {
+  padding: 16px 22px;
+  background: var(--ink-2);
+  color: #fff;
+}
+
+.plan-title { font-family: var(--font-display); font-size: 17px; }
+.plan-subtitle { font-size: 11px; color: #aaa; margin-top: 2px; font-family: var(--font-mono); }
+
+.plan-meta-bar {
+  padding: 12px 22px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.plan-meta-item { display: flex; flex-direction: column; gap: 3px; }
+.plan-meta-label { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.07em; }
+.plan-meta-val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink); }
+.plan-meta-input {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  border: none;
+  border-bottom: 1px dashed var(--rule);
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 0;
+}
+.plan-meta-input:focus { border-bottom-color: var(--blue); }
+
+/* Plan sections */
+.plan-section { padding: 20px 22px; border-bottom: 1px solid var(--rule-2); }
+.plan-section:last-child { border-bottom: none; }
+
+/* Action steps */
+.action-list { display: flex; flex-direction: column; gap: 8px; }
+
+.action-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  align-items: flex-start;
+  position: relative;
+}
+
+.action-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: #fff;
+}
+
+.action-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+
+.action-title-input {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-body);
+  border-bottom: 1px dashed var(--rule);
+  padding: 0 0 2px;
+  transition: border-color 0.14s;
+}
+.action-title-input:focus { border-bottom-color: var(--blue); }
+.action-title-input::placeholder { color: var(--ink-4); font-weight: 400; }
+
+.action-desc-input {
+  font-size: 12px;
+  color: var(--ink-3);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-body);
+  resize: none;
+  min-height: 38px;
+  line-height: 1.5;
+  padding: 0;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.14s;
+}
+.action-desc-input:focus { border-bottom-color: var(--rule); }
+.action-desc-input::placeholder { color: var(--ink-4); }
+
+.action-meta-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-meta-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+.action-meta-input {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  border: none;
+  border-bottom: 1px dashed var(--rule);
+  background: transparent;
+  outline: none;
+  width: 100px;
+  padding: 0;
+}
+.action-meta-input:focus { border-bottom-color: var(--blue); }
+
+.action-phase-sel {
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: var(--white);
+  color: var(--ink-2);
+  cursor: pointer;
+  outline: none;
+}
+
+.phase-inmediata { background: var(--red-bg); border-color: var(--red-lt); color: var(--red-dk); }
+.phase-corto     { background: var(--amber-bg); border-color: var(--amber-lt); color: var(--amber-dk); }
+.phase-medio     { background: var(--blue-bg); border-color: var(--blue-lt); color: var(--blue-md); }
+.phase-largo     { background: var(--green-bg); border-color: var(--green-lt); color: var(--green-dk); }
+
+.action-del {
+  background: none;
+  border: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color 0.12s, background 0.12s;
+}
+.action-del:hover { color: var(--red); background: var(--red-bg); }
+
+.add-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border: 1.5px dashed var(--rule);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink-4);
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.13s;
+  margin-top: 8px;
+}
+.add-action-btn:hover { background: var(--rule-2); border-color: var(--ink-3); color: var(--ink-2); }
+
+/* Contacts table */
+.contacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.contacts-table th {
+  background: var(--paper);
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+}
+.contacts-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule-2);
+  vertical-align: middle;
+}
+.contacts-table tr:last-child td { border-bottom: none; }
+.contact-input {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  border-bottom: 1px dashed transparent;
+}
+.contact-input:focus { border-bottom-color: var(--rule); }
+.contact-input::placeholder { color: var(--ink-4); }
+
+/* ══════════════════════════════════════
+   TAB 4 — DASHBOARD
+══════════════════════════════════════ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.kpi-blue::before   { background: var(--blue); }
+.kpi-red::before    { background: var(--red); }
+.kpi-amber::before  { background: var(--amber); }
+.kpi-green::before  { background: var(--green); }
+
+.kpi-num {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kpi-label { font-size: 12px; color: var(--ink-4); font-weight: 500; }
+
+/* Impact matrix dashboard */
+.matrix-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.matrix-table th {
+  background: var(--ink);
+  color: #ccc;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 12px;
+  text-align: center;
+}
+.matrix-table th:first-child { text-align: left; }
+.matrix-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule-2);
+  text-align: center;
+  vertical-align: middle;
+}
+.matrix-table td:first-child { text-align: left; font-weight: 500; }
+.matrix-table tr:hover td { background: var(--paper); }
+.matrix-table tr:last-child td { border-bottom: none; }
+
+.mt-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  padding: 4px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mt-nd      { background: var(--rule-2); color: var(--ink-4); }
+.mt-bajo    { background: #c8f5dc; color: #14502e; }
+.mt-medio   { background: #ffe8a8; color: #7a4200; }
+.mt-alto    { background: #fcc8c8; color: #6b1212; }
+.mt-critico { background: #1a0a2e; color: #e0d0f5; }
+
+/* ══════════════════════════════════════
+   TAB 5 — EXPORT
+══════════════════════════════════════ */
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.exp-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.exp-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.exp-icon {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  background: var(--blue-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.exp-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.exp-desc { font-size: 12px; color: var(--ink-4); line-height: 1.6; flex: 1; }
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17,19,24,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+
+.modal-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  width: 640px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--rule);
+}
+
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--rule-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-head-title { font-family: var(--font-display); font-size: 20px; color: var(--ink); }
+
+.modal-close {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--rule-2);
+  color: var(--ink-3);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+.modal-close:hover { background: var(--rule); }
+
+.modal-body { padding: 22px 24px; }
+
+.modal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-form .fg-full { grid-column: 1 / -1; }
+
+.modal-foot {
+  padding: 14px 24px;
+  border-top: 1px solid var(--rule-2);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ══════════════════════════════════════
+   IMPACT CATEGORY GRID
+══════════════════════════════════════ */
+.impact-cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.impact-cat-card {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--white);
+  transition: box-shadow 0.15s;
+}
+.impact-cat-card:hover { box-shadow: var(--shadow-md); }
+
+.impact-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.impact-cat-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.impact-cat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.impact-cat-desc {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 1px;
+  line-height: 1.4;
+}
+
+.impact-cat-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.impact-cat-levels {
+  display: flex;
+  gap: 5px;
+}
+
+.iclvl-btn {
+  flex: 1;
+  padding: 7px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.13s;
+  text-align: center;
+  background: var(--white);
+  color: var(--ink-4);
+  line-height: 1.3;
+}
+.iclvl-btn:hover { transform: scale(1.04); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+/* selected states */
+.iclvl-btn.sel-critico    { background: #1a0a2e; border-color: #7b4bc2; color: #e0d0f5; }
+.iclvl-btn.sel-alto       { background: var(--red-bg);   border-color: var(--red-lt);   color: var(--red-dk); }
+.iclvl-btn.sel-medio      { background: var(--amber-bg); border-color: var(--amber-lt); color: var(--amber-dk); }
+.iclvl-btn.sel-bajo       { background: var(--green-bg); border-color: var(--green-lt); color: var(--green-dk); }
+.iclvl-btn.sel-despreciable { background: var(--rule-2); border-color: var(--ink-4);    color: var(--ink-2); }
+
+.impact-cat-note {
+  resize: none;
+  min-height: 52px;
+  padding: 7px 10px;
+  border: 1px solid var(--rule-2);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--paper);
+  outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+  width: 100%;
+}
+.impact-cat-note:focus {
+  border-color: var(--blue-lt);
+  box-shadow: 0 0 0 3px rgba(59,104,224,0.08);
+  background: var(--white);
+}
+.impact-cat-note::placeholder { color: var(--ink-4); }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-4);
+}
+.empty-icon { font-size: 48px; margin-bottom: 14px; }
+.empty-title { font-family: var(--font-display); font-size: 20px; color: var(--ink-3); margin-bottom: 6px; }
+.empty-desc { font-size: 13px; line-height: 1.6; }
+
+/* ══════════════════════════════════════
+   MISC
+══════════════════════════════════════ */
+.divider { height: 1px; background: var(--rule-2); margin: 20px 0; }
+
+.info-box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.info-box-blue { background: var(--blue-bg); border: 1px solid #b8d0f8; color: var(--blue-md); }
+.info-box-amber { background: var(--amber-bg); border: 1px solid #f5c878; color: var(--amber-dk); }
+
+/* RTO vs MTD alert */
+.rto-mtd-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid;
+  line-height: 1.4;
+}
+.rto-mtd-ok     { background: var(--green-bg);  border-color: var(--green-lt);  color: var(--green-dk); }
+.rto-mtd-warn   { background: var(--amber-bg);  border-color: var(--amber-lt);  color: var(--amber-dk); }
+.rto-mtd-error  { background: var(--red-bg);    border-color: var(--red-lt);    color: var(--red-dk); }
+.rto-mtd-nd     { background: var(--rule-2);    border-color: var(--rule);      color: var(--ink-4); }
+
+.rto-mtd-icon { font-size: 16px; flex-shrink: 0; }
+.rto-mtd-text strong { font-weight: 700; }
+
+#importInput { display: none; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+.fadein { animation: fadeIn 0.22s ease both; }
+
+/* plan phase legend */
+.phase-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.phase-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TOPBAR ═══════════ -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">BIA</div>
+    <div class="logo-text">BIACalc</div>
+    <div class="logo-tagline">Análisis de Impacto y Continuidad de Servicio</div>
+  </div>
+  <div class="topbar-stats">
+    <div class="tstat"><span class="tstat-dot" style="background:var(--blue)"></span>Servicios <span class="tstat-num" id="ts-total">0</span></div>
+    <div class="tstat"><span class="tstat-dot" style="background:var(--red)"></span>Criticidad alta <span class="tstat-num" id="ts-alto">0</span></div>
+    <div class="tstat"><span class="tstat-dot" style="background:var(--green)"></span>Planes definidos <span class="tstat-num" id="ts-planes">0</span></div>
+  </div>
+</div>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-tabs">
+  <button class="ntab active" onclick="goTo(0)"><span class="ntab-icon">📋</span> Servicios <span class="ntab-badge" id="nb-svc">0</span></button>
+  <button class="ntab" onclick="goTo(1)"><span class="ntab-icon">📊</span> Análisis de Impacto <span class="ntab-badge" id="nb-imp">0</span></button>
+  <button class="ntab" onclick="goTo(2)"><span class="ntab-icon">🛡</span> Planes de Continuidad <span class="ntab-badge" id="nb-plan">0</span></button>
+  <button class="ntab" onclick="goTo(3)"><span class="ntab-icon">🗺</span> Resumen</button>
+  <button class="ntab" onclick="goTo(4)"><span class="ntab-icon">⬇</span> Exportar</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 0 — SERVICIOS
+═══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-0">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Catálogo de Servicios</h1>
+        <p>Registre los servicios a analizar. Para cada uno podrá evaluar el impacto de su interrupción y definir su plan de continuidad.</p>
+      </div>
+      <div class="ph-actions">
+        <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importInput').click()">⬆ Importar JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="exportJSON()">⬇ Exportar JSON</button>
+        <button class="btn btn-primary" onclick="openModal()">+ Nuevo servicio</button>
+      </div>
+    </div>
+
+    <div class="services-grid" id="servicesGrid">
+      <div class="card card-body empty-state" id="emptySvc">
+        <div class="empty-icon">🗂</div>
+        <div class="empty-title">Sin servicios registrados</div>
+        <div class="empty-desc">Pulse "Nuevo servicio" para comenzar a construir el catálogo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 1 — ANÁLISIS DE IMPACTO
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-1">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Análisis de Impacto</h1>
+        <p>Para cada servicio: evalúe el impacto de su interrupción en distintos horizontes temporales e identifique sus elementos críticos.</p>
+      </div>
+    </div>
+
+    <div id="impactEmpty" class="card card-body empty-state" style="display:none">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No hay servicios registrados</div>
+      <div class="empty-desc">Vaya a "Servicios" y registre al menos un servicio para comenzar el análisis.</div>
+    </div>
+
+    <div class="analysis-layout" id="analysisLayout">
+      <!-- Nav lateral -->
+      <div class="analysis-nav card card-body">
+        <div class="card-title" style="margin-bottom:12px;font-size:12px">SERVICIOS</div>
+        <div class="anav-list" id="anavList"></div>
+      </div>
+      <!-- Panel principal -->
+      <div class="impact-panel" id="impactPanel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 2 — PLANES DE CONTINUIDAD
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Planes de Continuidad</h1>
+        <p>Para cada servicio, defina las acciones a ejecutar cuando se interrumpa la prestación con los medios habituales.</p>
+      </div>
+    </div>
+
+    <div id="planEmpty" class="card card-body empty-state" style="display:none">
+      <div class="empty-icon">🛡</div>
+      <div class="empty-title">No hay servicios registrados</div>
+      <div class="empty-desc">Registre servicios y complete el análisis de impacto para definir los planes de continuidad.</div>
+    </div>
+
+    <div class="plan-layout" id="planLayout">
+      <div class="analysis-nav card card-body">
+        <div class="card-title" style="margin-bottom:12px;font-size:12px">SERVICIOS</div>
+        <div class="anav-list" id="pnavList"></div>
+      </div>
+      <div id="planPanel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 3 — RESUMEN
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Resumen General</h1>
+        <p>Visión consolidada del análisis de impacto y estado de los planes de continuidad.</p>
+      </div>
+    </div>
+    <div class="dashboard-grid" id="dashKPIs">
+      <div class="kpi-card kpi-blue"><div class="kpi-num" id="d-total">0</div><div class="kpi-label">Servicios analizados</div></div>
+      <div class="kpi-card kpi-red"><div class="kpi-num" id="d-alto">0</div><div class="kpi-label">Criticidad alta</div></div>
+      <div class="kpi-card kpi-amber"><div class="kpi-num" id="d-medio">0</div><div class="kpi-label">Criticidad media</div></div>
+      <div class="kpi-card kpi-green"><div class="kpi-num" id="d-planes">0</div><div class="kpi-label">Planes definidos</div></div>
+    </div>
+    <div class="matrix-card" id="matrixCard">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--rule-2);display:flex;align-items:center;gap:8px">
+        <div class="card-title">Matriz de Impacto por Horizonte Temporal</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="matrix-table" id="matrixTable">
+          <thead><tr>
+            <th style="min-width:200px">Servicio</th>
+            <th>1 hora</th><th>4 horas</th><th>8 horas</th><th>24 horas</th><th>72 horas</th><th>1 semana</th>
+            <th>RTO</th><th>MTD</th><th>RPO</th><th>Criticidad</th>
+          </tr></thead>
+          <tbody id="matrixBody"><tr><td colspan="10" style="text-align:center;padding:32px;color:var(--ink-4);font-style:italic">Sin datos todavía. Complete el análisis de impacto.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 4 — EXPORTAR
+═══════════════════════════════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Exportar</h1>
+        <p>Genere los documentos de análisis y continuidad para su distribución y archivo.</p>
+      </div>
+    </div>
+    <div class="export-grid">
+      <div class="exp-card">
+        <div class="exp-icon">📄</div>
+        <div class="exp-title">Informe BIA Completo</div>
+        <div class="exp-desc">Documento HTML con portada, matriz de impacto, elementos críticos, parámetros de disponibilidad y planes de continuidad de todos los servicios. Listo para imprimir o archivar.</div>
+        <button class="btn btn-primary" onclick="exportFullReport()">⬇ Descargar informe</button>
+      </div>
+      <div class="exp-card">
+        <div class="exp-icon">📊</div>
+        <div class="exp-title">Tabla resumen (CSV)</div>
+        <div class="exp-desc">Exportación tabular con todos los servicios, su nivel de impacto por horizonte temporal, RTO, RPO y estado del plan de continuidad. Compatible con Excel y otras herramientas.</div>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Descargar CSV</button>
+      </div>
+      <div class="exp-card">
+        <div class="exp-icon">📑</div>
+        <div class="exp-title">Fichas de Continuidad</div>
+        <div class="exp-desc">Un documento HTML con una ficha por servicio: análisis de impacto, elementos críticos y plan de continuidad completo. Para distribuir a los responsables de cada servicio.</div>
+        <button class="btn btn-outline" onclick="exportCards()">⬇ Descargar fichas</button>
+      </div>
+    </div>
+    <div class="info-box info-box-blue" style="margin-top:20px">
+      <span>ℹ</span>
+      <div>Los documentos se generan íntegramente en el navegador, sin enviar datos a ningún servidor. Al cerrar o recargar la página los datos se pierden — exporte antes de cerrar.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL NUEVO SERVICIO ═══════════ -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title" id="modalTitle">Nuevo servicio</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+        <div class="field fg-full">
+          <label class="field-label">Nombre del servicio *</label>
+          <input class="field-input" id="f-nombre" placeholder="Ej: Gestión de nóminas, Correo corporativo…">
+        </div>
+        <div class="field fg-full">
+          <label class="field-label">Descripción</label>
+          <textarea class="field-textarea" id="f-desc" placeholder="Describe brevemente la función del servicio, su alcance y los usuarios que lo utilizan."></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Tipo de servicio</label>
+          <select class="field-select" id="f-tipo">
+            <option value="TIC">TIC / Tecnológico</option>
+            <option value="Negocio">Negocio / Operacional</option>
+            <option value="Soporte">Soporte / Administrativo</option>
+            <option value="Externo">Externo / Subcontratado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Responsable</label>
+          <input class="field-input" id="f-resp" placeholder="Nombre y cargo">
+        </div>
+        <div class="field">
+          <label class="field-label">Usuarios / Procesos afectados</label>
+          <input class="field-input" id="f-usuarios" placeholder="Ej: 120 usuarios internos">
+        </div>
+        <div class="field">
+          <label class="field-label">Horario de prestación</label>
+          <input class="field-input" id="f-horario" placeholder="Ej: 24/7, L-V 08:00-20:00">
+        </div>
+        <div class="field fg-full">
+          <label class="field-label">Sistemas / Infraestructura de soporte</label>
+          <input class="field-input" id="f-sistemas" placeholder="Ej: Servidor APP01, ERP SAP, red corporativa, proveedor cloud…">
+        </div>
+        <div class="field fg-full">
+          <label class="field-label">Dependencias con otros servicios del catálogo</label>
+          <input class="field-input" id="f-deps" placeholder="Ej: Servicio de identidad, Servicio de almacenamiento…">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveService()">Guardar servicio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let services = [];     // {id, nombre, desc, tipo, resp, usuarios, horario, sistemas, deps}
+let impacts  = {};     // impacts[id] = {tf:{1h,4h,8h,24h,72h,1sem}, rto, rpo, criticidad, desc, descImpact, critElems:[]}
+let plans    = {};     // plans[id]   = {objetivo, responsable, contactos:[{rol,nombre,tel,email}], acciones:[{titulo,desc,fase,responsable,plazo}], alternativas, vuelta}
+
+const TFS = ['1h','4h','8h','24h','72h','1sem'];
+const TF_LABELS = {'1h':'1 hora','4h':'4 horas','8h':'8 horas','24h':'24 horas','72h':'72 horas','1sem':'1 semana'};
+const IMP_LEVELS = ['bajo','medio','alto','critico'];
+const IMP_LABELS = {'bajo':'BAJO','medio':'MEDIO','alto':'ALTO','critico':'CRÍTICO'};
+const PHASES = ['inmediata','corto','medio','largo'];
+const PHASE_LABELS = {'inmediata':'Inmediata (0-4h)','corto':'Corto plazo (4-24h)','medio':'Medio plazo (1-7d)','largo':'Largo plazo (>7d)'};
+const ELEM_TYPES = ['Personal','Sistemas TI','Infraestructura','Datos','Proveedor','Proceso','Instalaciones','Otro'];
+let editId = null;
+let activeAnalysis = null;
+let activePlan = null;
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function goTo(n) {
+  document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.ntab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  if(n===1) renderAnalysisPage();
+  if(n===2) renderPlanPage();
+  if(n===3) renderDashboard();
+}
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+function openModal(id=null) {
+  editId = id;
+  const s = id ? services.find(x=>x.id===id) : null;
+  document.getElementById('modalTitle').textContent = id ? 'Editar servicio' : 'Nuevo servicio';
+  document.getElementById('f-nombre').value   = s?.nombre   || '';
+  document.getElementById('f-desc').value     = s?.desc     || '';
+  document.getElementById('f-tipo').value     = s?.tipo     || 'TIC';
+  document.getElementById('f-resp').value     = s?.resp     || '';
+  document.getElementById('f-usuarios').value = s?.usuarios || '';
+  document.getElementById('f-horario').value  = s?.horario  || '';
+  document.getElementById('f-sistemas').value = s?.sistemas || '';
+  document.getElementById('f-deps').value     = s?.deps     || '';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-nombre').focus(),80);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editId = null;
+}
+
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+function saveService() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  if(!nombre){ document.getElementById('f-nombre').focus(); return; }
+  const svc = {
+    id:       editId || 'svc_'+Date.now(),
+    nombre,
+    desc:     document.getElementById('f-desc').value.trim(),
+    tipo:     document.getElementById('f-tipo').value,
+    resp:     document.getElementById('f-resp').value.trim(),
+    usuarios: document.getElementById('f-usuarios').value.trim(),
+    horario:  document.getElementById('f-horario').value.trim(),
+    sistemas: document.getElementById('f-sistemas').value.trim(),
+    deps:     document.getElementById('f-deps').value.trim()
+  };
+  if(editId) {
+    const i = services.findIndex(x=>x.id===editId); services[i]=svc;
+  } else {
+    services.push(svc);
+    impacts[svc.id] = { tf:{}, rto:'', rpo:'', mtd:'', criticidad:'', descContext:'', descImpact:'', critElems:[], catImpact:{}, docFecha:'', docVersion:'', docElaborado:'', docRevisado:'', docAprobado:'' };
+    plans[svc.id]   = { objetivo:'', responsable:'', contactos:[], acciones:[], alternativas:'', vuelta:'', docFecha:'', docVersion:'', docElaborado:'', docRevisado:'', docAprobado:'' };
+  }
+  closeModal();
+  renderServicesGrid();
+  updateCounters();
+}
+
+function deleteService(id) {
+  if(!confirm('¿Eliminar este servicio y todos sus datos?')) return;
+  services = services.filter(x=>x.id!==id);
+  delete impacts[id]; delete plans[id];
+  if(activeAnalysis===id) activeAnalysis=null;
+  if(activePlan===id) activePlan=null;
+  renderServicesGrid();
+  updateCounters();
+}
+
+/* ══════════════════════════════════════
+   PAGE 0 — SERVICES GRID
+══════════════════════════════════════ */
+function renderServicesGrid() {
+  const grid = document.getElementById('servicesGrid');
+  document.getElementById('emptySvc').style.display = services.length ? 'none' : '';
+  const existing = grid.querySelectorAll('.svc-row');
+  existing.forEach(e=>e.remove());
+
+  services.forEach((s,i)=>{
+    const imp = impacts[s.id]||{};
+    const crit = imp.criticidad || '';
+    const critCls = {alto:'crit-alto',medio:'crit-medio',bajo:'crit-bajo'}[crit]||'crit-nd';
+    const critLabel = {alto:'Impacto alto',medio:'Impacto medio',bajo:'Impacto bajo'}[crit]||'Sin analizar';
+    const tipoCls = {TIC:'tag-tic',Negocio:'tag-neg',Soporte:'tag-sop',Externo:'tag-ext'}[s.tipo]||'tag-tic';
+
+    const row = document.createElement('div');
+    row.className = 'svc-row fadein';
+    row.id = 'srow-'+s.id;
+    row.innerHTML = `
+      <div class="svc-row-header" onclick="toggleSvcRow('${s.id}')">
+        <div class="svc-num">${i+1}</div>
+        <div class="svc-info">
+          <div class="svc-name">${esc(s.nombre)}</div>
+          <div class="svc-meta">${esc(s.resp||'Sin responsable')} ${s.horario?'· '+esc(s.horario):''} ${s.usuarios?'· '+esc(s.usuarios):''}</div>
+        </div>
+        <div class="svc-tags">
+          <span class="tag ${tipoCls}">${esc(s.tipo)}</span>
+          ${s.sistemas?`<span class="tag" style="background:var(--paper);border-color:var(--rule);color:var(--ink-4)">${esc(s.sistemas.split(',')[0].trim())}${s.sistemas.split(',').length>1?` +${s.sistemas.split(',').length-1}`:''}</span>`:''}
+        </div>
+        <span class="svc-crit-badge ${critCls}">${critLabel}</span>
+        <span class="svc-chevron">▶</span>
+      </div>
+      <div class="svc-row-body">
+        <div class="svc-edit-panel">
+          <div class="field fg-full">
+            <label class="field-label">Descripción</label>
+            <div style="font-size:13px;color:var(--ink-3);line-height:1.6;padding:8px 0">${esc(s.desc||'Sin descripción.')}</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Sistemas de soporte</label>
+            <div style="font-size:12px;color:var(--ink-4)">${esc(s.sistemas||'—')}</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Dependencias</label>
+            <div style="font-size:12px;color:var(--ink-4)">${esc(s.deps||'—')}</div>
+          </div>
+        </div>
+        <div class="svc-actions-bar">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="goToAnalysis('${s.id}')">📊 Analizar impacto</button>
+            <button class="btn btn-outline btn-sm" onclick="goToPlan('${s.id}')">🛡 Plan de continuidad</button>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="openModal('${s.id}')">✏ Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteService('${s.id}')">✕ Eliminar</button>
+          </div>
+        </div>
+      </div>`;
+    grid.appendChild(row);
+  });
+  updateCounters();
+}
+
+function toggleSvcRow(id) {
+  const row = document.getElementById('srow-'+id);
+  row.classList.toggle('open');
+}
+
+function goToAnalysis(id) {
+  activeAnalysis = id;
+  goTo(1);
+}
+
+function goToPlan(id) {
+  activePlan = id;
+  goTo(2);
+}
+
+/* ══════════════════════════════════════
+   PAGE 1 — ANALYSIS
+══════════════════════════════════════ */
+function renderAnalysisPage() {
+  const layout = document.getElementById('analysisLayout');
+  const empty  = document.getElementById('impactEmpty');
+
+  if(!services.length) {
+    layout.style.display = 'none';
+    empty.style.display  = '';
+    return;
+  }
+  layout.style.display = '';
+  empty.style.display  = 'none';
+
+  if(!activeAnalysis) activeAnalysis = services[0].id;
+
+  // Nav
+  renderAnalysisNav();
+  // Panel
+  renderImpactPanelFor(activeAnalysis);
+}
+
+function renderAnalysisNav() {
+  const list = document.getElementById('anavList');
+  list.innerHTML = services.map(s=>{
+    const imp = impacts[s.id]||{};
+    const hasSome = Object.keys(imp.tf||{}).some(k=>imp.tf[k]);
+    const crit = imp.criticidad;
+    const critColor = {alto:'var(--red)',medio:'var(--amber)',bajo:'var(--green)'}[crit]||'var(--ink-4)';
+    return `<div class="anav-item${activeAnalysis===s.id?' active':''} ${hasSome?'done':''}" onclick="switchAnalysis('${s.id}')">
+      <div class="anav-dot"></div>
+      <div class="anav-name" title="${esc(s.nombre)}">${esc(s.nombre)}</div>
+      ${crit?`<span class="anav-crit" style="color:${critColor}">${crit.toUpperCase()}</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function switchAnalysis(id) {
+  activeAnalysis = id;
+  renderAnalysisNav();
+  renderImpactPanelFor(id);
+}
+
+function renderImpactPanelFor(id) {
+  const s   = services.find(x=>x.id===id);
+  const imp = impacts[id];
+  const panel = document.getElementById('impactPanel');
+  if(!s||!imp){ panel.innerHTML=''; return; }
+
+  const tipoCls = {TIC:'tag-tic',Negocio:'tag-neg',Soporte:'tag-sop',Externo:'tag-ext'}[s.tipo]||'tag-tic';
+  const critColor = {alto:'var(--red)',medio:'var(--amber)',bajo:'var(--green)'}[imp.criticidad]||'var(--ink-4)';
+  const critLabel = {alto:'ALTO',medio:'MEDIO',bajo:'BAJO'}[imp.criticidad]||'Sin determinar';
+
+  // Build time-frame selectors
+  let tfHtml = TFS.map(tf=>{
+    const cur = imp.tf[tf]||null;
+    return `<div class="tf-col">
+      <div class="tf-label">${TF_LABELS[tf]}</div>
+      <div class="tf-impact-sel">
+        ${IMP_LEVELS.map(lv=>`<button class="imp-btn imp-btn-${lv}${cur===lv?' sel':''}" onclick="setImpact('${id}','${tf}','${lv}')">${IMP_LABELS[lv]}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Critical elements
+  let critElemsHtml = (imp.critElems||[]).map((el,i)=>buildCritElemHtml(id,i,el)).join('');
+
+  panel.innerHTML = `<div id="panel-${id}" class="impact-card fadein">
+
+    <div class="impact-card-header">
+      <div>
+        <div class="impact-card-title">${esc(s.nombre)}</div>
+        <div class="impact-card-meta">${esc(s.tipo)} · ${esc(s.resp||'Sin responsable')} ${s.usuarios?'· '+esc(s.usuarios):''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        ${imp.criticidad?`<div style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:${critColor}">Impacto ${critLabel}</div>`:''}
+        <button class="btn btn-outline btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff" onclick="goToPlan('${id}')">→ Plan de continuidad</button>
+      </div>
+    </div>
+
+    <!-- CONTEXTO -->
+    <div class="avail-section">
+      <div class="section-label">Contexto del servicio</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Descripción del servicio y su importancia</label>
+          <textarea class="field-textarea" placeholder="¿Para qué sirve este servicio? ¿Quién lo usa? ¿Qué procesos de negocio soporta?" oninput="impacts['${id}'].descContext=this.value">${esc(imp.descContext||'')}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Consecuencias esperadas de una interrupción</label>
+          <textarea class="field-textarea" placeholder="Describir los efectos sobre la organización, usuarios, clientes o procesos en caso de no disponibilidad." oninput="impacts['${id}'].descImpact=this.value">${esc(imp.descImpact||'')}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACTO TEMPORAL -->
+    <div class="avail-section">
+      <div class="section-label">Nivel de impacto por horizonte temporal de interrupción</div>
+      <div class="info-box info-box-blue" style="margin-bottom:14px;font-size:11px">
+        Seleccione el nivel de impacto que tendría la interrupción del servicio para cada horizonte temporal. <strong>CRÍTICO</strong> indica impacto irreversible o catastrófico para la organización.
+      </div>
+      <div class="tf-grid">${tfHtml}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px">
+        <div class="field">
+          <label class="field-label">RTO — Recovery Time Objective</label>
+          <input class="field-input" style="font-family:var(--font-mono)" placeholder="Ej: 4h, 30min, 2d" value="${esc(imp.rto||'')}" oninput="impacts['${id}'].rto=this.value;refreshRtoMtdAlert('${id}')">
+          <span class="field-hint">Tiempo máximo aceptable sin servicio (objetivo de recuperación)</span>
+        </div>
+        <div class="field">
+          <label class="field-label">MTD — Maximum Tolerable Downtime</label>
+          <input class="field-input" style="font-family:var(--font-mono)" placeholder="Ej: 8h, 1d, 72h" value="${esc(imp.mtd||'')}" oninput="impacts['${id}'].mtd=this.value;refreshRtoMtdAlert('${id}')">
+          <span class="field-hint">Tiempo máximo antes de impacto inaceptable para la organización</span>
+        </div>
+        <div class="field">
+          <label class="field-label">RPO — Recovery Point Objective</label>
+          <input class="field-input" style="font-family:var(--font-mono)" placeholder="Ej: 1h, 15min" value="${esc(imp.rpo||'')}" oninput="impacts['${id}'].rpo=this.value">
+          <span class="field-hint">Antigüedad máxima tolerable de los datos recuperados</span>
+        </div>
+      </div>
+
+      <!-- RTO vs MTD alert -->
+      <div id="rto-mtd-alert-${id}" style="margin-top:12px">${buildRtoMtdAlert(imp.rto||'', imp.mtd||'')}</div>
+    </div>
+
+    <!-- IMPACTO POR CATEGORÍA -->
+    <div class="avail-section">
+      <div class="section-label">Nivel de impacto por categoría</div>
+      <div class="info-box info-box-blue" style="margin-bottom:16px;font-size:11px">
+        Valore el impacto que causaría la interrupción del servicio en cada una de las cuatro dimensiones organizativas. Considere el peor escenario razonablemente posible dentro del horizonte temporal analizado.
+      </div>
+      <div class="impact-cat-grid" id="catgrid-${id}">
+        ${buildImpactCatHtml(id, 'economico',   '💰', 'Económico / Financiero',       'Pérdida de ingresos, costes de recuperación, penalizaciones contractuales, multas regulatorias.', imp)}
+        ${buildImpactCatHtml(id, 'reputacional', '📣', 'Reputacional',                 'Daño a la imagen de marca, pérdida de confianza de clientes o medios, cobertura negativa en prensa.', imp)}
+        ${buildImpactCatHtml(id, 'regulatorio',  '⚖️', 'Regulatorio / Legal / Compliance', 'Incumplimiento normativo (GDPR, NIS2, ISO, sectorial), sanciones de autoridades, litigios.', imp)}
+        ${buildImpactCatHtml(id, 'operacional',  '⚙️', 'Operacional',                  'Interrupción de procesos críticos, productividad perdida, dependencias con terceros o proveedores.', imp)}
+      </div>
+    </div>
+
+    <!-- ELEMENTOS CRÍTICOS -->
+    <div class="critical-section">
+      <div class="section-label">Elementos críticos para la prestación del servicio</div>
+      <div class="info-box info-box-amber" style="margin-bottom:14px;font-size:11px">
+        Identifique los recursos imprescindibles (personal, sistemas, datos, proveedores, instalaciones…) cuya indisponibilidad provocaría la interrupción del servicio.
+      </div>
+      <div class="crit-elements-list" id="critList-${id}">${critElemsHtml}</div>
+      <div class="crit-add-row">
+        ${ELEM_TYPES.map(t=>`<button class="crit-add-btn" onclick="addCritElem('${id}','${t}')">+ ${t}</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- CRITICIDAD GLOBAL -->
+    <div class="avail-section">
+      <div class="section-label">Valoración global de criticidad</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${['bajo','medio','alto'].map(c=>`<button class="btn ${imp.criticidad===c?'btn-primary':'btn-outline'}" 
+          style="${c==='alto'&&imp.criticidad===c?'background:var(--red);border-color:var(--red-dk)':c==='medio'&&imp.criticidad===c?'background:var(--amber);border-color:var(--amber-dk)':''}"
+          onclick="setCriticidad('${id}','${c}')">
+          ${c==='bajo'?'🟢 Impacto bajo':c==='medio'?'🟡 Impacto medio':'🔴 Impacto alto'}
+        </button>`).join('')}
+        <span style="font-size:12px;color:var(--ink-4);align-self:center;margin-left:6px">Se calcula automáticamente del perfil de impacto, o puede ajustarse manualmente.</span>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="field-label">Justificación de la valoración</label>
+        <textarea class="field-textarea" placeholder="Explique brevemente el criterio utilizado para la valoración de criticidad." oninput="impacts['${id}'].justificacion=this.value">${esc(imp.justificacion||'')}</textarea>
+      </div>
+    </div>
+
+    <!-- CONTROL DOCUMENTAL ANÁLISIS -->
+    <div class="avail-section" style="border-bottom:none;background:var(--rule-2)">
+      <div class="section-label">Control documental del análisis</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="field">
+          <label class="field-label">Fecha del análisis</label>
+          <input class="field-input" type="date" value="${esc(imp.docFecha||'')}" oninput="impacts['${id}'].docFecha=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Versión</label>
+          <input class="field-input" placeholder="Ej: 1.0, 2.3…" value="${esc(imp.docVersion||'')}" oninput="impacts['${id}'].docVersion=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label" style="opacity:0">—</label>
+          <div style="font-size:11px;color:var(--ink-4);padding-top:10px;line-height:1.5">Identifique a las personas responsables de la elaboración, revisión y aprobación formal de este análisis.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Elaborado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(imp.docElaborado||'')}" oninput="impacts['${id}'].docElaborado=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Revisado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(imp.docRevisado||'')}" oninput="impacts['${id}'].docRevisado=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Aprobado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(imp.docAprobado||'')}" oninput="impacts['${id}'].docAprobado=this.value">
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+function buildCritElemHtml(svcId, idx, el) {
+  const impSel = ['alto','medio','bajo'].map(lv=>`<button class="crit-el-impact-btn${el.impacto===lv?' sel-'+lv:''}" onclick="setCritElemImpact('${svcId}',${idx},'${lv}')">${lv.charAt(0).toUpperCase()+lv.slice(1)}</button>`).join('');
+  return `<div class="crit-element" id="cre-${svcId}-${idx}">
+    <div class="crit-element-type">
+      <select class="crit-el-type-sel" onchange="impacts['${svcId}'].critElems[${idx}].tipo=this.value">
+        ${ELEM_TYPES.map(t=>`<option${el.tipo===t?' selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="crit-element-body">
+      <div class="crit-element-row">
+        <input class="crit-el-name" placeholder="Nombre del elemento crítico…" value="${esc(el.nombre||'')}" oninput="impacts['${svcId}'].critElems[${idx}].nombre=this.value">
+        <div class="crit-el-impact-sel">${impSel}</div>
+      </div>
+      <input class="crit-el-desc" placeholder="Describe por qué es crítico y qué ocurre si no está disponible…" value="${esc(el.desc||'')}" oninput="impacts['${svcId}'].critElems[${idx}].desc=this.value">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="crit-el-impact-sel" style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-4)">
+          Impacto de su falta:
+        </div>
+      </div>
+    </div>
+    <button class="action-del" onclick="removeCritElem('${svcId}',${idx})" title="Eliminar">✕</button>
+  </div>`;
+}
+
+function addCritElem(svcId, tipo) {
+  if(!impacts[svcId].critElems) impacts[svcId].critElems=[];
+  impacts[svcId].critElems.push({tipo, nombre:'', desc:'', impacto:''});
+  rerenderCritElems(svcId);
+}
+
+function removeCritElem(svcId, idx) {
+  impacts[svcId].critElems.splice(idx,1);
+  rerenderCritElems(svcId);
+}
+
+function setCritElemImpact(svcId, idx, lv) {
+  impacts[svcId].critElems[idx].impacto = lv;
+  rerenderCritElems(svcId);
+}
+
+function rerenderCritElems(svcId) {
+  const list = document.getElementById(`critList-${svcId}`);
+  if(!list) return;
+  list.innerHTML = (impacts[svcId].critElems||[]).map((el,i)=>buildCritElemHtml(svcId,i,el)).join('');
+}
+
+function setImpact(id, tf, lv) {
+  const cur = impacts[id].tf[tf];
+  impacts[id].tf[tf] = cur===lv ? null : lv;
+  // Auto-suggest criticality
+  autoSuggestCrit(id);
+  renderImpactPanelFor(id);
+  renderAnalysisNav();
+}
+
+/* ── Impact categories ── */
+const CAT_LEVELS = ['critico','alto','medio','bajo','despreciable'];
+const CAT_LEVEL_LABELS = {
+  critico:     'CRÍTICO',
+  alto:        'ALTO',
+  medio:       'MEDIO',
+  bajo:        'BAJO',
+  despreciable:'DESP.'
+};
+
+function buildImpactCatHtml(svcId, cat, icon, title, desc, imp) {
+  const catData  = imp.catImpact?.[cat] || {};
+  const selLevel = catData.nivel || null;
+
+  const btns = CAT_LEVELS.map(lv => {
+    const selCls = selLevel === lv ? ` sel-${lv}` : '';
+    return `<button class="iclvl-btn${selCls}" onclick="setImpactCat('${svcId}','${cat}','${lv}')">${CAT_LEVEL_LABELS[lv]}</button>`;
+  }).join('');
+
+  return `<div class="impact-cat-card">
+    <div class="impact-cat-header">
+      <span class="impact-cat-icon">${icon}</span>
+      <div>
+        <div class="impact-cat-title">${title}</div>
+        <div class="impact-cat-desc">${desc}</div>
+      </div>
+    </div>
+    <div class="impact-cat-body">
+      <div class="impact-cat-levels">${btns}</div>
+      <textarea class="impact-cat-note"
+        placeholder="Justificación, consecuencias específicas esperadas…"
+        oninput="setImpactCatNote('${svcId}','${cat}',this.value)">${esc(catData.nota||'')}</textarea>
+    </div>
+  </div>`;
+}
+
+function setImpactCat(svcId, cat, lv) {
+  if(!impacts[svcId].catImpact) impacts[svcId].catImpact = {};
+  if(!impacts[svcId].catImpact[cat]) impacts[svcId].catImpact[cat] = {};
+  const cur = impacts[svcId].catImpact[cat].nivel;
+  impacts[svcId].catImpact[cat].nivel = cur === lv ? null : lv;
+  // Re-render only the 4 category cards, not the whole panel
+  rerenderImpactCats(svcId);
+}
+
+function setImpactCatNote(svcId, cat, val) {
+  if(!impacts[svcId].catImpact) impacts[svcId].catImpact = {};
+  if(!impacts[svcId].catImpact[cat]) impacts[svcId].catImpact[cat] = {};
+  impacts[svcId].catImpact[cat].nota = val;
+}
+
+function rerenderImpactCats(svcId) {
+  const imp  = impacts[svcId];
+  const grid = document.getElementById(`catgrid-${svcId}`);
+  if(!grid) return;
+  const defs = [
+    ['economico',   '💰', 'Económico / Financiero',           'Pérdida de ingresos, costes de recuperación, penalizaciones contractuales, multas regulatorias.'],
+    ['reputacional','📣', 'Reputacional',                      'Daño a la imagen de marca, pérdida de confianza de clientes o medios, cobertura negativa en prensa.'],
+    ['regulatorio', '⚖️', 'Regulatorio / Legal / Compliance',  'Incumplimiento normativo (GDPR, NIS2, ISO, sectorial), sanciones de autoridades, litigios.'],
+    ['operacional', '⚙️', 'Operacional',                       'Interrupción de procesos críticos, productividad perdida, dependencias con terceros o proveedores.']
+  ];
+  grid.innerHTML = defs.map(([cat,icon,title,desc]) =>
+    buildImpactCatHtml(svcId, cat, icon, title, desc, imp)
+  ).join('');
+}
+
+function autoSuggestCrit(id) {
+  const imp = impacts[id];
+  const vals = TFS.map(tf=>imp.tf[tf]).filter(Boolean);
+  if(!vals.length) {
+    imp.criticidad = '';   // ← FIX: clear when all deselected
+    return;
+  }
+  const sc = {bajo:1,medio:2,alto:3,critico:4};
+  const max = Math.max(...vals.map(v=>sc[v]||0));
+  if(max>=3) imp.criticidad='alto';
+  else if(max===2) imp.criticidad='medio';
+  else imp.criticidad='bajo';
+}
+
+function setCriticidad(id, c) {
+  const imp = impacts[id];
+
+  // Derive what the analysis suggests
+  const vals = TFS.map(tf=>imp.tf[tf]).filter(Boolean);
+  const sc = {bajo:1,medio:2,alto:3,critico:4};
+  const maxSc = vals.length ? Math.max(...vals.map(v=>sc[v]||0)) : 0;
+  const suggested = maxSc>=3?'alto':maxSc===2?'medio':maxSc>=1?'bajo':'';
+
+  // Toggle off if already selected
+  if(imp.criticidad === c) {
+    imp.criticidad = suggested || '';
+    renderImpactPanelFor(id);
+    renderAnalysisNav();
+    updateCounters();
+    return;
+  }
+
+  // Warn if override contradicts analysis
+  if(suggested && sc[c] < sc[suggested]) {
+    const ok = confirm(
+      `⚠️ Ajuste manual de criticidad\n\n` +
+      `El análisis de impacto por horizonte temporal sugiere una criticidad "${suggested.toUpperCase()}".\n` +
+      `Está seleccionando "${c.toUpperCase()}", que es inferior a la valoración derivada del análisis.\n\n` +
+      `¿Confirma el ajuste manual? Asegúrese de justificarlo en el campo "Justificación de la valoración".`
+    );
+    if(!ok) return;
+  } else if(suggested && sc[c] > sc[suggested]) {
+    const ok = confirm(
+      `ℹ️ Ajuste manual de criticidad\n\n` +
+      `El análisis sugiere "${suggested.toUpperCase()}" pero está seleccionando "${c.toUpperCase()}" (más severo).\n\n` +
+      `¿Confirma el ajuste? Recuerde justificarlo en el campo correspondiente.`
+    );
+    if(!ok) return;
+  }
+
+  imp.criticidad = c;
+  renderImpactPanelFor(id);
+  renderAnalysisNav();
+  updateCounters();
+}
+
+function updateCritBadge(id) { autoSuggestCrit(id); updateCounters(); }
+
+/* ── Duration parser ──
+   Accepts: 30min, 2h, 4h30min, 2:30h, 1:30h, 1d, 72h, 1sem, 1w, bare number→hours
+   Returns minutes (number) or null if unparseable. */
+function parseDuration(str) {
+  if(!str || !str.trim()) return null;
+  const s = str.trim().toLowerCase()
+    .replace(/semana[s]?/g,'sem').replace(/week[s]?/g,'sem')
+    .replace(/día[s]?|dia[s]?/g,'d').replace(/day[s]?/g,'d')
+    .replace(/hora[s]?/g,'h').replace(/hour[s]?/g,'h')
+    .replace(/minuto[s]?|minute[s]?/g,'min');
+
+  let total = 0, found = false;
+
+  // H:MM format followed by optional unit (h assumed if no unit or 'h', 'min' if 'min')
+  // e.g. 2:30h → 2h30min=150, 2:30 → same, 0:45min → 45min
+  const colonMatch = s.match(/^(\d+):(\d{2})\s*(h|min|sem|d)?$/);
+  if(colonMatch) {
+    const major = parseInt(colonMatch[1]);
+    const minor = parseInt(colonMatch[2]);
+    const unit  = colonMatch[3] || 'h';
+    if(unit === 'min') {
+      // major:minor treated as min:sec — unusual; treat as major min + minor sec → round to min
+      total = major + minor/60;
+    } else if(unit === 'h') {
+      total = major * 60 + minor;
+    } else if(unit === 'd') {
+      total = major * 24*60 + minor * 60;
+    } else {
+      total = major * 60 + minor;
+    }
+    return total;
+  }
+
+  // Standard patterns — order matters: longer units first, and require word boundaries
+  const patterns = [
+    [/(\d+(?:[.,]\d+)?)\s*sem/,  7*24*60],
+    [/(\d+(?:[.,]\d+)?)\s*d(?!e)/,    24*60  ],  // 'd' not followed by 'e' (to avoid 'despreciable' etc.)
+    [/(\d+(?:[.,]\d+)?)\s*h/,    60     ],
+    [/(\d+(?:[.,]\d+)?)\s*min/,  1      ],
+    [/^(\d+(?:[.,]\d+)?)$/,      60     ]   // bare number → hours
+  ];
+  for(const [re, factor] of patterns) {
+    const m = s.match(re);
+    if(m){ total += parseFloat(m[1].replace(',','.')) * factor; found = true; }
+  }
+  return found ? total : null;
+}
+
+function buildRtoMtdAlert(rtoStr, mtdStr) {
+  const rto = parseDuration(rtoStr);
+  const mtd = parseDuration(mtdStr);
+  if(rto === null || mtd === null) {
+    if(!rtoStr && !mtdStr) return '';   // both empty — show nothing
+    return `<div class="rto-mtd-alert rto-mtd-nd">
+      <span class="rto-mtd-icon">ℹ️</span>
+      <div class="rto-mtd-text">Introduce valores en <strong>RTO</strong> y <strong>MTD</strong> para verificar su relación. Formatos aceptados: <code>30min</code>, <code>4h</code>, <code>2d</code>, <code>1sem</code>.</div>
+    </div>`;
+  }
+  if(rto < mtd) {
+    return `<div class="rto-mtd-alert rto-mtd-ok">
+      <span class="rto-mtd-icon">✅</span>
+      <div class="rto-mtd-text"><strong>RTO &lt; MTD — Correcto.</strong> El objetivo de recuperación (${esc(rtoStr)}) es menor que el tiempo máximo tolerable (${esc(mtdStr)}), lo que deja margen operativo ante posibles desviaciones.</div>
+    </div>`;
+  }
+  if(rto === mtd) {
+    return `<div class="rto-mtd-alert rto-mtd-warn">
+      <span class="rto-mtd-icon">⚠️</span>
+      <div class="rto-mtd-text"><strong>RTO = MTD — Sin margen.</strong> El objetivo de recuperación (${esc(rtoStr)}) coincide exactamente con el tiempo máximo tolerable (${esc(mtdStr)}). Cualquier desviación en la recuperación podría superar el umbral de impacto inaceptable. Se recomienda reducir el RTO.</div>
+    </div>`;
+  }
+  return `<div class="rto-mtd-alert rto-mtd-error">
+    <span class="rto-mtd-icon">🔴</span>
+    <div class="rto-mtd-text"><strong>RTO &gt; MTD — Inconsistencia crítica.</strong> El objetivo de recuperación (${esc(rtoStr)}) supera el tiempo máximo tolerable de interrupción (${esc(mtdStr)}). Es necesario reducir el RTO o revisar el MTD, ya que el plan actual no garantiza recuperarse dentro del umbral aceptable.</div>
+  </div>`;
+}
+
+function refreshRtoMtdAlert(id) {
+  const el = document.getElementById(`rto-mtd-alert-${id}`);
+  if(!el) return;
+  const imp = impacts[id]||{};
+  el.innerHTML = buildRtoMtdAlert(imp.rto||'', imp.mtd||'');
+  updateCritBadge(id);
+}
+
+/* ══════════════════════════════════════
+   PAGE 2 — PLANS
+══════════════════════════════════════ */
+function renderPlanPage() {
+  const layout = document.getElementById('planLayout');
+  const empty  = document.getElementById('planEmpty');
+
+  if(!services.length) {
+    layout.style.display='none';
+    empty.style.display='';
+    return;
+  }
+  layout.style.display='';
+  empty.style.display='none';
+
+  if(!activePlan) activePlan = services[0].id;
+  renderPlanNav();
+  renderPlanFor(activePlan);
+}
+
+function renderPlanNav() {
+  const list = document.getElementById('pnavList');
+  list.innerHTML = services.map(s=>{
+    const validCount = countValidActions(s.id);
+    const done = validCount > 0;
+    return `<div class="anav-item${activePlan===s.id?' active':''} ${done?'done':''}" onclick="switchPlan('${s.id}')">
+      <div class="anav-dot"></div>
+      <div class="anav-name" title="${esc(s.nombre)}">${esc(s.nombre)}</div>
+      ${done?`<span class="anav-crit" style="color:var(--green)">${validCount}acc</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function switchPlan(id) {
+  activePlan = id;
+  renderPlanNav();
+  renderPlanFor(id);
+}
+
+function renderPlanFor(id) {
+  const s = services.find(x=>x.id===id);
+  const p = plans[id];
+  const imp = impacts[id]||{};
+  if(!s||!p) return;
+  const panel = document.getElementById('planPanel');
+  const critColor = {alto:'var(--red)',medio:'var(--amber)',bajo:'var(--green)'}[imp.criticidad]||'var(--ink-4)';
+
+  const accHtml = p.acciones.map((a,i)=>buildActionHtml(id,i,a)).join('');
+  const contactHtml = p.contactos.map((c,i)=>buildContactRow(id,i,c)).join('');
+
+  panel.innerHTML = `<div class="plan-card fadein">
+    <div class="plan-header">
+      <div class="plan-title">Plan de Continuidad — ${esc(s.nombre)}</div>
+      <div class="plan-subtitle">${esc(s.tipo)} · ${esc(s.resp||'Sin responsable')}${imp.rto?' · RTO: '+esc(imp.rto):''}</div>
+    </div>
+
+    <div class="plan-meta-bar">
+      <div class="plan-meta-item">
+        <div class="plan-meta-label">Objetivo del plan</div>
+        <input class="plan-meta-input" placeholder="Ej: Restaurar el servicio en menos de 4h…" value="${esc(p.objetivo||'')}" oninput="plans['${id}'].objetivo=this.value">
+      </div>
+      <div class="plan-meta-item">
+        <div class="plan-meta-label">Responsable del plan</div>
+        <input class="plan-meta-input" placeholder="Nombre y cargo" value="${esc(p.responsable||s.resp||'')}" oninput="plans['${id}'].responsable=this.value">
+      </div>
+      <div class="plan-meta-item">
+        <div class="plan-meta-label">Criticidad del servicio</div>
+        <div class="plan-meta-val" style="color:${critColor}">${{alto:'ALTO',medio:'MEDIO',bajo:'BAJO'}[imp.criticidad]||'No determinada'} ${imp.rto?'· RTO '+esc(imp.rto):''}</div>
+      </div>
+    </div>
+
+    <!-- SITUACIÓN DE ACTIVACIÓN -->
+    <div class="plan-section">
+      <div class="section-label">Situación que activa el plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Escenarios de interrupción contemplados</label>
+          <textarea class="field-textarea" placeholder="Ej: Caída del sistema principal, fallo del proveedor externo, incidente de seguridad, desastre en las instalaciones, baja del personal clave…" oninput="plans['${id}'].escenarios=this.value">${esc(p.escenarios||'')}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Criterios y umbral de activación</label>
+          <textarea class="field-textarea" placeholder="Ej: El plan se activa cuando la interrupción supera las 2 horas o cuando se confirma que no puede resolverse por medios habituales en menos de 1 hora…" oninput="plans['${id}'].criteriosActivacion=this.value">${esc(p.criteriosActivacion||'')}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="plan-section">
+      <div class="section-label">Acciones del plan de continuidad</div>
+      <div class="phase-legend">
+        <span class="phase-pill phase-inmediata">Inmediata (0-4h)</span>
+        <span class="phase-pill phase-corto">Corto plazo (4-24h)</span>
+        <span class="phase-pill phase-medio">Medio plazo (1-7d)</span>
+        <span class="phase-pill phase-largo">Largo plazo (&gt;7d)</span>
+      </div>
+      <div class="action-list" id="actionList-${id}">${accHtml}</div>
+      <button class="add-action-btn" onclick="addAction('${id}')">+ Añadir acción</button>
+    </div>
+
+    <!-- MEDIOS ALTERNATIVOS -->
+    <div class="plan-section">
+      <div class="section-label">Medios alternativos de prestación</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Soluciones alternativas durante la interrupción</label>
+          <textarea class="field-textarea" placeholder="Ej: Uso de sistema de contingencia, proceso manual, subcontratación temporal, uso de instalaciones alternativas, acceso remoto desde ubicación secundaria…" oninput="plans['${id}'].alternativas=this.value">${esc(p.alternativas||'')}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Procedimiento de vuelta a la normalidad</label>
+          <textarea class="field-textarea" placeholder="Ej: Verificar integridad de datos, comunicar a usuarios, comprobar funcionamiento completo, documentar incidente y lecciones aprendidas…" oninput="plans['${id}'].vuelta=this.value">${esc(p.vuelta||'')}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTOS -->
+    <div class="plan-section">
+      <div class="section-label">Cadena de notificación y contactos clave</div>
+      <table class="contacts-table">
+        <thead><tr><th>Rol</th><th>Nombre</th><th>Teléfono</th><th>Email / Canal</th><th style="width:36px"></th></tr></thead>
+        <tbody id="contactsBody-${id}">${contactHtml}</tbody>
+      </table>
+      <button class="btn btn-outline btn-sm" onclick="addContact('${id}')" style="margin-top:6px">+ Añadir contacto</button>
+    </div>
+
+    <!-- RECURSOS -->
+    <div class="plan-section">
+      <div class="section-label">Recursos necesarios para ejecutar el plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Recursos materiales y técnicos</label>
+          <textarea class="field-textarea" placeholder="Ej: Servidor de contingencia, portátiles de reserva, acceso VPN, software de backup, generador eléctrico…" oninput="plans['${id}'].recursosTec=this.value">${esc(p.recursosTec||'')}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Recursos humanos y formación requerida</label>
+          <textarea class="field-textarea" placeholder="Ej: Técnico de sistemas con acceso administrativo, personal formado en el procedimiento de contingencia, soporte del proveedor…" oninput="plans['${id}'].recursosHum=this.value">${esc(p.recursosHum||'')}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- TESTING -->
+    <div class="plan-section">
+      <div class="section-label">Prueba y mantenimiento del plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Última prueba realizada</label>
+          <input class="field-input" type="date" value="${esc(p.ultimaPrueba||'')}" oninput="plans['${id}'].ultimaPrueba=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Próxima prueba prevista</label>
+          <input class="field-input" type="date" value="${esc(p.proximaPrueba||'')}" oninput="plans['${id}'].proximaPrueba=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Tipo de prueba</label>
+          <select class="field-select" oninput="plans['${id}'].tipoPrueba=this.value">
+            <option value=""${!p.tipoPrueba?' selected':''}>-- Seleccionar --</option>
+            <option value="escritorio"${p.tipoPrueba==='escritorio'?' selected':''}>Revisión de escritorio</option>
+            <option value="simulacro"${p.tipoPrueba==='simulacro'?' selected':''}>Simulacro</option>
+            <option value="tecnica"${p.tipoPrueba==='tecnica'?' selected':''}>Prueba técnica</option>
+            <option value="ejercicio"${p.tipoPrueba==='ejercicio'?' selected':''}>Ejercicio completo</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label class="field-label">Notas y lecciones aprendidas</label>
+          <textarea class="field-textarea" placeholder="Resultados de pruebas anteriores, mejoras identificadas, cambios pendientes…" oninput="plans['${id}'].notasPrueba=this.value">${esc(p.notasPrueba||'')}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROL DOCUMENTAL -->
+    <div class="plan-section" style="border-bottom:none;background:var(--rule-2)">
+      <div class="section-label">Control documental del plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="field">
+          <label class="field-label">Fecha del documento</label>
+          <input class="field-input" type="date" value="${esc(p.docFecha||'')}" oninput="plans['${id}'].docFecha=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Versión</label>
+          <input class="field-input" placeholder="Ej: 1.0, 2.3…" value="${esc(p.docVersion||'')}" oninput="plans['${id}'].docVersion=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label" style="opacity:0">—</label>
+          <div style="font-size:11px;color:var(--ink-4);padding-top:10px;line-height:1.5">Identifique a las personas responsables de la elaboración, revisión y aprobación formal de este plan.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="field">
+          <label class="field-label">Elaborado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(p.docElaborado||'')}" oninput="plans['${id}'].docElaborado=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Revisado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(p.docRevisado||'')}" oninput="plans['${id}'].docRevisado=this.value">
+        </div>
+        <div class="field">
+          <label class="field-label">Aprobado por</label>
+          <input class="field-input" placeholder="Nombre y cargo" value="${esc(p.docAprobado||'')}" oninput="plans['${id}'].docAprobado=this.value">
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildActionHtml(svcId, idx, a) {
+  const phaseClass = {inmediata:'phase-inmediata',corto:'phase-corto',medio:'phase-medio',largo:'phase-largo'}[a.fase]||'';
+  return `<div class="action-item" id="act-${svcId}-${idx}">
+    <div class="action-num">${idx+1}</div>
+    <div class="action-body">
+      <input class="action-title-input" placeholder="Título de la acción (ej: Notificar al equipo de guardia)…" value="${esc(a.titulo||'')}" oninput="plans['${svcId}'].acciones[${idx}].titulo=this.value">
+      <textarea class="action-desc-input" placeholder="Descripción detallada de cómo ejecutar esta acción, qué comprobar, qué herramientas usar…" oninput="plans['${svcId}'].acciones[${idx}].desc=this.value">${esc(a.desc||'')}</textarea>
+      <div class="action-meta-row">
+        <div class="action-meta-field">
+          Fase:
+          <select class="action-phase-sel ${phaseClass}" onchange="plans['${svcId}'].acciones[${idx}].fase=this.value;this.className='action-phase-sel '+({inmediata:'phase-inmediata',corto:'phase-corto',medio:'phase-medio',largo:'phase-largo'}[this.value]||'')">
+            <option value="">Sin fase</option>
+            ${PHASES.map(ph=>`<option value="${ph}"${a.fase===ph?' selected':''}>${PHASE_LABELS[ph]}</option>`).join('')}
+          </select>
+        </div>
+        <div class="action-meta-field">
+          Responsable:
+          <input class="action-meta-input" placeholder="Quién ejecuta" value="${esc(a.responsable||'')}" oninput="plans['${svcId}'].acciones[${idx}].responsable=this.value">
+        </div>
+        <div class="action-meta-field">
+          Plazo máx.:
+          <input class="action-meta-input" placeholder="Ej: 30 min" value="${esc(a.plazo||'')}" oninput="plans['${svcId}'].acciones[${idx}].plazo=this.value">
+        </div>
+      </div>
+    </div>
+    <button class="action-del" onclick="removeAction('${svcId}',${idx})">✕</button>
+  </div>`;
+}
+
+function addAction(svcId) {
+  plans[svcId].acciones.push({titulo:'',desc:'',fase:'',responsable:'',plazo:''});
+  rerenderActions(svcId);
+  updateCounters();
+}
+
+function removeAction(svcId, idx) {
+  plans[svcId].acciones.splice(idx,1);
+  rerenderActions(svcId);
+  updateCounters();
+}
+
+function rerenderActions(svcId) {
+  const list = document.getElementById(`actionList-${svcId}`);
+  if(!list) return;
+  list.innerHTML = plans[svcId].acciones.map((a,i)=>buildActionHtml(svcId,i,a)).join('');
+  renderPlanNav();
+}
+
+function buildContactRow(svcId, idx, c) {
+  return `<tr id="ct-${svcId}-${idx}">
+    <td><input class="contact-input" placeholder="Rol / Cargo" value="${esc(c.rol||'')}" oninput="plans['${svcId}'].contactos[${idx}].rol=this.value"></td>
+    <td><input class="contact-input" placeholder="Nombre" value="${esc(c.nombre||'')}" oninput="plans['${svcId}'].contactos[${idx}].nombre=this.value"></td>
+    <td><input class="contact-input" placeholder="+34 …" value="${esc(c.tel||'')}" oninput="plans['${svcId}'].contactos[${idx}].tel=this.value"></td>
+    <td><input class="contact-input" placeholder="email@org.es" value="${esc(c.email||'')}" oninput="plans['${svcId}'].contactos[${idx}].email=this.value"></td>
+    <td><button class="action-del" onclick="removeContact('${svcId}',${idx})">✕</button></td>
+  </tr>`;
+}
+
+function addContact(svcId) {
+  plans[svcId].contactos.push({rol:'',nombre:'',tel:'',email:''});
+  rerenderContacts(svcId);
+}
+
+function removeContact(svcId, idx) {
+  plans[svcId].contactos.splice(idx,1);
+  rerenderContacts(svcId);
+}
+
+function rerenderContacts(svcId) {
+  const body = document.getElementById(`contactsBody-${svcId}`);
+  if(!body) return;
+  body.innerHTML = plans[svcId].contactos.map((c,i)=>buildContactRow(svcId,i,c)).join('');
+}
+
+/* ══════════════════════════════════════
+   PAGE 3 — DASHBOARD
+══════════════════════════════════════ */
+function renderDashboard() {
+  const total  = services.length;
+  const altos  = services.filter(s=>impacts[s.id]?.criticidad==='alto').length;
+  const medios = services.filter(s=>impacts[s.id]?.criticidad==='medio').length;
+  const cPlanes= services.filter(s=>countValidActions(s.id)>0).length;
+
+  document.getElementById('d-total').textContent = total;
+  document.getElementById('d-alto').textContent  = altos;
+  document.getElementById('d-medio').textContent = medios;
+  document.getElementById('d-planes').textContent= cPlanes;
+
+  // Matrix
+  const body = document.getElementById('matrixBody');
+  if(!total) {
+    body.innerHTML='<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--ink-4);font-style:italic">Sin datos todavía.</td></tr>';
+    return;
+  }
+  const sc={bajo:1,medio:2,alto:3,critico:4};
+  const sorted = [...services].sort((a,b)=>(sc[impacts[b.id]?.criticidad]||0)-(sc[impacts[a.id]?.criticidad]||0));
+  body.innerHTML = sorted.map(s=>{
+    const imp=impacts[s.id]||{};
+    const critColor={alto:'color:var(--red);font-weight:700',medio:'color:var(--amber);font-weight:700',bajo:'color:var(--green)'}[imp.criticidad]||'color:var(--ink-4)';
+    const cells = TFS.map(tf=>{
+      const v=imp.tf?.[tf]||null;
+      const cls=v?`mt-${v}`:'mt-nd';
+      return `<td><span class="mt-cell ${cls}">${v?IMP_LABELS[v]:'—'}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td>${esc(s.nombre)}</td>
+      ${cells}
+      <td><span style="font-family:var(--font-mono);font-size:12px">${esc(imp.rto||'—')}</span></td>
+      <td><span style="font-family:var(--font-mono);font-size:12px">${esc(imp.mtd||'—')}</span></td>
+      <td><span style="font-family:var(--font-mono);font-size:12px">${esc(imp.rpo||'—')}</span></td>
+      <td><span style="${critColor}">${{alto:'ALTO',medio:'MEDIO',bajo:'BAJO'}[imp.criticidad]||'—'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════
+   COUNTERS
+══════════════════════════════════════ */
+// Only count actions that have at least a title filled in
+function countValidActions(svcId) {
+  return (plans[svcId]?.acciones||[]).filter(a=>a.titulo?.trim()).length;
+}
+
+function updateCounters() {
+  const total  = services.length;
+  const altos  = services.filter(s=>impacts[s.id]?.criticidad==='alto').length;
+  const cPlanes= services.filter(s=>countValidActions(s.id)>0).length;
+  document.getElementById('ts-total').textContent = total;
+  document.getElementById('ts-alto').textContent  = altos;
+  document.getElementById('ts-planes').textContent= cPlanes;
+  document.getElementById('nb-svc').textContent   = total;
+  document.getElementById('nb-imp').textContent   = services.filter(s=>Object.values(impacts[s.id]?.tf||{}).some(Boolean)).length;
+  document.getElementById('nb-plan').textContent  = cPlanes;
+}
+
+/* ══════════════════════════════════════
+   IMPORT / EXPORT JSON
+══════════════════════════════════════ */
+function exportJSON() {
+  if(!services.length){ alert('No hay servicios que exportar.'); return; }
+  const payload = {
+    meta: {
+      version:   '1.0',
+      exportedAt: new Date().toISOString(),
+      tool:      'BIACalc'
+    },
+    services,
+    impacts,
+    plans
+  };
+  const blob = new Blob(
+    [JSON.stringify(payload, null, 2)],
+    {type: 'application/json;charset=utf-8'}
+  );
+  dl(blob, `BIA-datos-${new Date().toISOString().split('T')[0]}.json`);
+}
+
+function importJSON(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if(!data.services || !Array.isArray(data.services))
+        throw new Error('Formato no válido: falta el campo "services".');
+
+      let imported = 0, skipped = 0;
+      data.services.forEach(s => {
+        if(services.find(x=>x.id===s.id)){ skipped++; return; }
+        services.push(s);
+        // Restore impact — use saved data if present, otherwise init empty
+        impacts[s.id] = data.impacts?.[s.id] || {tf:{},rto:'',rpo:'',mtd:'',criticidad:'',descContext:'',descImpact:'',critElems:[],catImpact:{},docFecha:'',docVersion:'',docElaborado:'',docRevisado:'',docAprobado:''};
+        // Restore plan — use saved data if present, otherwise init empty
+        plans[s.id]   = data.plans?.[s.id]   || {objetivo:'',responsable:'',contactos:[],acciones:[],alternativas:'',vuelta:'',docFecha:'',docVersion:'',docElaborado:'',docRevisado:'',docAprobado:''};
+        imported++;
+      });
+
+      const msg = [`Importación completada.`, `• ${imported} servicio(s) importados con su análisis y plan.`];
+      if(skipped) msg.push(`• ${skipped} servicio(s) omitidos (ID ya existente).`);
+      alert(msg.join('\n'));
+      renderServicesGrid();
+      updateCounters();
+    } catch(err) {
+      alert('Error al leer el archivo JSON:\n' + err.message);
+    }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+}
+
+function exportCSV() {
+  const rows = [['Servicio','Tipo','Responsable','1h','4h','8h','24h','72h','1sem','RTO','RPO','Criticidad','Acciones plan']];
+  services.forEach(s=>{
+    const imp=impacts[s.id]||{};
+    const plan=plans[s.id]||{};
+    rows.push([s.nombre,s.tipo,s.resp,...TFS.map(tf=>imp.tf?.[tf]||'—'),imp.rto||'—',imp.rpo||'—',imp.criticidad||'—',plan.acciones?.length||0]);
+  });
+  dlCSV(rows,'analisis-bia.csv');
+}
+
+function dlCSV(rows, filename) {
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),filename);
+}
+
+function dl(blob, filename) {
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+}
+
+/* ══════════════════════════════════════
+   FULL REPORT EXPORT
+══════════════════════════════════════ */
+function exportFullReport() {
+  if(!services.length){alert('Sin servicios registrados.');return;}
+
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  const timeStr = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+  // Shared colour maps
+  const CC = {alto:'#fcc8c8', medio:'#ffe8a8', bajo:'#c8f5dc', critico:'#d8c0f0', '':'#f0f2f9'};
+  const TC = {alto:'#6b1212', medio:'#7a4200', bajo:'#14502e', critico:'#3b0080', '':'#7a8199'};
+
+  const TIPO_PRUEBA_LABEL = {
+    escritorio: 'Revisión de escritorio',
+    simulacro:  'Simulacro',
+    tecnica:    'Prueba técnica',
+    ejercicio:  'Ejercicio completo'
+  };
+
+  /* ── helpers ── */
+  function secLabel(txt) {
+    return `<div style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a8199;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e8eaf0">${txt}</div>`;
+  }
+  function row2(label1,val1,label2,val2) {
+    const cell = (l,v) => v
+      ? `<div><div style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9a9aaa;margin-bottom:4px">${l}</div><div style="font-size:12px;color:#2b2f3a;line-height:1.6">${v}</div></div>`
+      : '';
+    const c1=cell(label1,val1), c2=cell(label2,val2);
+    if(!c1&&!c2) return '';
+    return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:14px 20px;border-bottom:1px solid #e8eaf0">${c1}${c2}</div>`;
+  }
+  function row1(label,val,bg='') {
+    if(!val) return '';
+    return `<div style="padding:14px 20px;border-bottom:1px solid #e8eaf0;background:${bg}">
+      <div style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9a9aaa;margin-bottom:4px">${label}</div>
+      <div style="font-size:12px;color:#2b2f3a;line-height:1.6">${val}</div>
+    </div>`;
+  }
+  function docControl(fecha,version,elaborado,revisado,aprobado) {
+    if(!fecha&&!version&&!elaborado&&!revisado&&!aprobado) return '';
+    return `<div style="padding:14px 20px;background:#f7f8fc;border-top:2px solid #e2e5ef">
+      <div style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a8199;margin-bottom:10px">Control documental</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;font-size:11px">
+        ${fecha    ? `<div><div style="color:#9a9aaa;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Fecha</div><div style="font-weight:600;color:#2b2f3a">${esc(fecha)}</div></div>` : ''}
+        ${version  ? `<div><div style="color:#9a9aaa;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Versión</div><div style="font-weight:600;color:#2b2f3a">${esc(version)}</div></div>` : ''}
+        ${elaborado? `<div><div style="color:#9a9aaa;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Elaborado por</div><div style="font-weight:600;color:#2b2f3a">${esc(elaborado)}</div></div>` : ''}
+        ${revisado ? `<div><div style="color:#9a9aaa;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Revisado por</div><div style="font-weight:600;color:#2b2f3a">${esc(revisado)}</div></div>` : ''}
+        ${aprobado ? `<div><div style="color:#9a9aaa;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Aprobado por</div><div style="font-weight:600;color:#2b2f3a">${esc(aprobado)}</div></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  /* ── summary counters ── */
+  const altos   = services.filter(s=>impacts[s.id]?.criticidad==='alto');
+  const medios  = services.filter(s=>impacts[s.id]?.criticidad==='medio');
+  const bajos   = services.filter(s=>impacts[s.id]?.criticidad==='bajo');
+  const cPlanes = services.filter(s=>countValidActions(s.id)>0);
+
+  /* ── impact matrix ── */
+  const sortedSvcs = [...services].sort((a,b)=>{
+    const sc={alto:3,medio:2,bajo:1,critico:4};
+    return (sc[impacts[b.id]?.criticidad]||0)-(sc[impacts[a.id]?.criticidad]||0);
+  });
+
+  const matrixRows = sortedSvcs.map(s=>{
+    const imp=impacts[s.id]||{};
+    const cells=TFS.map(tf=>{
+      const v=imp.tf?.[tf]||null;
+      return `<td style="text-align:center;padding:7px 4px"><span style="display:inline-block;min-width:56px;padding:3px 6px;border-radius:5px;background:${v?CC[v]:CC['']};color:${v?TC[v]:TC['']};font-family:monospace;font-size:10px;font-weight:700">${v?IMP_LABELS[v]:'—'}</span></td>`;
+    }).join('');
+    const critBg=CC[imp.criticidad||'']||CC[''];
+    const critTc=TC[imp.criticidad||'']||TC[''];
+    return `<tr style="border-bottom:1px solid #e8eaf0">
+      <td style="padding:9px 12px;font-weight:500;font-size:13px">${esc(s.nombre)}</td>
+      <td style="padding:9px 8px;font-size:11px;color:#7a8199">${esc(s.tipo)}</td>
+      ${cells}
+      <td style="text-align:center;font-family:monospace;font-weight:700;font-size:12px;padding:7px 8px">${esc(imp.rto||'—')}</td>
+      <td style="text-align:center;font-family:monospace;font-weight:700;font-size:12px;padding:7px 8px">${esc(imp.mtd||'—')}</td>
+      <td style="text-align:center;font-family:monospace;font-weight:700;font-size:12px;padding:7px 8px">${esc(imp.rpo||'—')}</td>
+      <td style="text-align:center;padding:7px 8px"><span style="display:inline-block;padding:3px 10px;border-radius:10px;background:${critBg};color:${critTc};font-family:monospace;font-size:10px;font-weight:700">${{alto:'ALTO',medio:'MEDIO',bajo:'BAJO',critico:'CRÍTICO'}[imp.criticidad]||'—'}</span></td>
+      <td style="text-align:center;padding:7px 8px"><span style="font-size:11px;color:${cPlanes.find(x=>x.id===s.id)?'#1e9150':'#c0c0c0'}">${cPlanes.find(x=>x.id===s.id)?'✔ Sí':'—'}</span></td>
+    </tr>`;
+  }).join('');
+
+  /* ── per-service detail ── */
+  const servicesDetail = sortedSvcs.map(s=>{
+    const imp = impacts[s.id]||{};
+    const p   = plans[s.id]||{};
+    const critBg  = CC[imp.criticidad||'']||CC[''];
+    const critTc  = TC[imp.criticidad||'']||TC[''];
+    const critLbl = {alto:'ALTO',medio:'MEDIO',bajo:'BAJO',critico:'CRÍTICO'}[imp.criticidad]||'Sin determinar';
+
+    /* elementos críticos */
+    const critElemsHtml = (imp.critElems||[]).length
+      ? `<table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f0f2f9">
+            <th style="padding:7px 10px;text-align:left;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Tipo</th>
+            <th style="padding:7px 10px;text-align:left;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Elemento</th>
+            <th style="padding:7px 10px;text-align:center;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Impacto si falta</th>
+            <th style="padding:7px 10px;text-align:left;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Descripción</th>
+          </tr></thead>
+          <tbody>${(imp.critElems||[]).map((el,i)=>{
+            const elbg=CC[el.impacto]||CC[''];
+            const eltc=TC[el.impacto]||TC[''];
+            return `<tr style="background:${i%2?'#f8f9fc':'#fff'};border-bottom:1px solid #e8eaf0">
+              <td style="padding:8px 10px;font-family:monospace;font-size:11px;color:#4a5168">${esc(el.tipo||'—')}</td>
+              <td style="padding:8px 10px;font-weight:500">${esc(el.nombre||'—')}</td>
+              <td style="padding:8px 10px;text-align:center"><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:${elbg};color:${eltc};font-family:monospace;font-size:10px;font-weight:700">${el.impacto?IMP_LABELS[el.impacto]:'—'}</span></td>
+              <td style="padding:8px 10px;font-size:11px;color:#4a5168">${esc(el.desc||'—')}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`
+      : '<p style="font-size:12px;color:#9a9aaa;font-style:italic;margin:0">No se han identificado elementos críticos.</p>';
+
+    /* acciones del plan — only those with a title */
+    const validAcciones = (p.acciones||[]).filter(a=>a.titulo?.trim());
+    const accionesHtml = validAcciones.length
+      ? validAcciones.map((a,i)=>{
+          const pb={inmediata:'#fee8e8',corto:'#fff4d6',medio:'#e4eeff',largo:'#e8f8ef'}[a.fase]||'#f0f2f9';
+          const pt={inmediata:'#6b1212',corto:'#7a4200',medio:'#1a2c5e',largo:'#14502e'}[a.fase]||'#4a5168';
+          return `<div style="display:flex;gap:12px;margin-bottom:8px;padding:11px 14px;background:#f8f9fc;border:1px solid #e8eaf0;border-radius:8px">
+            <div style="width:24px;height:24px;border-radius:50%;background:#111318;color:#fff;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px">${i+1}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:13px;margin-bottom:3px">${esc(a.titulo||'(Sin título)')}</div>
+              ${a.desc?`<div style="font-size:12px;color:#4a5168;margin-bottom:6px;line-height:1.5">${esc(a.desc)}</div>`:''}
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;align-items:center">
+                ${a.fase?`<span style="padding:2px 8px;border-radius:4px;background:${pb};color:${pt};font-family:monospace;font-weight:600">${PHASE_LABELS[a.fase]||a.fase}</span>`:''}
+                ${a.responsable?`<span style="color:#7a8199">👤 ${esc(a.responsable)}</span>`:''}
+                ${a.plazo?`<span style="color:#7a8199">⏱ Plazo: ${esc(a.plazo)}</span>`:''}
+              </div>
+            </div>
+          </div>`;
+        }).join('')
+      : '<p style="font-size:12px;color:#9a9aaa;font-style:italic;margin:0">No se han definido acciones.</p>';
+
+    /* contactos */
+    const contactsHtml = (p.contactos||[]).length
+      ? `<table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f0f2f9">
+            <th style="padding:7px 10px;text-align:left;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Rol</th>
+            <th style="padding:7px 10px;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Nombre</th>
+            <th style="padding:7px 10px;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Teléfono</th>
+            <th style="padding:7px 10px;font-family:monospace;font-size:10px;color:#7a8199;font-weight:600">Email / Canal</th>
+          </tr></thead>
+          <tbody>${(p.contactos||[]).map((c,i)=>`
+            <tr style="background:${i%2?'#f8f9fc':'#fff'};border-bottom:1px solid #e8eaf0">
+              <td style="padding:8px 10px;font-weight:500">${esc(c.rol||'—')}</td>
+              <td style="padding:8px 10px">${esc(c.nombre||'—')}</td>
+              <td style="padding:8px 10px;font-family:monospace">${esc(c.tel||'—')}</td>
+              <td style="padding:8px 10px;font-family:monospace">${esc(c.email||'—')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`
+      : '<p style="font-size:12px;color:#9a9aaa;font-style:italic;margin:0">No se han definido contactos.</p>';
+
+    return `
+    <!-- ══ SERVICIO: ${esc(s.nombre)} ══ -->
+    <div style="margin-bottom:48px;page-break-inside:avoid">
+
+      <!-- cabecera del servicio -->
+      <div style="background:#111318;color:#fff;padding:18px 24px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+        <div>
+          <div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">${esc(s.nombre)}</div>
+          <div style="font-size:11px;color:#aaa;margin-top:4px;font-family:monospace">
+            ${esc(s.tipo)}
+            ${s.resp    ? ' · ' + esc(s.resp)    : ''}
+            ${s.horario ? ' · ' + esc(s.horario) : ''}
+            ${s.usuarios? ' · ' + esc(s.usuarios): ''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span style="background:${critBg};color:${critTc};padding:4px 12px;border-radius:20px;font-family:monospace;font-size:11px;font-weight:700">Impacto ${critLbl}</span>
+          <div style="font-family:monospace;font-size:11px;color:#aaa;display:flex;gap:12px">
+            ${imp.rto?`<span>RTO <strong style="color:#fff">${esc(imp.rto)}</strong></span>`:''}
+            ${imp.mtd?`<span>MTD <strong style="color:#fff">${esc(imp.mtd)}</strong></span>`:''}
+            ${imp.rpo?`<span>RPO <strong style="color:#fff">${esc(imp.rpo)}</strong></span>`:''}
+          </div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #e8eaf0;border-top:none;border-radius:0 0 10px 10px;overflow:hidden">
+
+        <!-- ─ ANÁLISIS DE IMPACTO ─ -->
+        <div style="background:#3b68e0;padding:9px 20px">
+          <span style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#c8d8ff">📊 Análisis de Impacto</span>
+        </div>
+
+        ${(imp.descContext||imp.descImpact) ? row2('Descripción y contexto',esc(imp.descContext),'Consecuencias de interrupción',esc(imp.descImpact)) : ''}
+
+        <!-- impacto por horizonte -->
+        <div style="padding:16px 20px;border-bottom:1px solid #e8eaf0">
+          ${secLabel('Impacto por horizonte temporal de interrupción')}
+          <div style="display:flex;gap:5px">
+            ${TFS.map(tf=>{
+              const v=imp.tf?.[tf]||null;
+              return `<div style="flex:1;text-align:center;border-radius:7px;overflow:hidden;border:1px solid #e8eaf0">
+                <div style="font-family:monospace;font-size:10px;padding:5px 4px;font-weight:600;color:#4a5168;background:#f8f9fc">${TF_LABELS[tf]}</div>
+                <div style="background:${v?CC[v]:CC['']};color:${v?TC[v]:TC['']};padding:7px 4px;font-family:monospace;font-size:11px;font-weight:700">${v?IMP_LABELS[v]:'—'}</div>
+              </div>`;
+            }).join('')}
+          </div>
+          ${imp.justificacion?`<div style="margin-top:10px;font-size:12px;color:#4a5168;font-style:italic;line-height:1.5">Criterio de valoración: ${esc(imp.justificacion)}</div>`:''}
+        </div>
+
+        ${(()=>{
+          /* RTO / MTD / RPO summary + alert */
+          const rtoV = parseDuration(imp.rto||'');
+          const mtdV = parseDuration(imp.mtd||'');
+          let alertBg='#f0f2f9', alertBorder='#e2e5ef', alertColor='#7a8199', alertIcon='ℹ️', alertMsg='';
+          if(rtoV!==null && mtdV!==null){
+            if(rtoV < mtdV)       { alertBg='#e8f8ef'; alertBorder='#6dcc9a'; alertColor='#14502e'; alertIcon='✅'; alertMsg=`RTO (${esc(imp.rto)}) &lt; MTD (${esc(imp.mtd)}) — Correcto. Hay margen operativo ante desviaciones en la recuperación.`; }
+            else if(rtoV === mtdV){ alertBg='#fff4e0'; alertBorder='#f5b742'; alertColor='#7a4200'; alertIcon='⚠️'; alertMsg=`RTO (${esc(imp.rto)}) = MTD (${esc(imp.mtd)}) — Sin margen. Cualquier desviación puede superar el umbral de impacto inaceptable.`; }
+            else                  { alertBg='#fff0f0'; alertBorder='#f58080'; alertColor='#6b1212'; alertIcon='🔴'; alertMsg=`RTO (${esc(imp.rto)}) &gt; MTD (${esc(imp.mtd)}) — Inconsistencia crítica. El plan no garantiza la recuperación dentro del límite tolerable.`; }
+          }
+          const hasAny = imp.rto||imp.mtd||imp.rpo;
+          if(!hasAny) return '';
+          return `<div style="padding:14px 20px;border-bottom:1px solid #e8eaf0">
+            ${secLabel('Parámetros de disponibilidad (RTO / MTD / RPO)')}
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:${alertMsg?'12px':'0'}">
+              <div style="background:#f8f9fc;border:1px solid #e8eaf0;border-radius:7px;padding:12px">
+                <div style="font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a8199;margin-bottom:4px">RTO — Recovery Time Objective</div>
+                <div style="font-family:monospace;font-size:18px;font-weight:700;color:#111318">${imp.rto?esc(imp.rto):'—'}</div>
+                <div style="font-size:11px;color:#9a9aaa;margin-top:2px">Tiempo máx. aceptable sin servicio</div>
+              </div>
+              <div style="background:#f8f9fc;border:1px solid #e8eaf0;border-radius:7px;padding:12px">
+                <div style="font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a8199;margin-bottom:4px">MTD — Maximum Tolerable Downtime</div>
+                <div style="font-family:monospace;font-size:18px;font-weight:700;color:#111318">${imp.mtd?esc(imp.mtd):'—'}</div>
+                <div style="font-size:11px;color:#9a9aaa;margin-top:2px">Límite antes de impacto inaceptable</div>
+              </div>
+              <div style="background:#f8f9fc;border:1px solid #e8eaf0;border-radius:7px;padding:12px">
+                <div style="font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a8199;margin-bottom:4px">RPO — Recovery Point Objective</div>
+                <div style="font-family:monospace;font-size:18px;font-weight:700;color:#111318">${imp.rpo?esc(imp.rpo):'—'}</div>
+                <div style="font-size:11px;color:#9a9aaa;margin-top:2px">Máx. pérdida tolerable de datos</div>
+              </div>
+            </div>
+            ${alertMsg?`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;background:${alertBg};border:1px solid ${alertBorder};color:${alertColor};font-size:12px;line-height:1.5">
+              <span style="font-size:15px;flex-shrink:0">${alertIcon}</span>
+              <span>${alertMsg}</span>
+            </div>`:''}
+          </div>`;
+        })()}
+
+        ${(()=>{
+          /* Impacto por categoría */
+          const catDefs = [
+            ['economico',   '💰', 'Económico / Financiero'],
+            ['reputacional','📣', 'Reputacional'],
+            ['regulatorio', '⚖️', 'Regulatorio / Legal / Compliance'],
+            ['operacional', '⚙️', 'Operacional']
+          ];
+          const catData = imp.catImpact||{};
+          const hasAnyCat = catDefs.some(([cat])=>catData[cat]?.nivel);
+          if(!hasAnyCat && !catDefs.some(([cat])=>catData[cat]?.nota)) return '';
+
+          const CAT_LBL = {critico:'CRÍTICO',alto:'ALTO',medio:'MEDIO',bajo:'BAJO',despreciable:'DESP.'};
+          const CAT_BG  = {critico:'#1a0a2e',alto:'#fcc8c8',medio:'#ffe8a8',bajo:'#c8f5dc',despreciable:'#f0f2f9'};
+          const CAT_TC  = {critico:'#e0d0f5',alto:'#6b1212',medio:'#7a4200',bajo:'#14502e',despreciable:'#7a8199'};
+
+          const cards = catDefs.map(([cat,icon,title])=>{
+            const d = catData[cat]||{};
+            const lvBg = d.nivel?CAT_BG[d.nivel]:'#f8f9fc';
+            const lvTc = d.nivel?CAT_TC[d.nivel]:'#9a9aaa';
+            const lvTxt = d.nivel?CAT_LBL[d.nivel]:'Sin valorar';
+            return `<div style="border:1px solid #e8eaf0;border-radius:8px;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8f9fc;border-bottom:1px solid #e8eaf0">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="font-size:16px">${icon}</span>
+                  <span style="font-size:12px;font-weight:600;color:#2b2f3a">${title}</span>
+                </div>
+                <span style="padding:3px 10px;border-radius:10px;background:${lvBg};color:${lvTc};font-family:monospace;font-size:10px;font-weight:700">${lvTxt}</span>
+              </div>
+              ${d.nota?`<div style="padding:9px 12px;font-size:12px;color:#4a5168;line-height:1.5;font-style:italic">${esc(d.nota)}</div>`:''}
+            </div>`;
+          }).join('');
+
+          return `<div style="padding:16px 20px;border-bottom:1px solid #e8eaf0">
+            ${secLabel('Impacto por categoría')}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              ${cards}
+            </div>
+          </div>`;
+        })()}
+
+        ${(imp.critElems||[]).length ? `<div style="padding:16px 20px;border-bottom:1px solid #e8eaf0">
+          ${secLabel('Elementos críticos para la prestación del servicio')}
+          ${critElemsHtml}
+        </div>` : ''}
+
+        ${(s.sistemas||s.deps) ? row2(
+            'Sistemas / infraestructura de soporte', esc(s.sistemas),
+            'Dependencias con otros servicios',       esc(s.deps)
+          ) : ''}
+
+        ${docControl(imp.docFecha,imp.docVersion,imp.docElaborado,imp.docRevisado,imp.docAprobado)}
+
+        <!-- ─ PLAN DE CONTINUIDAD ─ -->
+        <div style="background:#1a2c5e;padding:9px 20px;margin-top:4px">
+          <span style="font-family:monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7fa4f5">🛡 Plan de Continuidad</span>
+          ${p.objetivo?`<span style="font-size:12px;color:#b8ceff;margin-left:12px;font-style:italic">${esc(p.objetivo)}</span>`:''}
+        </div>
+
+        ${row2('Responsable del plan', esc(p.responsable), '', '')}
+
+        ${(p.escenarios||p.criteriosActivacion) ? row2(
+            'Escenarios de interrupción contemplados', esc(p.escenarios),
+            'Criterios y umbral de activación',        esc(p.criteriosActivacion)
+          ) : ''}
+
+        <!-- acciones -->
+        <div style="padding:16px 20px;border-bottom:1px solid #e8eaf0">
+          ${secLabel('Acciones del plan de continuidad')}
+          ${accionesHtml}
+        </div>
+
+        ${(p.alternativas||p.vuelta) ? row2(
+            'Medios alternativos de prestación', esc(p.alternativas),
+            'Procedimiento de vuelta a la normalidad', esc(p.vuelta)
+          ) : ''}
+
+        ${(p.contactos||[]).length ? `<div style="padding:16px 20px;border-bottom:1px solid #e8eaf0">
+          ${secLabel('Cadena de notificación y contactos clave')}
+          ${contactsHtml}
+        </div>` : ''}
+
+        ${(p.recursosTec||p.recursosHum) ? row2(
+            'Recursos materiales y técnicos', esc(p.recursosTec),
+            'Recursos humanos y formación',   esc(p.recursosHum)
+          ) : ''}
+
+        ${(p.ultimaPrueba||p.proximaPrueba||p.tipoPrueba||p.notasPrueba) ? `<div style="padding:14px 20px;border-bottom:1px solid #e8eaf0">
+          ${secLabel('Prueba y mantenimiento del plan')}
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:${p.notasPrueba?'10px':'0'}">
+            ${p.ultimaPrueba  ? `<span style="font-size:12px;color:#4a5168">Última prueba: <strong>${esc(p.ultimaPrueba)}</strong></span>` : ''}
+            ${p.proximaPrueba ? `<span style="font-size:12px;color:#4a5168">Próxima prueba: <strong>${esc(p.proximaPrueba)}</strong></span>` : ''}
+            ${p.tipoPrueba    ? `<span style="font-size:12px;color:#4a5168">Tipo: <strong>${esc(TIPO_PRUEBA_LABEL[p.tipoPrueba]||p.tipoPrueba)}</strong></span>` : ''}
+          </div>
+          ${p.notasPrueba ? `<div style="font-size:12px;color:#4a5168;line-height:1.6;background:#f8f9fc;padding:10px;border-radius:6px;border:1px solid #e8eaf0">${esc(p.notasPrueba)}</div>` : ''}
+        </div>` : ''}
+
+        ${docControl(p.docFecha,p.docVersion,p.docElaborado,p.docRevisado,p.docAprobado)}
+
+      </div>
+    </div>`;
+  }).join('');
+
+  /* ── assemble HTML ── */
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>BIA — Análisis de Impacto y Continuidad de Servicio — ${dateStr}</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;margin:0;color:#111318;background:#fff;font-size:14px}
+  @media print{
+    body{font-size:11px}
+    .page-break{page-break-before:always}
+    .no-break{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div style="background:#111318;padding:40px 48px 36px;color:#fff">
+  <div style="font-size:11px;font-family:monospace;color:#555;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px">Business Impact Analysis (BIA)</div>
+  <div style="font-size:32px;font-weight:300;letter-spacing:-0.02em;margin-bottom:4px">Análisis de Impacto y</div>
+  <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px">Continuidad de Servicio</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+    <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:16px">
+      <div style="font-size:34px;font-weight:700">${services.length}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:3px">Servicios registrados</div>
+    </div>
+    <div style="background:rgba(212,43,43,0.15);border:1px solid rgba(212,43,43,0.3);border-radius:8px;padding:16px">
+      <div style="font-size:34px;font-weight:700;color:#f58080">${altos.length}</div>
+      <div style="font-size:11px;color:#f58080;margin-top:3px">Criticidad alta</div>
+    </div>
+    <div style="background:rgba(224,124,0,0.15);border:1px solid rgba(224,124,0,0.3);border-radius:8px;padding:16px">
+      <div style="font-size:34px;font-weight:700;color:#f5b742">${medios.length}</div>
+      <div style="font-size:11px;color:#f5b742;margin-top:3px">Criticidad media</div>
+    </div>
+    <div style="background:rgba(30,145,80,0.15);border:1px solid rgba(30,145,80,0.3);border-radius:8px;padding:16px">
+      <div style="font-size:34px;font-weight:700;color:#6dcc9a">${cPlanes.length}</div>
+      <div style="font-size:11px;color:#6dcc9a;margin-top:3px">Planes de continuidad</div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#555;font-family:monospace">Generado el ${dateStr} a las ${timeStr} · BIACalc · Procesamiento local</div>
+</div>
+
+<!-- MATRIZ RESUMEN -->
+<div style="padding:32px 48px 0">
+  <div style="font-size:18px;font-weight:700;color:#111318;margin-bottom:4px">Matriz de impacto por horizonte temporal</div>
+  <div style="font-size:12px;color:#7a8199;margin-bottom:16px">Servicios ordenados por criticidad. Incluye RTO, RPO y estado del plan de continuidad.</div>
+  <div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e5ef">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:860px">
+      <thead>
+        <tr style="background:#111318">
+          <th style="color:#aaa;padding:10px 14px;text-align:left;font-family:monospace;font-size:10px;letter-spacing:0.06em;white-space:nowrap">SERVICIO</th>
+          <th style="color:#aaa;padding:10px 8px;font-family:monospace;font-size:10px;letter-spacing:0.06em">TIPO</th>
+          ${TFS.map(tf=>`<th style="color:#aaa;padding:10px 6px;text-align:center;font-family:monospace;font-size:10px;letter-spacing:0.04em;white-space:nowrap">${TF_LABELS[tf].toUpperCase()}</th>`).join('')}
+          <th style="color:#aaa;padding:10px 8px;text-align:center;font-family:monospace;font-size:10px">RTO</th>
+          <th style="color:#aaa;padding:10px 8px;text-align:center;font-family:monospace;font-size:10px">MTD</th>
+          <th style="color:#aaa;padding:10px 8px;text-align:center;font-family:monospace;font-size:10px">RPO</th>
+          <th style="color:#aaa;padding:10px 8px;text-align:center;font-family:monospace;font-size:10px">CRITICIDAD</th>
+          <th style="color:#aaa;padding:10px 8px;text-align:center;font-family:monospace;font-size:10px">PLAN</th>
+        </tr>
+      </thead>
+      <tbody>${matrixRows}</tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DETALLE POR SERVICIO -->
+<div style="padding:32px 48px 48px">
+  <div style="font-size:18px;font-weight:700;color:#111318;margin-bottom:4px">Detalle por servicio</div>
+  <div style="font-size:12px;color:#7a8199;margin-bottom:24px">Análisis de impacto completo y plan de continuidad para cada servicio registrado.</div>
+  ${servicesDetail}
+</div>
+
+<!-- PIE -->
+<div style="background:#111318;padding:14px 48px;font-family:monospace;font-size:10px;color:#555;display:flex;justify-content:space-between;align-items:center">
+  <span>BIACalc — Análisis de Impacto y Continuidad de Servicio</span>
+  <span>Generado el ${dateStr} a las ${timeStr} · Sin transmisión de datos</span>
+</div>
+
+</body></html>`;
+
+  dl(new Blob([html],{type:'text/html;charset=utf-8'}), `BIA-Informe-${now.toISOString().split('T')[0]}.html`);
+}
+
+function exportCards() {
+  exportFullReport();
+}
+
+/* ══════════════════════════════════════
+   UTILS
+══════════════════════════════════════ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Init
+updateCounters();
+</script>
+</body>
+</html>
