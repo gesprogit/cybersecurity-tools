@@ -20,17 +20,20 @@
   .rejilla { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
   .herr { background:#0f1724; border:1px solid #1c2836; border-left:3px solid #334; border-radius:10px; padding:20px 22px; text-decoration:none; color:inherit; transition:all .2s; display:block; }
   .herr:hover { border-color:#2a3a4d; transform:translateY(-2px); background:#121c2b; }
+  .herr.dev { opacity:.72; }
   .s1 .herr { border-left-color:#22d3ee; }
   .s2 .herr { border-left-color:#34d399; }
   .s3 .herr { border-left-color:#fbbf24; }
   .s4 .herr { border-left-color:#a78bfa; }
   .s5 .herr { border-left-color:#f87171; }
+  .s6 .herr { border-left-color:#fb923c; }
   .cab { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
   .icono { font-size:26px; }
   .herr h3 { font-size:15px; color:#f1f5f9; }
   .norma { font-size:11px; color:#4cc9e8; font-family:'Courier New',monospace; margin-bottom:10px; }
   .desc { font-size:13px; color:#8fa3b8; line-height:1.5; margin-bottom:14px; }
   .badge { display:inline-block; font-size:11px; padding:3px 10px; border-radius:20px; background:#0c2b23; color:#5eead4; border:1px solid #14532d; }
+  .badge.dev { background:#2b210c; color:#fbbf24; border:1px solid #713f12; }
   .estado { text-align:center; margin-top:36px; font-size:12px; color:#44586f; }
 </style>
 </head>
@@ -72,17 +75,23 @@
           <p class="desc">Verificación y generación de contraseñas. Exporta GPO/PAM.</p>
           <span class="badge">✅ Disponible</span>
         </a>
-        <a class="herr" href="/tool/tls_checker">
-          <div class="cab"><span class="icono">🔒</span><h3>TLS Privacy Checker</h3></div>
-          <div class="norma">RGPD · LOPD-GDD</div>
-          <p class="desc">Verificador de cifrado y protocolos TLS/SSL con mapeo RGPD.</p>
-          <span class="badge">✅ Disponible</span>
-        </a>
         <a class="herr" href="/tool/securevault">
           <div class="cab"><span class="icono">🗄️</span><h3>CCN SecureVault</h3></div>
           <div class="norma">CCN-STIC-807 · CAT-R</div>
           <p class="desc">Cifrado local de archivos AES-256-GCM / ChaCha20 (CAT-R).</p>
           <span class="badge">✅ Disponible</span>
+        </a>
+        <a class="herr dev" href="/tool/envio_pass">
+          <div class="cab"><span class="icono">📨</span><h3>Envío Seguro de Contraseñas</h3></div>
+          <div class="norma">CCN-STIC-807 · buenas prácticas</div>
+          <p class="desc">Envío de credenciales mediante enlaces cifrados de un solo uso.</p>
+          <span class="badge dev">⏳ En desarrollo</span>
+        </a>
+        <a class="herr dev" href="/tool/tls_checker">
+          <div class="cab"><span class="icono">🔒</span><h3>TLS Privacy Checker</h3></div>
+          <div class="norma">RGPD · LOPD-GDD</div>
+          <p class="desc">Verificador de cifrado y protocolos TLS/SSL con mapeo RGPD.</p>
+          <span class="badge dev">⏳ En desarrollo</span>
         </a>
       </div>
     </div>
@@ -109,7 +118,7 @@
           <span class="badge">✅ Disponible</span>
         </a>
         <a class="herr" href="/tool/capacidad">
-          <div class="cab"><span class="icono">📈</span><h3>CapacidadENS</h3></div>
+          <div class="cab"><span class="icono">📐</span><h3>CapacidadENS</h3></div>
           <div class="norma">ENS op.pl.4 · RD 311/2022</div>
           <p class="desc">Dimensionamiento y Plan de Capacidad en 5 dimensiones.</p>
           <span class="badge">✅ Disponible</span>
@@ -118,7 +127,7 @@
     </div>
 
     <div class="seccion s4">
-      <h2>🧭 Gobierno y planificación</h2>
+      <h2>🧭 Gobierno, planificación y métricas</h2>
       <div class="rejilla">
         <a class="herr" href="/tool/secinv">
           <div class="cab"><span class="icono">🗂️</span><h3>SecInv</h3></div>
@@ -136,6 +145,12 @@
           <div class="cab"><span class="icono">🛒</span><h3>TICAdq</h3></div>
           <div class="norma">Adquisiciones TIC · ENS</div>
           <p class="desc">Ciclo de adquisición: técnico, formación, financiación, riesgos.</p>
+          <span class="badge">✅ Disponible</span>
+        </a>
+        <a class="herr" href="/tool/secmetrics">
+          <div class="cab"><span class="icono">📈</span><h3>SecMetrics</h3></div>
+          <div class="norma">ISO 27001 · NIST CSF · CIS Controls</div>
+          <p class="desc">Métricas de seguridad: incidentes, eficiencia y constructor propio.</p>
           <span class="badge">✅ Disponible</span>
         </a>
       </div>
@@ -159,7 +174,25 @@
       </div>
     </div>
 
-    <p class="estado">🔒 14 herramientas · Acceso con credenciales · Originales sin modificar · Actualización automática activa</p>
+    <div class="seccion s6">
+      <h2>🛰️ Amenazas y vulnerabilidades</h2>
+      <div class="rejilla">
+        <a class="herr dev" href="/tool/intel">
+          <div class="cab"><span class="icono">🛰️</span><h3>Inteligencia de Amenazas</h3></div>
+          <div class="norma">CCN-CERT · MITRE ATT&CK</div>
+          <p class="desc">Indicadores de compromiso, feeds y análisis de amenazas.</p>
+          <span class="badge dev">⏳ En desarrollo</span>
+        </a>
+        <a class="herr dev" href="/tool/vulns">
+          <div class="cab"><span class="icono">🐛</span><h3>Gestión de Vulnerabilidades</h3></div>
+          <div class="norma">Gestión de vulnerabilidades · ENS</div>
+          <p class="desc">Escaneo, priorización y remediación de vulnerabilidades.</p>
+          <span class="badge dev">⏳ En desarrollo</span>
+        </a>
+      </div>
+    </div>
+
+    <p class="estado">🔒 14 disponibles · 4 en desarrollo · Acceso con credenciales · Originales sin modificar · Actualización automática activa</p>
   </main>
 </body>
 </html>
