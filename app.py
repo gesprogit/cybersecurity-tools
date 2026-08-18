@@ -1,5 +1,5 @@
 """
-Suite ENS — Plataforma de Herramientas de Ciberseguridad
+Plataforma de Herramientas de Ciberseguridad
 Fase 1: Autenticación + Panel de control
 """
 import os
