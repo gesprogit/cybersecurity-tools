@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CambioLog ENS — Gestión del Cambio · ENS op.exp.5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1e6f7a;--teal-deep:#145560;--teal-darker:#0d3d47;--gold:#ffe855;--gold-mid:#fcc123;--gold-dark:#b18a20;--cyan-light:#a0d8e0;--cyan:#4ab4c2;--blue-mid:#2a86a0;--green:#1a7a4a;--green-light:#22a860;--amber:#b18a20;--red:#b83232;--red-light:#d44444;--orange:#c25a1a;--bg:#f3f9fa;--surface:#ffffff;--surface2:#e8f4f6;--surface3:#d4ecf0;--border:rgba(20,85,96,0.13);--border-med:rgba(20,85,96,0.22);--text:#0d2f35;--text-mid:#2a5560;--text-muted:#4a808a;--text-dim:#80b0b8;--r4:4px;--r6:6px;--r8:8px;--shadow:0 1px 4px rgba(20,85,96,0.09),0 0 0 1px rgba(20,85,96,0.07);--shadow-md:0 4px 20px rgba(20,85,96,0.12),0 0 0 1px rgba(20,85,96,0.08)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;line-height:1.6;min-height:100vh}
+.clf-bar{background:linear-gradient(90deg,var(--teal-darker) 0%,var(--teal-deep) 40%,var(--teal) 100%);color:#fff;padding:6px 20px 7px;font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:24px}
+.clf-bar .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,228,85,.35);border-radius:2px;padding:1px 8px;color:var(--gold)}
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:2px solid var(--teal-deep);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:54px;box-shadow:0 2px 8px rgba(20,85,96,.08)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--teal-deep) 0%,var(--teal) 100%);border-radius:var(--r4);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.65rem;font-weight:600;color:var(--gold);letter-spacing:-.5px;flex-shrink:0}
+.brand-name{font-family:'IBM Plex Serif',serif;font-size:1.05rem;font-weight:600;color:var(--teal-deep);letter-spacing:-.3px}
+.brand-sep{width:1px;height:22px;background:var(--border-med);margin:0 4px}
+.brand-norm{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--text-muted);letter-spacing:1px}
+.local-badge{font-size:.65rem;font-family:'IBM Plex Mono',monospace;background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25);padding:4px 10px;border-radius:3px;letter-spacing:.5px}
+.app{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:36px 32px 80px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;margin-bottom:32px}
+.page-eyebrow{font-size:.68rem;font-family:'IBM Plex Mono',monospace;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-family:'IBM Plex Serif',serif;font-size:2rem;font-weight:600;color:var(--teal-darker);line-height:1.15;margin-bottom:12px}
+.page-desc{color:var(--text-mid);max-width:560px;font-size:.88rem;line-height:1.65}
+.norm-ref{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:var(--r6);padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--text-muted);line-height:1.9;min-width:240px;flex-shrink:0}
+.norm-ref strong{color:var(--teal-deep);display:block;margin-bottom:6px;font-size:.72rem}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);padding:14px 16px;box-shadow:var(--shadow)}
+.stat-label{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:1.7rem;font-weight:600;color:var(--teal-deep);line-height:1;margin-bottom:3px}
+.stat-value.green{color:var(--green-light)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}.stat-value.blue{color:var(--blue-mid)}
+.stat-sub{font-size:.68rem;color:var(--text-dim)}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 18px;font-size:.82rem;font-weight:500;color:var(--text-muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;font-family:'IBM Plex Sans',sans-serif}
+.tab:hover{color:var(--teal)}.tab.active{color:var(--teal-deep);border-bottom-color:var(--teal-deep);font-weight:600}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+.panel-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:.78rem;font-weight:600;color:var(--teal-deep);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border-med)}
+.dot.green{background:var(--green-light)}.dot.amber{background:var(--gold-mid)}.dot.red{background:var(--red-light)}.dot.blue{background:var(--teal)}.dot.orange{background:var(--orange)}
+.panel-body{padding:18px 16px}
+.field-group{margin-bottom:16px}
+.field-row{display:grid;gap:12px}
+.field-row.cols2{grid-template-columns:1fr 1fr}.field-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.field-label{display:block;font-size:.75rem;font-weight:600;color:var(--text-mid);margin-bottom:6px;letter-spacing:.3px}
+.norm-tag{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--teal);background:rgba(30,111,122,.08);border:1px solid rgba(30,111,122,.2);padding:1px 5px;border-radius:3px;margin-left:6px}
+.req-tag{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--red);background:rgba(184,50,50,.08);border:1px solid rgba(184,50,50,.2);padding:1px 5px;border-radius:3px;margin-left:6px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;background:var(--bg);border:1px solid var(--border-med);border-radius:var(--r6);padding:8px 12px;font-size:.85rem;font-family:'IBM Plex Sans',sans-serif;color:var(--text);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,111,122,.12)}
+textarea{resize:vertical;min-height:80px}
+input[type=checkbox]{accent-color:var(--teal);width:14px;height:14px;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r6);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;border:none}
+.btn-primary{background:var(--teal-deep);color:#fff}.btn-primary:hover{background:var(--teal-darker)}
+.btn-secondary{background:transparent;color:var(--teal-deep);border:1px solid var(--border-med)}.btn-secondary:hover{background:var(--surface2);border-color:var(--teal)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#9a2020}
+.btn-sm{padding:5px 12px;font-size:.75rem}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.data-table{width:100%;border-collapse:collapse;font-size:.79rem}
+.data-table th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:.67rem;font-weight:600;color:var(--text-muted);letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}.data-table tr:hover td{background:var(--surface2)}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:.73rem}
+.ens-code{font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;color:var(--teal);background:rgba(30,111,122,.08);border:1px solid rgba(30,111,122,.2);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.badge{display:inline-block;font-size:.63rem;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.badge-solicitado{background:rgba(30,111,122,.1);color:var(--teal-deep);border:1px solid rgba(30,111,122,.25)}
+.badge-en_analisis{background:rgba(177,138,32,.13);color:#7a5800;border:1px solid rgba(177,138,32,.3)}
+.badge-aprobado{background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25)}
+.badge-en_pruebas{background:rgba(74,180,194,.15);color:var(--blue-mid);border:1px solid rgba(74,180,194,.35)}
+.badge-implementado{background:rgba(26,122,74,.15);color:var(--green);border:1px solid rgba(26,122,74,.35)}
+.badge-rechazado{background:rgba(184,50,50,.1);color:var(--red);border:1px solid rgba(184,50,50,.25)}
+.badge-desestimado{background:#f0f0f0;color:#666;border:1px solid #ccc}
+.badge-riesgo-bajo{background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25)}
+.badge-riesgo-medio{background:rgba(177,138,32,.13);color:#7a5800;border:1px solid rgba(177,138,32,.3)}
+.badge-riesgo-alto{background:rgba(184,50,50,.12);color:var(--red);border:1px solid rgba(184,50,50,.3)}
+.riesgo-alto-alert{background:rgba(184,50,50,.07);border:2px solid rgba(184,50,50,.35);border-radius:var(--r8);padding:16px 20px;display:flex;align-items:flex-start;gap:14px}
+.riesgo-alto-alert .ra-icon{font-size:1.6rem;flex-shrink:0}
+.riesgo-alto-alert .ra-title{font-weight:700;color:var(--red);font-size:.9rem;margin-bottom:4px}
+.riesgo-alto-alert .ra-sub{font-size:.78rem;color:var(--text-mid);line-height:1.5}
+.log-panel{background:var(--teal-darker);border-radius:var(--r8);padding:14px 16px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--cyan-light);max-height:140px;overflow-y:auto;line-height:1.7}
+.log-entry{display:flex;gap:12px}
+.log-time{color:var(--text-dim);flex-shrink:0}
+.log-msg.ok{color:#6ee09a}.log-msg.warn{color:var(--gold)}.log-msg.err{color:#f08080}.log-msg.info{color:var(--cyan-light)}
+.risk-card{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:var(--r6);border:1.5px solid var(--border);cursor:pointer;transition:border-color .15s,background .15s;user-select:none;margin-bottom:5px}
+.risk-card:hover{border-color:var(--teal);background:var(--surface2)}.risk-card.selected{border-color:var(--teal-deep);background:rgba(20,85,96,.07)}
+.rc-tag{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:3px;white-space:nowrap;min-width:70px;text-align:center;flex-shrink:0}
+.rc-desc{font-size:.78rem;color:var(--text-mid);flex:1;line-height:1.4}
+.rc-chk{font-size:.85rem;opacity:0;transition:opacity .15s;flex-shrink:0}.risk-card.selected .rc-chk{opacity:1}
+.verdict{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:var(--r8);margin-bottom:16px;border:2px solid}
+.verdict.alto{background:rgba(184,50,50,.06);border-color:rgba(184,50,50,.35)}
+.verdict.medio{background:rgba(177,138,32,.06);border-color:rgba(177,138,32,.3)}
+.verdict.bajo{background:rgba(26,122,74,.05);border-color:rgba(26,122,74,.25)}
+.verdict.neutral{background:var(--surface2);border-color:var(--border-med)}
+.verdict-icon{font-size:2rem;flex-shrink:0;line-height:1}.verdict-body{flex:1}
+.verdict-title{font-weight:700;font-size:1rem;margin-bottom:4px}
+.verdict.alto .verdict-title{color:var(--red)}.verdict.medio .verdict-title{color:var(--amber)}.verdict.bajo .verdict-title{color:var(--green)}.verdict.neutral .verdict-title{color:var(--text-muted)}
+.verdict-sub{font-size:.81rem;color:var(--text-mid)}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-dim)}
+.empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.6}
+.empty-title{font-size:.88rem;font-weight:600;color:var(--text-muted);margin-bottom:6px}
+.empty-sub{font-size:.78rem}
+.report-out{background:var(--teal-darker);color:var(--cyan-light);font-family:'IBM Plex Mono',monospace;font-size:.72rem;line-height:1.7;padding:20px 24px;border-radius:var(--r8);white-space:pre-wrap;overflow:auto;max-height:520px}
+.main-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.main-cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.action-entry{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:.78rem}
+.action-entry:last-child{border-bottom:none}
+.action-date{font-family:'IBM Plex Mono',monospace;color:var(--text-dim);font-size:.7rem;flex-shrink:0;min-width:130px}
+.action-desc{color:var(--text-mid);flex:1}
+#toastArea{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--teal-deep);color:#fff;padding:10px 18px;border-radius:6px;font-size:.8rem;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:auto;max-width:340px;font-family:'IBM Plex Sans',sans-serif}
+.toast-item.ok{background:#1a7a4a}.toast-item.warn{background:#b18a20}.toast-item.err{background:#b83232}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,47,53,.55);z-index:8000;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border-radius:var(--r8);width:min(520px,94vw);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.modal-head-title{font-weight:700;font-size:.9rem;color:var(--teal-deep)}
+.modal-close-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1}
+.modal-body{padding:20px}
+.drop-zone{border:2px dashed var(--border-med);border-radius:var(--r8);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .15s}
+.drop-zone:hover{border-color:var(--teal)}
+@media(max-width:820px){.main-cols,.main-cols3{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(3,1fr)}.field-row.cols2,.field-row.cols3{grid-template-columns:1fr}.page-header{flex-direction:column}.topbar{padding:0 16px}.app{padding:24px 16px 60px}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-med);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="clf-bar">
+  <span class="pill">SIN CLASIFICAR</span>
+  <span>ENS op.exp.5 · Gestión del Cambio · RD 311/2022</span>
+  <span class="pill">Procesamiento 100% local · Sin transferencia de datos</span>
+</div>
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">GC</div>
+    <span class="brand-name">CambioLog ENS</span>
+    <div class="brand-sep"></div>
+    <span class="brand-norm">v2 · ENS [op.exp.5] · RD 311/2022</span>
+  </div>
+  <div class="local-badge">Gestión 100% local · Sin servidores</div>
+</nav>
+
+<div class="app">
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">Herramienta de gestión del cambio</div>
+      <h1 class="page-title">Gestión del Cambio<br>conforme al ENS</h1>
+      <p class="page-desc">Registro, análisis de riesgos, autorización y seguimiento de peticiones de cambio según el <strong>ENS op.exp.5</strong>. Garantiza la trazabilidad completa desde la solicitud hasta la actualización de la documentación de configuración.</p>
+    </div>
+    <div class="norm-ref">
+      <strong>Base normativa</strong>
+      RD 311/2022 · ENS op.exp.5<br>
+      Anexo II — medida op.exp.5<br>
+      CCN-STIC-804 (Implantación)<br>
+      ISO/IEC 27001 — A.12.1.2<br>
+      ITIL Change Management
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total cambios</div><div class="stat-value" id="stTotal">0</div><div class="stat-sub">registrados en total</div></div>
+    <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value amber" id="stPendientes">0</div><div class="stat-sub">en análisis / aprobación</div></div>
+    <div class="stat-card"><div class="stat-label">Riesgo ALTO</div><div class="stat-value red" id="stAlto">0</div><div class="stat-sub">aprobación RSEG requerida</div></div>
+    <div class="stat-card"><div class="stat-label">En pruebas</div><div class="stat-value blue" id="stPruebas">0</div><div class="stat-sub">preproducción / aceptación</div></div>
+    <div class="stat-card"><div class="stat-label">Implementados</div><div class="stat-value green" id="stImpl">0</div><div class="stat-sub">en producción</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="gotoTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="gotoTab('nuevo',this)">➕ Nueva petición</button>
+    <button class="tab" onclick="gotoTab('riesgos',this)">🔍 Análisis de riesgos</button>
+    <button class="tab" onclick="gotoTab('pruebas',this)">🧪 Pruebas</button>
+    <button class="tab" onclick="gotoTab('registro',this)">📋 Registro</button>
+    <button class="tab" onclick="gotoTab('informe',this)">📄 Informe de cambio</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="tab-panel active">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Cambios pendientes — acción requerida</span></div>
+          <div id="dashPend" style="padding:0"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot red"></span>Riesgo ALTO — aprobación RSEG pendiente</span></div>
+          <div id="dashAlto" style="padding:0"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Ciclo de vida del cambio — ENS op.exp.5</span></div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--teal)"><span style="font-size:1.2rem">📝</span><div><div style="font-weight:700;font-size:.8rem;color:var(--teal-deep)">1. REGISTRO DE LA PETICIÓN</div><div style="font-size:.75rem;color:var(--text-muted)">Número de referencia único, información suficiente para la autorización</div></div></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--gold-mid)"><span style="font-size:1.2rem">🔍</span><div><div style="font-weight:700;font-size:.8rem;color:var(--teal-deep)">2. ANÁLISIS DE RIESGOS</div><div style="font-size:.75rem;color:var(--text-muted)">Clasificación BAJO / MEDIO / ALTO para la seguridad del sistema</div></div></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--red)"><span style="font-size:1.2rem">✅</span><div><div style="font-weight:700;font-size:.8rem;color:var(--teal-deep)">3. AUTORIZACIÓN</div><div style="font-size:.75rem;color:var(--text-muted)">Riesgo ALTO → aprobación explícita previa del Responsable de Seguridad</div></div></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--cyan)"><span style="font-size:1.2rem">🧪</span><div><div style="font-weight:700;font-size:.8rem;color:var(--teal-deep)">4. PRUEBAS DE PREPRODUCCIÓN</div><div style="font-size:.75rem;color:var(--text-muted)">En equipos equivalentes a producción, siempre que sea posible</div></div></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--green)"><span style="font-size:1.2rem">🚀</span><div><div style="font-weight:700;font-size:.8rem;color:var(--teal-deep)">5. IMPLEMENTACIÓN Y ACEPTACIÓN</div><div style="font-size:.75rem;color:var(--text-muted)">Pruebas de aceptación + actualización de documentación de configuración</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Log de actividad</span><button class="btn btn-secondary btn-sm" onclick="clearLog()">Limpiar</button></div>
+          <div style="padding:10px"><div class="log-panel" id="actLog"><div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">CambioLog ENS v2 iniciado · 100% local</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUEVA PETICIÓN -->
+  <div id="tab-nuevo" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Identificación <span class="ens-code">op.exp.5 §1 §2</span></span></div>
+          <div class="panel-body">
+            <div class="field-group"><label class="field-label">Título / Descripción breve <span class="req-tag">obligatorio</span></label><input type="text" id="nTitulo" placeholder="Ej: Actualización del SO en servidores de base de datos"></div>
+            <div class="field-row cols3" style="margin-bottom:16px">
+              <div class="field-group" style="margin:0"><label class="field-label">Fecha de solicitud</label><input type="date" id="nFecha"></div>
+              <div class="field-group" style="margin:0"><label class="field-label">F. prevista implantación</label><input type="date" id="nFechaImpl"></div>
+              <div class="field-group" style="margin:0"><label class="field-label">Solicitante</label><input type="text" id="nSolicitante" placeholder="Nombre / Cargo / Dpto."></div>
+            </div>
+            <div class="field-group"><label class="field-label">Descripción detallada</label><textarea id="nDesc" style="min-height:90px" placeholder="Qué se cambia, cómo, y qué sistemas se ven afectados..."></textarea></div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Justificación / Motivación</label><textarea id="nJustif" placeholder="Razón técnica o de negocio que motiva este cambio..."></textarea></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Planificación y alcance</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2" style="margin-bottom:12px">
+              <div class="field-group" style="margin:0"><label class="field-label">Tipo de cambio</label><select id="nTipo"><option value="">— Seleccionar —</option><option value="normal">Normal — planificado</option><option value="estandar">Estándar — preaprobado</option><option value="urgente">Urgente</option><option value="emergencia">Emergencia</option></select></div>
+              <div class="field-group" style="margin:0"><label class="field-label">Ámbito</label><select id="nAmbito"><option value="">— Seleccionar —</option><option value="hardware">Hardware / Infraestructura</option><option value="software_base">Software base / SO</option><option value="software_app">Software de aplicación</option><option value="red">Red / Comunicaciones</option><option value="seguridad">Configuración de seguridad</option><option value="bbdd">Base de datos</option><option value="procedimiento">Procedimiento</option><option value="otro">Otro</option></select></div>
+            </div>
+            <div class="field-group"><label class="field-label">Sistemas / Activos afectados <span class="req-tag">obligatorio</span></label><input type="text" id="nSistemas" placeholder="Ej: Servidores DB01, DB02 — Entorno producción"></div>
+            <div class="field-group"><label class="field-label">Impacto en servicios y ventana de mantenimiento</label><textarea id="nImpacto" style="min-height:65px" placeholder="Servicios afectados, tiempo de interrupción estimado, ventana planificada..."></textarea></div>
+            <div class="field-group"><label class="field-label">Responsable técnico</label><input type="text" id="nResponsable" placeholder="Nombre / Cargo / Equipo"></div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Plan de retroceso (rollback)</label><textarea id="nRollback" style="min-height:55px" placeholder="Procedimiento ante fallo..."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Registrar petición</span></div>
+          <div class="panel-body">
+            <p style="font-size:.79rem;color:var(--text-muted);margin-bottom:14px">Se asignará un número de referencia único (RFC-XXXXX) y la petición quedará en estado <strong>Solicitado</strong>.</p>
+            <div class="btn-group" style="margin:0"><button class="btn btn-primary" onclick="registrarCambio()">✚ Registrar petición</button><button class="btn btn-secondary" onclick="limpiarNuevo()">↺ Limpiar</button></div>
+            <div id="regMsg" style="display:none;margin-top:14px"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Información mínima requerida <span class="ens-code">§2</span></span></div>
+          <div class="panel-body">
+            <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px">El ENS requiere información suficiente para que el autorizador tome la decisión sin dudas:</p>
+            <div style="display:flex;flex-direction:column;gap:5px;font-size:.78rem;color:var(--text-mid)">
+              <div>▸ <strong>Qué</strong> se cambia y en qué sistemas</div>
+              <div>▸ <strong>Por qué</strong> es necesario (justificación)</div>
+              <div>▸ <strong>Cuándo</strong> y con qué ventana de mantenimiento</div>
+              <div>▸ <strong>Impacto</strong> en servicios y medidas para reducirlo</div>
+              <div>▸ <strong>Riesgos de seguridad</strong> identificados</div>
+              <div>▸ <strong>Plan de rollback</strong> ante fallos</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot red"></span>Riesgo ALTO — procedimiento especial <span class="ens-code">§4</span></span></div>
+          <div class="panel-body">
+            <div class="riesgo-alto-alert"><div class="ra-icon">🛡️</div><div><div class="ra-title">Aprobación explícita del Responsable de Seguridad</div><div class="ra-sub">Los cambios con riesgo de nivel ALTO deben ser aprobados <em>explícitamente y de forma previa</em> a su implantación por el <strong>Responsable de la Seguridad</strong>.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANÁLISIS DE RIESGOS -->
+  <div id="tab-riesgos" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Seleccionar petición</span></div>
+          <div class="panel-body"><div class="field-group" style="margin:0"><label class="field-label">Petición de cambio</label><select id="selRiesgo" onchange="cargarRiesgo()"><option value="">— Seleccionar RFC —</option></select></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot orange"></span>Criterios de riesgo para la seguridad <span class="ens-code">§4</span></span></div>
+          <div class="panel-body">
+            <p style="font-size:.77rem;color:var(--text-muted);margin-bottom:14px">Marca los criterios aplicables para determinar el nivel de riesgo.</p>
+            <div style="font-size:.69rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace">Factores ALTO</div>
+            <div id="cAlto"></div>
+            <div style="font-size:.69rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace">Factores MEDIO</div>
+            <div id="cMedio"></div>
+            <div style="font-size:.69rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace">Factores BAJO</div>
+            <div id="cBajo"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Resultado del análisis</span></div>
+          <div class="panel-body">
+            <div id="riesgoVerdict"><div class="verdict neutral"><div class="verdict-icon">🔍</div><div class="verdict-body"><div class="verdict-title">Selecciona un cambio y marca criterios</div><div class="verdict-sub">El nivel de riesgo se calculará automáticamente.</div></div></div></div>
+            <div id="alertaAlto" style="display:none;margin-top:12px"><div class="riesgo-alto-alert"><div class="ra-icon">⚠️</div><div><div class="ra-title">Aprobación del Responsable de Seguridad — OBLIGATORIA</div><div class="ra-sub">Este cambio implica riesgo ALTO. Es <strong>obligatorio</strong> obtener la aprobación explícita del Responsable de la Seguridad antes de la implantación.</div></div></div></div>
+          </div>
+        </div>
+        <div id="panelAut" style="display:none">
+          <div class="panel" style="border-color:rgba(184,50,50,.35)">
+            <div class="panel-header"><span class="panel-title" id="panelAutTitle"><span class="dot red"></span>Autorización RSEG — Riesgo ALTO <span class="ens-code">§4</span></span></div>
+            <div class="panel-body">
+              <div class="field-group"><label class="field-label" id="labAut">Responsable de Seguridad autorizador <span class="req-tag">RSEG obligatorio</span></label><input type="text" id="rAutorizador" placeholder="Nombre / Cargo del RSEG"></div>
+              <div class="field-row cols2" style="margin-bottom:12px">
+                <div class="field-group" style="margin:0"><label class="field-label">Fecha de autorización</label><input type="date" id="rFechaAut"></div>
+                <div class="field-group" style="margin:0"><label class="field-label">Decisión</label><select id="rDecision"><option value="">— Seleccionar —</option><option value="aprobado">✅ Aprobado</option><option value="aprobado_condiciones">✅ Aprobado con condiciones</option><option value="rechazado">❌ Rechazado</option><option value="desestimado">⊘ Desestimado</option></select></div>
+              </div>
+              <div class="field-group" style="margin-bottom:0"><label class="field-label">Observaciones / Condiciones</label><textarea id="rObsAut" style="min-height:65px" placeholder="Condiciones, motivo de rechazo..."></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Notas del análisis de riesgos</span></div>
+          <div class="panel-body"><div class="field-group" style="margin-bottom:0"><textarea id="rNotas" style="min-height:90px" placeholder="Riesgos identificados, medidas mitigadoras..."></textarea></div></div>
+        </div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="guardarRiesgo()">💾 Guardar análisis</button></div>
+              <div id="riesgMsg" style="display:none;margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRUEBAS -->
+  <div id="tab-pruebas" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Seleccionar petición</span></div>
+          <div class="panel-body"><div class="field-group" style="margin:0"><label class="field-label">Petición de cambio</label><select id="selPruebas" onchange="cargarPruebas()"><option value="">— Seleccionar RFC —</option></select></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Pruebas de preproducción <span class="ens-code">§3</span></span></div>
+          <div class="panel-body">
+            <div style="background:rgba(74,180,194,.08);border:1px solid rgba(74,180,194,.3);border-radius:var(--r6);padding:12px 16px;margin-bottom:14px;font-size:.78rem;color:var(--text-mid)"><strong style="color:var(--teal-deep)">ENS §3 —</strong> En equipos equivalentes a producción, <em>siempre que sea posible realizarlas</em>.</div>
+            <div class="field-group"><label class="field-label">¿Es posible realizar pruebas de preproducción?</label><select id="pPreProd" onchange="togglePreProd()"><option value="">— Seleccionar —</option><option value="si">Sí — entorno disponible</option><option value="no">No — no es posible</option><option value="parcial">Parcialmente</option></select></div>
+            <div id="preProdNo" style="display:none">
+              <div style="background:rgba(177,138,32,.08);border:1px solid rgba(177,138,32,.3);border-radius:var(--r6);padding:10px 14px;margin-bottom:10px;font-size:.78rem;color:var(--text-mid)">⚠️ La imposibilidad debe quedar documentada y justificada.</div>
+              <div class="field-group" style="margin-bottom:0"><label class="field-label">Motivo</label><textarea id="pMotivo" style="min-height:65px" placeholder="Razón por la que no es posible realizar pruebas de preproducción..."></textarea></div>
+            </div>
+            <div id="preProdSi" style="display:none">
+              <div class="field-row cols2" style="margin-bottom:12px">
+                <div class="field-group" style="margin:0"><label class="field-label">Fecha pruebas preprod.</label><input type="date" id="pFechaPre"></div>
+                <div class="field-group" style="margin:0"><label class="field-label">Entorno utilizado</label><input type="text" id="pEntorno" placeholder="Ej: TEST-DB01 equiv. a DB01"></div>
+              </div>
+              <div class="field-group"><label class="field-label">Equivalencia con producción <span class="norm-tag">§3</span></label><textarea id="pEquiv" style="min-height:55px" placeholder="En qué aspectos el entorno es equivalente al de producción..."></textarea></div>
+              <div class="field-group"><label class="field-label">Resultado</label><select id="pResPre"><option value="">— Seleccionar —</option><option value="ok">✅ Satisfactorio</option><option value="parcial">⚠️ Parcialmente satisfactorio</option><option value="nok">❌ No satisfactorio</option></select></div>
+              <div class="field-group" style="margin-bottom:0"><label class="field-label">Observaciones</label><textarea id="pObsPre" style="min-height:55px" placeholder="Incidencias, ajustes..."></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Implementación</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2" style="margin-bottom:12px">
+              <div class="field-group" style="margin:0"><label class="field-label">Fecha implementación</label><input type="date" id="pFechaImpl"></div>
+              <div class="field-group" style="margin:0"><label class="field-label">Responsable implementación</label><input type="text" id="pRespImpl" placeholder="Nombre / Equipo"></div>
+            </div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Notas de implementación</label><textarea id="pNotasImpl" style="min-height:65px" placeholder="Acciones realizadas, incidencias, desviaciones..."></textarea></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Pruebas de aceptación <span class="ens-code">§5</span></span></div>
+          <div class="panel-body">
+            <div style="background:rgba(74,180,194,.08);border:1px solid rgba(74,180,194,.3);border-radius:var(--r6);padding:12px 16px;margin-bottom:14px;font-size:.78rem;color:var(--text-mid)"><strong style="color:var(--teal-deep)">ENS §5 —</strong> Una vez implementado, se realizarán las pruebas de aceptación. Si son positivas, se actualizará la documentación de configuración.</div>
+            <div class="field-row cols2" style="margin-bottom:12px">
+              <div class="field-group" style="margin:0"><label class="field-label">Fecha aceptación</label><input type="date" id="pFechaAcept"></div>
+              <div class="field-group" style="margin:0"><label class="field-label">Responsable aceptación</label><input type="text" id="pRespAcept" placeholder="Nombre / Cargo"></div>
+            </div>
+            <div class="field-group"><label class="field-label">Resultado</label><select id="pResAcept"><option value="">— Seleccionar —</option><option value="ok">✅ Satisfactorio — cambio aceptado</option><option value="nok">❌ No satisfactorio — rollback</option></select></div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Observaciones</label><textarea id="pObsAcept" style="min-height:55px" placeholder="Pruebas realizadas y resultados..."></textarea></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Documentación actualizada <span class="ens-code">§5</span></span></div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+              <label style="display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--text-mid);cursor:pointer"><input type="checkbox" id="docDiagramas"> Diagramas de red / arquitectura</label>
+              <label style="display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--text-mid);cursor:pointer"><input type="checkbox" id="docInventario"> Inventario de activos</label>
+              <label style="display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--text-mid);cursor:pointer"><input type="checkbox" id="docManuales"> Manuales / procedimientos</label>
+              <label style="display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--text-mid);cursor:pointer"><input type="checkbox" id="docConfig"> Ficheros / registros de configuración</label>
+              <label style="display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--text-mid);cursor:pointer"><input type="checkbox" id="docNA"> No aplica (cambio no modifica configuración)</label>
+            </div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Referencias a documentos actualizados</label><textarea id="pDocRefs" style="min-height:55px" placeholder="Nombre, versión y fecha de actualización de cada documento..."></textarea></div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="guardarPruebas()">💾 Guardar pruebas</button>
+          <button class="btn btn-secondary" onclick="marcarImplementado()">🚀 Marcar implementado</button>
+        </div>
+        <div id="pruebasMsg" style="display:none;margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRO -->
+  <div id="tab-registro" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot blue"></span>Registro de peticiones de cambio</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <select id="filtroE" onchange="renderTabla()" style="font-size:.75rem;padding:5px 10px;width:auto"><option value="">Todos los estados</option><option value="solicitado">Solicitado</option><option value="en_analisis">En análisis</option><option value="aprobado">Aprobado</option><option value="en_pruebas">En pruebas</option><option value="implementado">Implementado</option><option value="rechazado">Rechazado</option><option value="desestimado">Desestimado</option></select>
+          <select id="filtroR" onchange="renderTabla()" style="font-size:.75rem;padding:5px 10px;width:auto"><option value="">Todos los riesgos</option><option value="alto">Riesgo ALTO</option><option value="medio">Riesgo MEDIO</option><option value="bajo">Riesgo BAJO</option></select>
+          <button class="btn btn-secondary btn-sm" onclick="exportarJSON()">⬇ Exportar JSON</button>
+          <button class="btn btn-secondary btn-sm" style="background:rgba(26,122,74,.08);color:var(--green);border-color:rgba(26,122,74,.3)" onclick="abrirImportar()">⬆ Importar JSON</button>
+          <button class="btn btn-secondary btn-sm" onclick="verificarIntegridad()">🔎 Verificar</button>
+          <input type="file" id="fileJSON" accept=".json" style="display:none" onchange="leerFicheroImport(this.files[0])">
+        </div>
+      </div>
+      <div id="tablaRegistro" style="overflow-x:auto"></div>
+    </div>
+    <div id="detallePanel" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title" id="detalleTitulo"><span class="dot blue"></span>Detalle</span><button class="btn btn-secondary btn-sm" onclick="cerrarDetalle()">✕ Cerrar</button></div>
+        <div class="panel-body" id="detalleCuerpo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFORME DE CAMBIO -->
+  <div id="tab-informe" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Generar informe</span></div>
+          <div class="panel-body">
+            <div class="field-group"><label class="field-label">Petición de cambio</label><select id="selInforme" onchange="preInforme()"><option value="">— Seleccionar RFC —</option></select></div>
+            <div class="field-group"><label class="field-label">Lecciones aprendidas</label><textarea id="iLecciones" style="min-height:75px" placeholder="Aspectos a mejorar, buenas prácticas..."></textarea></div>
+            <div class="field-group" style="margin-bottom:0"><label class="field-label">Observaciones finales</label><textarea id="iObs" style="min-height:55px" placeholder="Cualquier observación adicional..."></textarea></div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="generarInforme()">📄 Generar informe</button>
+          <button class="btn btn-secondary" onclick="cerrarCambio()">✔ Archivar cambio</button>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot green"></span>Informe — ENS op.exp.5</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-secondary btn-sm" onclick="copiarInforme()">📋 Copiar texto</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportarInformeHTML()">⬇ Exportar HTML</button>
+            </div>
+          </div>
+          <div style="padding:0"><pre class="report-out" id="informeOut">Selecciona un cambio para generar el informe...</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR -->
+<div id="modalImportar" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title">⬆ Importar registro de cambios (JSON)</span>
+      <button class="modal-close-btn" onclick="cerrarImportar()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px">Selecciona un fichero <strong>.json</strong> exportado desde CambioLog ENS.</p>
+      <div class="drop-zone" onclick="document.getElementById('fileJSON').click()" ondragover="event.preventDefault();this.style.borderColor='var(--teal)'" ondragleave="this.style.borderColor=''" ondrop="event.preventDefault();this.style.borderColor='';leerFicheroImport(event.dataTransfer.files[0])">
+        <div style="font-size:2rem;margin-bottom:8px">📂</div>
+        <div style="font-size:.84rem;color:var(--text-mid);margin-bottom:4px">Arrastra el fichero o haz clic para seleccionar</div>
+        <div style="font-size:.72rem;color:var(--text-dim)">cambioLog_ens_YYYY-MM-DD.json</div>
+      </div>
+      <div id="impPreview" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px 14px;margin-top:12px;font-size:.78rem;color:var(--text-mid)"></div>
+      <div id="impOps" style="display:none;margin-top:14px">
+        <p style="font-size:.78rem;font-weight:600;color:var(--teal-deep);margin-bottom:8px">Modo de importación:</p>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:.81rem;color:var(--text-mid);margin-bottom:7px;cursor:pointer"><input type="radio" name="impModo" value="combinar" checked style="margin-top:2px"> <span><strong>Combinar</strong> — añade nuevos (por ID), mantiene actuales</span></label>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:.81rem;color:var(--text-mid);cursor:pointer"><input type="radio" name="impModo" value="reemplazar" style="margin-top:2px"> <span><strong>Reemplazar todo</strong> — sustituye todos los cambios actuales</span></label>
+        <div id="avisoReemplazar" style="display:none;margin-top:10px;padding:9px 12px;background:rgba(184,50,50,.07);border:1px solid rgba(184,50,50,.22);border-radius:var(--r6);font-size:.75rem;color:var(--red)">⚠️ Esto eliminará <span id="cuentaActuales">0</span> cambio(s) actuales. No se puede deshacer.</div>
+      </div>
+      <div id="impAcciones" style="display:none;margin-top:16px;gap:8px">
+        <button class="btn btn-primary" onclick="confirmarImportar()">✔ Confirmar importación</button>
+        <button class="btn btn-secondary" onclick="cerrarImportar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastArea"></div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONSTANTES
+// ─────────────────────────────────────────────
+var CRITERIOS = {
+  alto:[
+    {id:'a1',t:'Afecta a sistemas clasificados o de alta criticidad para el servicio'},
+    {id:'a2',t:'Modifica la configuración de seguridad (cortafuegos, IAM, cifrado, autenticación)'},
+    {id:'a3',t:'Implica acceso privilegiado a datos de carácter personal o confidenciales'},
+    {id:'a4',t:'Puede interrumpir un servicio esencial por más de 4 horas'},
+    {id:'a5',t:'Modifica la arquitectura de red o segmentación de sistemas'},
+    {id:'a6',t:'Afecta a mecanismos de auditoría, trazabilidad o control de acceso'},
+    {id:'a7',t:'Introduce nuevo software o componente externo sin auditoría de seguridad previa'},
+    {id:'a8',t:'Modifica políticas de backup, recuperación ante desastres o continuidad'}
+  ],
+  medio:[
+    {id:'m1',t:'Afecta a sistemas de producción con impacto moderado en el servicio'},
+    {id:'m2',t:'Modifica configuraciones de red o comunicaciones (no la arquitectura principal)'},
+    {id:'m3',t:'Actualización de software con cambios funcionales significativos'},
+    {id:'m4',t:'Requiere apertura temporal de puertos o modificación de reglas de acceso'},
+    {id:'m5',t:'Afecta a más del 20% de los usuarios del servicio'},
+    {id:'m6',t:'Modifica procedimientos o sistemas de gestión de identidades'}
+  ],
+  bajo:[
+    {id:'b1',t:'Cambio en entorno aislado o de escaso impacto en el servicio'},
+    {id:'b2',t:'Actualización de parches de seguridad validados (sin cambios funcionales)'},
+    {id:'b3',t:'Modificación de documentación o procedimientos sin impacto técnico'},
+    {id:'b4',t:'Cambio estético o de interfaz sin modificación de lógica de negocio'},
+    {id:'b5',t:'Configuración de herramientas de monitorización o reporting'}
+  ]
+};
+
+var ESTADO_LABEL = {solicitado:'Solicitado',en_analisis:'En análisis',aprobado:'Aprobado',en_pruebas:'En pruebas',implementado:'Implementado',rechazado:'Rechazado',desestimado:'Desestimado'};
+
+var CAMPOS = ['id','fecha','fechaImpl','solicitante','titulo','descripcion','justificacion','tipo','ambito','sistemas','impactoServicio','responsable','rollback','estado','nivelRiesgo','criteriosMarcados','notasRiesgo','autorizador','fechaAutorizacion','decision','obsAutorizacion','preProdPosible','motivoPreprod','fechaPreprod','entornoPreprod','equivalenciaPreprod','resultadoPreprod','obsPreprod','fechaImplReal','responsableImpl','notasImpl','fechaAcept','responsableAcept','resultadoAcept','obsAcept','docActualizada','docRefs','lecciones','obsFinales','historial'];
+
+var DEFAULTS = {id:'',fecha:'',fechaImpl:'',solicitante:'',titulo:'',descripcion:'',justificacion:'',tipo:'',ambito:'',sistemas:'',impactoServicio:'',responsable:'',rollback:'',estado:'solicitado',nivelRiesgo:null,criteriosMarcados:{alto:[],medio:[],bajo:[]},notasRiesgo:'',autorizador:'',fechaAutorizacion:'',decision:'',obsAutorizacion:'',preProdPosible:'',motivoPreprod:'',fechaPreprod:'',entornoPreprod:'',equivalenciaPreprod:'',resultadoPreprod:'',obsPreprod:'',fechaImplReal:'',responsableImpl:'',notasImpl:'',fechaAcept:'',responsableAcept:'',resultadoAcept:'',obsAcept:'',docActualizada:[],docRefs:'',lecciones:'',obsFinales:'',historial:[]};
+
+// ─────────────────────────────────────────────
+//  ESTADO
+// ─────────────────────────────────────────────
+var cambios = [];
+var counter = 0;
+var marcados = {alto:[],medio:[],bajo:[]};
+var impParsed = null;
+
+(function init() {
+  try { cambios = JSON.parse(localStorage.getItem('cl_ens_v2') || '[]').map(normalizar); } catch(e) { cambios = []; }
+  try { counter = parseInt(localStorage.getItem('cl_ens_counter') || '0'); } catch(e) { counter = 0; }
+})();
+
+function normalizar(c) {
+  if (!c || typeof c !== 'object') c = {};
+  var out = {};
+  for (var i = 0; i < CAMPOS.length; i++) {
+    var k = CAMPOS[i];
+    out[k] = (c[k] !== undefined && c[k] !== null) ? c[k] : JSON.parse(JSON.stringify(DEFAULTS[k] === null ? null : (DEFAULTS[k] !== undefined ? DEFAULTS[k] : '')));
+  }
+  if (!out.criteriosMarcados || typeof out.criteriosMarcados !== 'object') out.criteriosMarcados = {alto:[],medio:[],bajo:[]};
+  if (!Array.isArray(out.criteriosMarcados.alto))  out.criteriosMarcados.alto  = [];
+  if (!Array.isArray(out.criteriosMarcados.medio)) out.criteriosMarcados.medio = [];
+  if (!Array.isArray(out.criteriosMarcados.bajo))  out.criteriosMarcados.bajo  = [];
+  if (!Array.isArray(out.docActualizada)) out.docActualizada = [];
+  if (!Array.isArray(out.historial))      out.historial      = [];
+  return out;
+}
+
+function guardar() {
+  localStorage.setItem('cl_ens_v2', JSON.stringify(cambios));
+  localStorage.setItem('cl_ens_counter', String(counter));
+  actualizarStats();
+  actualizarSelects();
+}
+
+// ─────────────────────────────────────────────
+//  UTILIDADES
+// ─────────────────────────────────────────────
+function hoy() { return new Date().toISOString().split('T')[0]; }
+function ahora() { return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+function genId() { counter++; return 'RFC-' + String(counter).padStart(5,'0'); }
+function esc(s) { return String(s || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function v(id) { return (document.getElementById(id)||{}).value || ''; }
+function sv(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+function gi(id) { return document.getElementById(id); }
+
+// Muestra un bloque de errores de validación en un elemento contenedor
+function mostrarErrores(containerId, titulo, lista) {
+  var el = gi(containerId); if (!el) { toast(titulo, 'warn'); return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div style="background:rgba(184,50,50,.06);border:1.5px solid rgba(184,50,50,.35);border-radius:6px;padding:12px 16px;">'
+    + '<div style="font-weight:700;color:var(--red);font-size:.82rem;margin-bottom:8px;">⚠ ' + titulo + '</div>'
+    + '<ul style="margin:0;padding-left:18px;">'
+    + lista.map(function(e){ return '<li style="font-size:.79rem;color:var(--text-mid);margin-bottom:3px;">'+e+'</li>'; }).join('')
+    + '</ul></div>';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+function toast(msg, tipo) {
+  var area = gi('toastArea');
+  var d = document.createElement('div');
+  d.className = 'toast-item' + (tipo ? ' ' + tipo : '');
+  d.textContent = msg;
+  area.appendChild(d);
+  setTimeout(function() { d.remove(); }, 4000);
+}
+
+// ─────────────────────────────────────────────
+//  LOG
+// ─────────────────────────────────────────────
+function addLog(tipo, msg) {
+  var p = gi('actLog');
+  var e = document.createElement('div');
+  e.className = 'log-entry';
+  e.innerHTML = '<span class="log-time">' + ahora() + '</span><span class="log-msg ' + tipo + '">' + msg + '</span>';
+  p.appendChild(e);
+  p.scrollTop = p.scrollHeight;
+}
+function clearLog() { gi('actLog').innerHTML = '<div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">Log limpiado</span></div>'; }
+
+// ─────────────────────────────────────────────
+//  TABS
+// ─────────────────────────────────────────────
+function gotoTab(id, btn) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var tabs   = document.querySelectorAll('.tab');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var i = 0; i < tabs.length; i++)   tabs[i].classList.remove('active');
+  gi('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+//  STATS
+// ─────────────────────────────────────────────
+function actualizarStats() {
+  gi('stTotal').textContent      = cambios.length;
+  gi('stPendientes').textContent = cambios.filter(function(c){return c.estado==='solicitado'||c.estado==='en_analisis';}).length;
+  gi('stAlto').textContent       = cambios.filter(function(c){return c.nivelRiesgo==='alto'&&c.estado!=='implementado'&&c.estado!=='rechazado'&&c.estado!=='desestimado';}).length;
+  gi('stPruebas').textContent    = cambios.filter(function(c){return c.estado==='en_pruebas';}).length;
+  gi('stImpl').textContent       = cambios.filter(function(c){return c.estado==='implementado';}).length;
+  renderDash();
+}
+
+function renderDash() {
+  var pend = cambios.filter(function(c){return ['solicitado','en_analisis','aprobado'].indexOf(c.estado)>-1;});
+  var alto = cambios.filter(function(c){return c.nivelRiesgo==='alto'&&['implementado','rechazado','desestimado'].indexOf(c.estado)===-1;});
+  gi('dashPend').innerHTML = pend.length ? tablaSimple(pend,['RFC','Título','Estado','Riesgo','F.Prevista'],function(c){return '<td><span class="ens-code">'+c.id+'</span></td><td>'+esc(c.titulo)+'</td><td>'+badgeEstado(c.estado)+'</td><td>'+badgeRiesgo(c.nivelRiesgo)+'</td><td class="mono">'+(c.fechaImpl||'—')+'</td>';}) : '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin cambios pendientes</div></div>';
+  gi('dashAlto').innerHTML = alto.length ? tablaSimple(alto,['RFC','Título','Estado','Autorizador RSEG'],function(c){return '<td><span class="ens-code">'+c.id+'</span></td><td>'+esc(c.titulo)+'</td><td>'+badgeEstado(c.estado)+'</td><td style="font-size:.78rem">'+(c.autorizador||'<span style="color:var(--red)">⚠️ Pendiente</span>')+'</td>';}) : '<div class="empty-state" style="padding:24px"><div class="empty-icon">🛡️</div><div class="empty-title">Sin riesgo ALTO pendiente</div></div>';
+}
+
+function tablaSimple(lista, cols, rowFn) {
+  var h = '<table class="data-table"><thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>';
+  lista.forEach(function(c){ h += '<tr style="cursor:pointer" onclick="verDetalle(\''+c.id+'\')">'+ rowFn(c) +'</tr>'; });
+  return h + '</tbody></table>';
+}
+
+function badgeEstado(e) { return '<span class="badge badge-'+(e||'solicitado')+'">'+(ESTADO_LABEL[e]||e||'—')+'</span>'; }
+function badgeRiesgo(n) { return n ? '<span class="badge badge-riesgo-'+n+'">'+n.toUpperCase()+'</span>' : '<span style="color:var(--text-dim);font-size:.72rem">—</span>'; }
+
+// ─────────────────────────────────────────────
+//  SELECTS
+// ─────────────────────────────────────────────
+function actualizarSelects() {
+  ['selRiesgo','selPruebas','selInforme'].forEach(function(sid) {
+    var sel = gi(sid); if (!sel) return;
+    var prev = sel.value;
+    sel.innerHTML = '<option value="">— Seleccionar RFC —</option>';
+    var lista = cambios.slice().sort(function(a,b){return b.id.localeCompare(a.id);});
+    lista.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.id + ' — ' + (c.titulo||'').substring(0,50) + (c.titulo&&c.titulo.length>50?'...':'');
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+  });
+}
+
+// ─────────────────────────────────────────────
+//  NUEVA PETICIÓN
+// ─────────────────────────────────────────────
+function limpiarNuevo() {
+  ['nTitulo','nFecha','nFechaImpl','nSolicitante','nDesc','nJustif','nSistemas','nImpacto','nResponsable','nRollback'].forEach(function(id){sv(id,'');});
+  gi('nTipo').value = ''; gi('nAmbito').value = '';
+  gi('nFecha').value = hoy();
+  gi('regMsg').style.display = 'none';
+}
+
+function registrarCambio() {
+  // Campos mínimos obligatorios para que el autorizador pueda decidir (ENS op.exp.5 §2)
+  var errs = [];
+  if (!v('nTitulo').trim())      errs.push('Título / Descripción breve');
+  if (!v('nTipo'))               errs.push('Tipo de cambio');
+  if (!v('nAmbito'))             errs.push('Ámbito del cambio');
+  if (!v('nSistemas').trim())    errs.push('Sistemas / Activos afectados');
+  if (!v('nDesc').trim())        errs.push('Descripción detallada');
+  if (!v('nJustif').trim())      errs.push('Justificación / Motivación');
+  if (!v('nSolicitante').trim()) errs.push('Solicitante');
+  if (!v('nFechaImpl'))          errs.push('Fecha prevista de implantación');
+  if (!v('nImpacto').trim())     errs.push('Impacto en la prestación de servicios');
+  if (errs.length) { mostrarErrores('regMsg', 'Completa los campos obligatorios antes de registrar:', errs); return; }
+
+  var titulo  = v('nTitulo').trim();
+  var sistemas = v('nSistemas').trim();
+  var id = genId();
+  var c = normalizar({
+    id:id, fecha:v('nFecha')||hoy(), fechaImpl:v('nFechaImpl'),
+    solicitante:v('nSolicitante').trim(), titulo:titulo,
+    descripcion:v('nDesc').trim(), justificacion:v('nJustif').trim(),
+    tipo:v('nTipo'), ambito:v('nAmbito'),
+    sistemas:sistemas, impactoServicio:v('nImpacto').trim(),
+    responsable:v('nResponsable').trim(), rollback:v('nRollback').trim(),
+    estado:'solicitado',
+    historial:[{fecha:hoy(),hora:ahora(),accion:'Petición registrada',autor:v('nSolicitante').trim()||'Sistema'}]
+  });
+  cambios.push(c);
+  guardar(); renderTabla();
+  var msg = gi('regMsg');
+  msg.style.display = 'block';
+  msg.innerHTML = '<div style="background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.3);border-radius:6px;padding:12px 16px;color:var(--green);font-size:.82rem"><strong>✅ Petición registrada</strong><br>Número de referencia: <strong style="font-family:\'IBM Plex Mono\',monospace">'+id+'</strong><br><span style="font-size:.77rem;color:var(--text-muted)">Próximo paso: completar el Análisis de riesgos en la pestaña correspondiente.</span></div>';
+  addLog('ok','✚ RFC registrado: '+id+' — '+titulo);
+  toast('Registrado: '+id,'ok');
+  limpiarNuevo();
+}
+
+// ─────────────────────────────────────────────
+//  CRITERIOS DE RIESGO
+// ─────────────────────────────────────────────
+function renderCriterios() {
+  var bgs = {alto:'rgba(184,50,50,0.85)',medio:'rgba(177,138,32,0.85)',bajo:'rgba(26,122,74,0.85)'};
+  ['alto','medio','bajo'].forEach(function(n) {
+    var el = gi('c' + n.charAt(0).toUpperCase() + n.slice(1));
+    if (!el) return;
+    el.innerHTML = CRITERIOS[n].map(function(c) {
+      return '<div class="risk-card" id="rc_'+c.id+'" onclick="toggleCriterio(\''+c.id+'\',\''+n+'\')">'
+        + '<div class="rc-tag" style="background:'+bgs[n]+';color:#fff">'+n.toUpperCase()+'</div>'
+        + '<div class="rc-desc">'+c.t+'</div>'
+        + '<div class="rc-chk">✓</div></div>';
+    }).join('');
+  });
+}
+
+function toggleCriterio(cid, nivel) {
+  var arr = marcados[nivel];
+  var idx = arr.indexOf(cid);
+  if (idx === -1) { arr.push(cid); gi('rc_'+cid).classList.add('selected'); }
+  else { arr.splice(idx,1); gi('rc_'+cid).classList.remove('selected'); }
+  calcularRiesgo();
+}
+
+function calcularRiesgo() {
+  var nivel = 'bajo';
+  if (marcados.alto.length > 0) nivel = 'alto';
+  else if (marcados.medio.length > 0) nivel = 'medio';
+  var icons={alto:'🔴',medio:'🟡',bajo:'🟢'};
+  var titles={alto:'Riesgo ALTO para la seguridad',medio:'Riesgo MEDIO para la seguridad',bajo:'Riesgo BAJO para la seguridad'};
+  var subs={alto:'Requiere aprobación explícita previa del Responsable de la Seguridad.',medio:'Requiere autorización según el procedimiento habitual.',bajo:'Cambio de bajo riesgo. Sigue el proceso estándar de autorización.'};
+  gi('riesgoVerdict').innerHTML = '<div class="verdict '+nivel+'"><div class="verdict-icon">'+icons[nivel]+'</div><div class="verdict-body"><div class="verdict-title">'+titles[nivel]+'</div><div class="verdict-sub">'+subs[nivel]+'</div></div></div>';
+  gi('alertaAlto').style.display = nivel === 'alto' ? 'block' : 'none';
+  // Panel de autorización visible cuando hay criterios marcados
+  var totalM = marcados.alto.length + marcados.medio.length + marcados.bajo.length;
+  gi('panelAut').style.display = totalM > 0 ? 'block' : 'none';
+  var panelAutTitle = gi('panelAutTitle');
+  var labAut = gi('labAut');
+  if (panelAutTitle) {
+    if (nivel === 'alto') {
+      panelAutTitle.innerHTML = '<span class="dot red"></span>Autorización RSEG <span style="color:var(--red);font-weight:700;">— OBLIGATORIA</span> <span class="ens-code">op.exp.5 §4</span>';
+    } else {
+      panelAutTitle.innerHTML = '<span class="dot amber"></span>Autorización <span class="ens-code">op.exp.5</span>';
+    }
+  }
+  if (labAut) labAut.textContent = nivel === 'alto' ? 'Responsable de Seguridad (RSEG) — obligatorio' : 'Autorizador';
+  return nivel;
+}
+
+function cargarRiesgo() {
+  var id = v('selRiesgo'); if (!id) return;
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  marcados = {alto:[].concat(c.criteriosMarcados.alto||[]),medio:[].concat(c.criteriosMarcados.medio||[]),bajo:[].concat(c.criteriosMarcados.bajo||[])};
+  document.querySelectorAll('.risk-card').forEach(function(el){el.classList.remove('selected');});
+  ['alto','medio','bajo'].forEach(function(n){marcados[n].forEach(function(cid){var el=gi('rc_'+cid);if(el)el.classList.add('selected');});});
+  calcularRiesgo();
+  sv('rAutorizador', c.autorizador); sv('rFechaAut', c.fechaAutorizacion);
+  gi('rDecision').value = c.decision || ''; sv('rObsAut', c.obsAutorizacion); sv('rNotas', c.notasRiesgo);
+}
+
+function guardarRiesgo() {
+  var id = v('selRiesgo'); if (!id){toast('Selecciona un cambio primero','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  var nivel = calcularRiesgo();
+
+  // Para guardar el análisis es obligatorio marcar al menos un criterio de riesgo
+  var totalMarcados = marcados.alto.length + marcados.medio.length + marcados.bajo.length;
+  if (!totalMarcados) {
+    mostrarErrores('riesgMsg', 'Marca al menos un criterio de riesgo antes de guardar el análisis:', [
+      'Selecciona los criterios que aplican al cambio en el panel de la izquierda'
+    ]); return;
+  }
+
+  // Si el nivel es ALTO, la autorización del RSEG es obligatoria antes de guardar
+  if (nivel === 'alto') {
+    var errAut = [];
+    if (!v('rAutorizador').trim()) errAut.push('Responsable de Seguridad (RSEG) autorizador');
+    if (!v('rFechaAut'))           errAut.push('Fecha de autorización');
+    if (!v('rDecision'))           errAut.push('Decisión de autorización');
+    if (errAut.length) {
+      mostrarErrores('riesgMsg',
+        'Riesgo ALTO: completa la autorización explícita del RSEG antes de guardar (ENS op.exp.5 §4):',
+        errAut); return;
+    }
+  }
+
+  // Para nivel MEDIO o BAJO, la decisión de autorización también es necesaria para avanzar
+  if (!v('rDecision')) {
+    mostrarErrores('riesgMsg', 'Indica la decisión de autorización antes de guardar:', [
+      'Selecciona si el cambio es Aprobado, Aprobado con condiciones, Rechazado o Desestimado'
+    ]); return;
+  }
+
+  c.nivelRiesgo = nivel;
+  c.criteriosMarcados = {alto:marcados.alto.slice(),medio:marcados.medio.slice(),bajo:marcados.bajo.slice()};
+  c.notasRiesgo = v('rNotas').trim();
+  c.autorizador = v('rAutorizador').trim();
+  c.fechaAutorizacion = v('rFechaAut');
+  c.decision = v('rDecision');
+  c.obsAutorizacion = v('rObsAut').trim();
+
+  var dec = c.decision;
+  if (dec==='aprobado'||dec==='aprobado_condiciones') c.estado='aprobado';
+  else if (dec==='rechazado') c.estado='rechazado';
+  else if (dec==='desestimado') c.estado='desestimado';
+  else if (c.estado==='solicitado') c.estado='en_analisis';
+  c.historial.push({fecha:hoy(),hora:ahora(),accion:'Análisis de riesgos: '+nivel.toUpperCase()+' — '+dec,autor:c.autorizador||'Sistema'});
+  guardar(); renderTabla();
+
+  var rMsg = gi('riesgMsg');
+  rMsg.style.display='block';
+  rMsg.innerHTML='<div style="background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.3);border-radius:6px;padding:10px 14px;color:var(--green);font-size:.8rem"><strong>✅ Análisis de riesgos guardado</strong> — Riesgo: <strong>'+nivel.toUpperCase()+'</strong> · Decisión: <strong>'+dec+'</strong></div>';
+  addLog('ok','🔍 Riesgo: '+id+' → '+nivel.toUpperCase()+' | '+dec); toast('Análisis guardado: '+id,'ok');
+}
+
+// ─────────────────────────────────────────────
+//  PRUEBAS
+// ─────────────────────────────────────────────
+function togglePreProd() {
+  var val = v('pPreProd');
+  gi('preProdNo').style.display = val==='no' ? 'block' : 'none';
+  gi('preProdSi').style.display = (val==='si'||val==='parcial') ? 'block' : 'none';
+}
+
+function cargarPruebas() {
+  var id = v('selPruebas'); if (!id) return;
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  gi('pPreProd').value = c.preProdPosible || ''; togglePreProd();
+  sv('pMotivo',c.motivoPreprod); sv('pFechaPre',c.fechaPreprod); sv('pEntorno',c.entornoPreprod);
+  sv('pEquiv',c.equivalenciaPreprod); gi('pResPre').value=c.resultadoPreprod||''; sv('pObsPre',c.obsPreprod);
+  sv('pFechaImpl',c.fechaImplReal); sv('pRespImpl',c.responsableImpl); sv('pNotasImpl',c.notasImpl);
+  sv('pFechaAcept',c.fechaAcept); sv('pRespAcept',c.responsableAcept);
+  gi('pResAcept').value=c.resultadoAcept||''; sv('pObsAcept',c.obsAcept);
+  gi('docDiagramas').checked = c.docActualizada.indexOf('diagramas')>-1;
+  gi('docInventario').checked = c.docActualizada.indexOf('inventario')>-1;
+  gi('docManuales').checked = c.docActualizada.indexOf('manuales')>-1;
+  gi('docConfig').checked = c.docActualizada.indexOf('configuracion')>-1;
+  gi('docNA').checked = c.docActualizada.indexOf('no_aplica')>-1;
+  sv('pDocRefs',c.docRefs);
+}
+
+function leerPruebas(c) {
+  c.preProdPosible = v('pPreProd'); c.motivoPreprod = v('pMotivo').trim();
+  c.fechaPreprod = v('pFechaPre'); c.entornoPreprod = v('pEntorno').trim();
+  c.equivalenciaPreprod = v('pEquiv').trim(); c.resultadoPreprod = v('pResPre'); c.obsPreprod = v('pObsPre').trim();
+  c.fechaImplReal = v('pFechaImpl'); c.responsableImpl = v('pRespImpl').trim(); c.notasImpl = v('pNotasImpl').trim();
+  c.fechaAcept = v('pFechaAcept'); c.responsableAcept = v('pRespAcept').trim();
+  c.resultadoAcept = v('pResAcept'); c.obsAcept = v('pObsAcept').trim();
+  var doc = [];
+  if (gi('docDiagramas').checked) doc.push('diagramas');
+  if (gi('docInventario').checked) doc.push('inventario');
+  if (gi('docManuales').checked) doc.push('manuales');
+  if (gi('docConfig').checked) doc.push('configuracion');
+  if (gi('docNA').checked) doc.push('no_aplica');
+  c.docActualizada = doc; c.docRefs = v('pDocRefs').trim();
+}
+
+function guardarPruebas() {
+  var id = v('selPruebas'); if (!id){toast('Selecciona un cambio primero','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  leerPruebas(c);
+  if (c.estado==='aprobado') c.estado='en_pruebas';
+  c.historial.push({fecha:hoy(),hora:ahora(),accion:'Pruebas registradas',autor:c.responsableImpl||'Sistema'});
+  guardar(); renderTabla();
+  addLog('ok','🧪 Pruebas guardadas: '+id); toast('Pruebas guardadas: '+id,'ok');
+}
+
+function marcarImplementado() {
+  var id = v('selPruebas'); if (!id){toast('Selecciona un cambio primero','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  leerPruebas(c);
+
+  // Validación: análisis de riesgos obligatorio para cambios normales, urgentes y de emergencia
+  var tiposMayor = ['normal','urgente','emergencia'];
+  if (tiposMayor.indexOf(c.tipo) > -1 && !c.nivelRiesgo) {
+    mostrarErrores('pruebasMsg',
+      'Este cambio ('+c.tipo.toUpperCase()+') requiere completar el análisis de riesgos antes de implementarse (ENS op.exp.5 §4):',
+      ['Ve a la pestaña "Análisis de riesgos", evalúa el nivel de riesgo y obtén la autorización correspondiente']);
+    return;
+  }
+
+  // Validación: no implementar si está rechazado o desestimado
+  if (c.estado === 'rechazado' || c.estado === 'desestimado') {
+    mostrarErrores('pruebasMsg', 'No se puede implementar: este cambio fue '+c.estado+'.', [
+      'Revisa el historial del cambio para ver el motivo'
+    ]); return;
+  }
+
+  // Validación: pruebas de aceptación obligatorias
+  var errImpl = [];
+  if (!c.resultadoAcept) errImpl.push('Resultado de las pruebas de aceptación');
+  if (!c.fechaImplReal)  errImpl.push('Fecha real de implementación');
+  if (!c.responsableImpl.trim()) errImpl.push('Responsable de la implementación');
+  if (errImpl.length) {
+    mostrarErrores('pruebasMsg', 'Completa estos campos antes de marcar como implementado:', errImpl);
+    return;
+  }
+
+  c.estado='implementado';
+  c.historial.push({fecha:hoy(),hora:ahora(),accion:'Marcado como implementado',autor:c.responsableImpl||'Sistema'});
+  guardar(); renderTabla();
+  var pm = gi('pruebasMsg');
+  pm.style.display='block';
+  pm.innerHTML='<div style="background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.3);border-radius:6px;padding:10px 14px;color:var(--green);font-size:.8rem"><strong>🚀 Cambio marcado como implementado</strong> — '+id+'</div>';
+  addLog('ok','🚀 Implementado: '+id); toast('Implementado: '+id,'ok');
+}
+
+// ─────────────────────────────────────────────
+//  REGISTRO / TABLA
+// ─────────────────────────────────────────────
+function renderTabla() {
+  var fe = v('filtroE'), fr = v('filtroR');
+  var lista = cambios.filter(function(c){return (!fe||c.estado===fe)&&(!fr||c.nivelRiesgo===fr);});
+  lista = lista.slice().sort(function(a,b){return b.id.localeCompare(a.id);});
+  var cont = gi('tablaRegistro');
+  if (!lista.length){cont.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No hay registros</div><div class="empty-sub">Registra la primera petición de cambio.</div></div>';return;}
+  var h = '<table class="data-table"><thead><tr><th>RFC</th><th>Fecha</th><th>Título</th><th>Tipo</th><th>Estado</th><th>Riesgo</th><th>F.Impl.</th><th>Acciones</th></tr></thead><tbody>';
+  lista.forEach(function(c){
+    h += '<tr><td><span class="ens-code">'+c.id+'</span></td><td class="mono">'+c.fecha+'</td><td style="max-width:220px">'+esc(c.titulo)+'</td><td style="font-size:.72rem;color:var(--text-muted)">'+(c.tipo||'—')+'</td><td>'+badgeEstado(c.estado)+'</td><td>'+badgeRiesgo(c.nivelRiesgo)+'</td><td class="mono">'+(c.fechaImplReal||c.fechaImpl||'—')+'</td><td style="white-space:nowrap"><button class="btn btn-secondary btn-sm" onclick="verDetalle(\''+c.id+'\')">Ver</button> <button class="btn btn-danger btn-sm" onclick="eliminar(\''+c.id+'\')">✕</button></td></tr>';
+  });
+  cont.innerHTML = h + '</tbody></table>';
+}
+
+function verDetalle(id) {
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  gi('detalleTitulo').innerHTML = '<span class="dot blue"></span>Detalle — <span class="ens-code">'+c.id+'</span> · '+esc(c.titulo);
+  var docMap = {diagramas:'Diagramas de red',inventario:'Inventario',manuales:'Manuales',configuracion:'Configuración',no_aplica:'No aplica'};
+  var docStr = (c.docActualizada||[]).map(function(d){return docMap[d]||d;}).join(', ')||'—';
+  gi('detalleCuerpo').innerHTML =
+    '<div class="main-cols3">'
+    +'<div><p style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:\'IBM Plex Mono\',monospace">Identificación</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>ID:</strong> <span class="ens-code">'+c.id+'</span></p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Solicitud:</strong> '+c.fecha+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Solicitante:</strong> '+esc(c.solicitante)+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Tipo:</strong> '+(c.tipo||'—')+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Sistemas:</strong> '+esc(c.sistemas)+'</p></div>'
+    +'<div><p style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:\'IBM Plex Mono\',monospace">Riesgos / Autorización</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Nivel riesgo:</strong> '+badgeRiesgo(c.nivelRiesgo)+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Autorizador:</strong> '+esc(c.autorizador)+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Decisión:</strong> '+(c.decision||'—')+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Estado:</strong> '+badgeEstado(c.estado)+'</p></div>'
+    +'<div><p style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:\'IBM Plex Mono\',monospace">Implementación</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>F.impl.real:</strong> '+(c.fechaImplReal||'—')+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Preprod.:</strong> '+(c.preProdPosible||'—')+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Aceptación:</strong> '+(c.resultadoAcept||'—')+'</p>'
+    +'<p style="font-size:.8rem;margin-bottom:4px"><strong>Docs.:</strong> '+docStr+'</p></div></div>'
+    +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><p style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-family:\'IBM Plex Mono\',monospace">Descripción</p><p style="font-size:.8rem;color:var(--text-mid);line-height:1.6">'+(c.descripcion?esc(c.descripcion):'—')+'</p></div>'
+    + (c.historial&&c.historial.length ? '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><p style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-family:\'IBM Plex Mono\',monospace">Historial</p>'
+    + c.historial.map(function(h){return '<div class="action-entry"><span class="action-date">'+h.fecha+' '+h.hora+'</span><span class="action-desc">'+esc(h.accion)+' <span style="color:var(--text-dim)">('+esc(h.autor)+')</span></span></div>';}).join('') + '</div>' : '');
+  gi('detallePanel').style.display = 'block';
+  gi('detallePanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function cerrarDetalle() { gi('detallePanel').style.display='none'; }
+
+function eliminar(id) {
+  if (!confirm('¿Eliminar '+id+'? No se puede deshacer.')) return;
+  cambios = cambios.filter(function(c){return c.id!==id;});
+  guardar(); renderTabla(); cerrarDetalle();
+  addLog('warn','🗑 Eliminado: '+id); toast('Eliminado: '+id,'warn');
+}
+
+// ─────────────────────────────────────────────
+//  INFORME
+// ─────────────────────────────────────────────
+function preInforme() {
+  var id = v('selInforme'); if (!id) return;
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  sv('iLecciones', c.lecciones); sv('iObs', c.obsFinales);
+}
+
+function generarInforme() {
+  var id = v('selInforme'); if (!id){toast('Selecciona un cambio','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  c.lecciones = v('iLecciones').trim(); c.obsFinales = v('iObs').trim();
+  guardar();
+  var L = '═'.repeat(62), L2 = '─'.repeat(62);
+  var docMap = {diagramas:'Diagramas de red/arquitectura',inventario:'Inventario de activos',manuales:'Manuales/procedimientos',configuracion:'Ficheros de configuración',no_aplica:'No aplica'};
+  var docItems = (c.docActualizada||[]).map(function(d){return docMap[d]||d;});
+  function w(label, val) { return '  ' + label.padEnd(22) + ': ' + (val||'—'); }
+  function blk(label, txt) { return '  ' + label + ':\n' + (txt||'—').split('\n').map(function(l){return '  '+l;}).join('\n'); }
+  var lines = [
+    L, '  INFORME DE CAMBIO — CambioLog ENS · op.exp.5', '  RD 311/2022 · Esquema Nacional de Seguridad', L, '',
+    '  IDENTIFICACIÓN', L2,
+    w('Número de referencia',c.id), w('Fecha de solicitud',c.fecha),
+    w('Solicitante',c.solicitante), w('Responsable técnico',c.responsable),
+    w('Generado',hoy()+' '+ahora()), '',
+    '  1. DESCRIPCIÓN DEL CAMBIO', L2,
+    w('Título',c.titulo), w('Tipo',c.tipo), w('Ámbito',c.ambito), w('Sistemas',c.sistemas), '',
+    blk('Descripción',c.descripcion), '', blk('Justificación',c.justificacion), '',
+    blk('Impacto en servicios',c.impactoServicio), '', blk('Plan de rollback',c.rollback), '',
+    '  2. ANÁLISIS DE RIESGOS — ENS op.exp.5 §4', L2,
+    w('Nivel de riesgo',(c.nivelRiesgo||'—').toUpperCase()),
+    w('Criterios ALTO marcados',String((c.criteriosMarcados.alto||[]).length)),
+    w('Criterios MEDIO marcados',String((c.criteriosMarcados.medio||[]).length)),
+    '', blk('Notas del análisis',c.notasRiesgo), '',
+    '  3. AUTORIZACIÓN — ENS op.exp.5 §4', L2,
+    w('Autorizador',c.autorizador), w('Fecha autorización',c.fechaAutorizacion),
+    w('Decisión',c.decision), '', blk('Observaciones',c.obsAutorizacion), '',
+    '  4. PRUEBAS DE PREPRODUCCIÓN — ENS op.exp.5 §3', L2,
+    w('Posibilidad realizarlas',c.preProdPosible),
+  ];
+  if (c.preProdPosible==='no') { lines.push(blk('Motivo no realizadas',c.motivoPreprod)); }
+  else { lines.push(w('Fecha realización',c.fechaPreprod),w('Entorno utilizado',c.entornoPreprod),'',blk('Equivalencia producción',c.equivalenciaPreprod),'',w('Resultado',c.resultadoPreprod),'',blk('Observaciones',c.obsPreprod)); }
+  lines = lines.concat([
+    '',
+    '  5. IMPLEMENTACIÓN Y ACEPTACIÓN — ENS op.exp.5 §5', L2,
+    w('Fecha implementación',c.fechaImplReal), w('Responsable impl.',c.responsableImpl),
+    '', blk('Notas implementación',c.notasImpl), '',
+    w('Fecha aceptación',c.fechaAcept), w('Responsable aceptación',c.responsableAcept),
+    w('Resultado aceptación',c.resultadoAcept), '', blk('Observaciones aceptación',c.obsAcept), '',
+    '  6. DOCUMENTACIÓN ACTUALIZADA — ENS op.exp.5 §5', L2,
+  ]);
+  if (docItems.length) { docItems.forEach(function(d){lines.push('  ✓ '+d);}); }
+  else { lines.push('  — Sin documentación registrada'); }
+  lines.push('', blk('Referencias',c.docRefs));
+  lines = lines.concat([
+    '',
+    '  7. LECCIONES APRENDIDAS', L2,
+    blk('Lecciones',c.lecciones), '', blk('Observaciones finales',c.obsFinales), '',
+    '  ESTADO FINAL', L2,
+    w('Estado',(ESTADO_LABEL[c.estado]||c.estado)),
+  ]);
+  if (c.historial&&c.historial.length) {
+    lines.push('', '  HISTORIAL DE CAMBIOS', L2);
+    c.historial.forEach(function(h){lines.push('  '+h.fecha+' '+h.hora+'  '+h.accion+' ('+h.autor+')');});
+  }
+  lines = lines.concat(['', L, '  Documento generado por CambioLog ENS v2', '  ENS op.exp.5 — RD 311/2022', L]);
+  gi('informeOut').textContent = lines.join('\n');
+  addLog('ok','📄 Informe generado: '+id);
+}
+
+function cerrarCambio() {
+  var id = v('selInforme'); if (!id){toast('Selecciona un cambio','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;}); if (!c) return;
+  c.estado='implementado';
+  c.historial.push({fecha:hoy(),hora:ahora(),accion:'Archivado/Cerrado',autor:'Sistema'});
+  guardar(); renderTabla();
+  addLog('ok','✔ Archivado: '+id); toast('Archivado: '+id,'ok');
+}
+
+function copiarInforme() {
+  var txt = gi('informeOut').textContent;
+  if (!txt||txt.startsWith('Selecciona')){toast('Genera el informe primero','warn');return;}
+  navigator.clipboard.writeText(txt).then(function(){toast('Informe copiado','ok');});
+}
+
+function exportarInformeHTML() {
+  var id = v('selInforme');
+  var txt = gi('informeOut').textContent;
+  if (!txt||txt.startsWith('Selecciona')){toast('Genera el informe primero','warn');return;}
+  var c = cambios.find(function(x){return x.id===id;})||{};
+  var docMap = {diagramas:'Diagramas de red',inventario:'Inventario de activos',manuales:'Manuales',configuracion:'Configuración',no_aplica:'No aplica'};
+  var docItems = (c.docActualizada||[]).map(function(d){return docMap[d]||d;});
+  // Build HTML via concatenation — never use template literals containing HTML tags
+  var ST  = '<' + 'style' + '>';
+  var STE = '<' + '/style' + '>';
+  var css = 'body{font-family:\'IBM Plex Sans\',sans-serif;background:#f3f9fa;color:#0d2f35;font-size:13.5px;line-height:1.65;margin:0}.bar{background:#0d3d47;color:#ffe855;padding:10px 24px;font-family:\'IBM Plex Mono\',monospace;font-size:.9rem}.page{max-width:860px;margin:0 auto;padding:40px 32px 80px}h2{font-size:1.4rem;font-weight:700;color:#0d3d47;margin-bottom:16px}.sec{margin-bottom:24px}.sec-title{font-family:\'IBM Plex Mono\',monospace;font-size:.68rem;font-weight:700;color:#145560;text-transform:uppercase;letter-spacing:1.2px;border-bottom:2px solid rgba(20,85,96,.18);padding-bottom:6px;margin-bottom:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}.fld{margin-bottom:8px}.fl{font-size:.68rem;color:#4a808a;margin-bottom:2px;font-weight:600}.fv{font-size:.82rem}.pre{white-space:pre-wrap;background:#e8f4f6;padding:8px 12px;border-radius:6px;font-size:.78rem;color:#2a5560;border:1px solid rgba(20,85,96,.13)}.badge-alto{background:rgba(184,50,50,.12);color:#b83232;border:1px solid rgba(184,50,50,.3);padding:2px 8px;border-radius:3px;font-family:\'IBM Plex Mono\',monospace;font-size:.62rem;font-weight:700}.badge-medio{background:rgba(177,138,32,.13);color:#7a5800;border:1px solid rgba(177,138,32,.3);padding:2px 8px;border-radius:3px;font-family:\'IBM Plex Mono\',monospace;font-size:.62rem;font-weight:700}.badge-bajo{background:rgba(26,122,74,.1);color:#1a7a4a;border:1px solid rgba(26,122,74,.25);padding:2px 8px;border-radius:3px;font-family:\'IBM Plex Mono\',monospace;font-size:.62rem;font-weight:700}.chk{color:#22a860;font-weight:700;margin-right:6px}.ht{width:100%;border-collapse:collapse;font-size:.76rem}.ht th{background:#e8f4f6;padding:6px 10px;text-align:left;font-size:.64rem;font-weight:700;color:#4a808a;text-transform:uppercase;border-bottom:1px solid rgba(20,85,96,.13)}.ht td{padding:7px 10px;border-bottom:1px solid rgba(20,85,96,.09);color:#2a5560}.mono{font-family:\'IBM Plex Mono\',monospace;font-size:.7rem;color:#80b0b8}.ft{margin-top:40px;padding-top:12px;border-top:1px solid rgba(20,85,96,.13);font-family:\'IBM Plex Mono\',monospace;font-size:.65rem;color:#80b0b8;display:flex;justify-content:space-between}';
+  function f(label, val) { return '<div class="fld"><div class="fl">'+label+'</div><div class="fv">'+esc(val)+'</div></div>'; }
+  function fp(label, val) { return '<div class="fld"><div class="fl">'+label+'</div><div class="fv pre">'+esc(val)+'</div></div>'; }
+  function sec(n, title, body) { return '<div class="sec"><div class="sec-title">'+n+'. '+title+'</div>'+body+'</div>'; }
+  var rBadge = c.nivelRiesgo ? '<span class="badge-'+c.nivelRiesgo+'">'+(c.nivelRiesgo||'').toUpperCase()+'</span>' : '—';
+  var s1 = '<div class="row2">'+f('Título',c.titulo)+f('Tipo',c.tipo)+'</div>'
+    +'<div class="row2">'+f('Ámbito',c.ambito)+f('Sistemas/Activos',c.sistemas)+'</div>'
+    +fp('Descripción',c.descripcion)+fp('Justificación',c.justificacion)+fp('Impacto en servicios',c.impactoServicio)+fp('Plan de rollback',c.rollback);
+  var s2 = '<div class="row2"><div class="fld"><div class="fl">Nivel de riesgo</div><div class="fv">'+rBadge+'</div></div>'+f('Criterios ALTO marcados',String((c.criteriosMarcados.alto||[]).length))+'</div>'+fp('Notas del análisis',c.notasRiesgo);
+  var s3 = c.nivelRiesgo==='alto' ? '<div class="row2">'+f('Responsable Seguridad (RSEG)',c.autorizador)+f('Fecha autorización',c.fechaAutorizacion)+'</div>'+f('Decisión',c.decision)+fp('Observaciones',c.obsAutorizacion) : '<div class="fv" style="color:#80b0b8">No aplica (riesgo no ALTO)</div>';
+  var s4 = f('Posibilidad de realizarlas',c.preProdPosible)+(c.preProdPosible==='no' ? fp('Motivo',c.motivoPreprod) : '<div class="row2">'+f('Fecha',c.fechaPreprod)+f('Entorno',c.entornoPreprod)+'</div>'+fp('Equivalencia con producción',c.equivalenciaPreprod)+f('Resultado',c.resultadoPreprod)+fp('Observaciones',c.obsPreprod));
+  var s5 = '<div class="row2">'+f('Fecha implementación',c.fechaImplReal)+f('Responsable impl.',c.responsableImpl)+'</div>'+fp('Notas implementación',c.notasImpl)+'<div class="row2">'+f('Fecha aceptación',c.fechaAcept)+f('Responsable aceptación',c.responsableAcept)+'</div>'+f('Resultado aceptación',c.resultadoAcept)+fp('Observaciones aceptación',c.obsAcept);
+  var s6 = docItems.length ? docItems.map(function(d){return '<div><span class="chk">✓</span>'+esc(d)+'</div>';}).join('') : '<div style="color:#80b0b8">Sin documentación registrada</div>';
+  s6 += fp('Referencias',c.docRefs);
+  var s7 = fp('Lecciones aprendidas',c.lecciones)+fp('Observaciones finales',c.obsFinales);
+  var sH = (c.historial&&c.historial.length) ? '<table class="ht"><thead><tr><th>Fecha</th><th>Hora</th><th>Acción</th><th>Autor</th></tr></thead><tbody>'+c.historial.map(function(h){return '<tr><td class="mono">'+esc(h.fecha)+'</td><td class="mono">'+esc(h.hora)+'</td><td>'+esc(h.accion)+'</td><td>'+esc(h.autor)+'</td></tr>';}).join('')+'</tbody></table>' : '';
+  var body =
+    '<div class="bar">CambioLog ENS · Informe de Cambio · ENS op.exp.5 · RD 311/2022</div>'
+    +'<div class="page">'
+    +'<h2>RFC <span style="font-family:\'IBM Plex Mono\',monospace">'+esc(id)+'</span> — '+esc(c.titulo)+'</h2>'
+    +'<div class="row2">'+f('Solicitante',c.solicitante)+f('Fecha solicitud',c.fecha)+'</div>'
+    +sec(1,'Descripción del cambio',s1)
+    +sec(2,'Análisis de riesgos — §4',s2)
+    +sec(3,'Autorización — §4',s3)
+    +sec(4,'Pruebas de preproducción — §3',s4)
+    +sec(5,'Implementación y aceptación — §5',s5)
+    +sec(6,'Documentación actualizada — §5',s6)
+    +sec(7,'Lecciones aprendidas y observaciones',s7)
+    +(sH ? '<div class="sec"><div class="sec-title">Historial de cambios</div>'+sH+'</div>' : '')
+    +'<div class="ft"><span>CambioLog ENS v2 · ENS op.exp.5 · RD 311/2022</span><span>Generado el '+hoy()+'</span></div>'
+    +'</div>';
+  var doc = '<!DOCTYPE html>' + '\n'
+    + '<'+'html lang="es"'+'>' + '\n'
+    + '<'+'head'+'>' + '\n'
+    + '<'+'meta charset="UTF-8"'+'>' + '\n'
+    + '<'+'title'+'>'+'Informe '+esc(id)+' CambioLog ENS'+'<'+'/title'+'>' + '\n'
+    + ST + '\n' + css + '\n' + STE + '\n'
+    + '<'+'/head'+'>' + '\n'
+    + '<'+'body'+'>' + '\n' + body + '\n' + '<'+'/body'+'>' + '\n'
+    + '<'+'/html'+'>';
+  var blob = new Blob([doc], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'informe_'+id+'_'+hoy()+'.html';
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  addLog('ok','\u2b07 Informe HTML exportado: '+id); toast('Informe HTML exportado','ok');
+}
+
+// ─────────────────────────────────────────────
+//  EXPORT / IMPORT JSON
+// ─────────────────────────────────────────────
+function exportarJSON() {
+  if (!cambios.length){toast('No hay cambios para exportar','warn');return;}
+  var norm = cambios.map(normalizar);
+  var payload = {_meta:{tipo:'cambioLog_ens',version:2,norma:'ENS op.exp.5 RD 311/2022',exportadoEn:new Date().toISOString(),total:norm.length,campos:CAMPOS},counter:counter,cambios:norm};
+  var json = JSON.stringify(payload, null, 2);
+  var blob = new Blob([json], {type:'application/json;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cambioLog_ens_'+hoy()+'.json';
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  addLog('ok','\u2b07 JSON exportado: '+norm.length+' cambio(s), '+CAMPOS.length+' campos/registro');
+  toast('Exportados '+norm.length+' cambio(s)','ok');
+}
+
+function abrirImportar() {
+  impParsed = null;
+  gi('impPreview').style.display='none';
+  gi('impOps').style.display='none';
+  gi('impAcciones').style.display='none';
+  gi('avisoReemplazar').style.display='none';
+  var r = document.querySelector('input[name="impModo"][value="combinar"]');
+  if (r) r.checked = true;
+  gi('modalImportar').classList.add('open');
+}
+function cerrarImportar() { gi('modalImportar').classList.remove('open'); gi('fileJSON').value=''; }
+
+document.getElementById('avisoReemplazar') && document.querySelectorAll('input[name="impModo"]').forEach(function(r){
+  r.addEventListener('change', function(){
+    gi('avisoReemplazar').style.display = r.value==='reemplazar'&&r.checked ? 'block' : 'none';
+  });
+});
+
+function leerFicheroImport(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.json')){toast('Solo ficheros .json','err');return;}
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var raw = JSON.parse(ev.target.result);
+      if (!raw._meta||!Array.isArray(raw.cambios)) throw new Error('Formato no reconocido');
+      impParsed = {lista:raw.cambios, counter:raw.counter||0};
+      var faltantes = CAMPOS.filter(function(k){return raw.cambios.some(function(c){return c[k]===undefined;});});
+      var pct = CAMPOS.length ? Math.round(((CAMPOS.length-faltantes.length)/CAMPOS.length)*100) : 100;
+      var col = pct===100?'var(--green)':pct>=80?'var(--amber)':'var(--red)';
+      gi('impPreview').style.display='block';
+      gi('impPreview').innerHTML = '<strong style="color:var(--teal-deep)">✔ Fichero válido</strong><br>'
+        +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:.72rem">'+raw.cambios.length+' cambio(s) · Exportado: '+(raw._meta.exportadoEn||'').split('T')[0]+'</span><br>'
+        +'<span style="font-size:.74rem">Cobertura de campos: <strong style="color:'+col+'">'+pct+'%</strong></span>'
+        +(faltantes.length?'<br><span style="font-size:.72rem;color:var(--amber)">Campos a rellenar con defaults: '+faltantes.join(', ')+'</span>':'<br><span style="font-size:.72rem;color:var(--green)">✓ Todos los '+CAMPOS.length+' campos presentes</span>');
+      gi('cuentaActuales').textContent = cambios.length;
+      gi('impOps').style.display='block';
+      gi('impAcciones').style.display='flex';
+    } catch(e) {
+      gi('impPreview').style.display='block';
+      gi('impPreview').innerHTML='<span style="color:var(--red)">✕ Error: '+e.message+'</span>';
+      toast('Error al leer: '+e.message,'err');
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function confirmarImportar() {
+  if (!impParsed){toast('No hay fichero cargado','warn');return;}
+  var modoEl = document.querySelector('input[name="impModo"]:checked');
+  var modo = modoEl ? modoEl.value : 'combinar';
+  var lista = impParsed.lista.map(normalizar);
+  var importados=0, omitidos=0;
+  if (modo==='reemplazar') {
+    cambios = lista; importados = lista.length;
+    counter = Math.max(impParsed.counter, Math.max.apply(null, lista.map(function(c){return parseInt((c.id||'').replace(/\D/g,''))||0;}).concat([0])));
+  } else {
+    var ids = {}; cambios.forEach(function(c){ids[c.id]=true;});
+    lista.forEach(function(c){if(!ids[c.id]){cambios.push(c);importados++;}else{omitidos++;}});
+    var maxId = Math.max.apply(null, cambios.map(function(c){return parseInt((c.id||'').replace(/\D/g,''))||0;}).concat([0]));
+    if (maxId > counter) counter = maxId;
+  }
+  guardar(); renderTabla(); cerrarImportar();
+  var msg = modo==='reemplazar' ? 'Reemplazados: '+importados+' cambio(s)' : importados+' añadidos'+(omitidos?', '+omitidos+' omitidos (ID duplicado)':'');
+  addLog('ok','\u2b06 '+msg); toast(msg,'ok');
+}
+
+function verificarIntegridad() {
+  if (!cambios.length){toast('No hay cambios en memoria','warn');return;}
+  var reparados=0;
+  cambios = cambios.map(function(c){
+    var ant=JSON.stringify(c), nuevo=normalizar(c);
+    if(JSON.stringify(nuevo)!==ant) reparados++;
+    return nuevo;
+  });
+  guardar(); renderTabla();
+  var msg = reparados>0 ? reparados+' registro(s) normalizados' : 'Todos los '+cambios.length+' registros OK ('+CAMPOS.length+' campos)';
+  addLog(reparados>0?'warn':'ok','\uD83D\uDD0E '+msg); toast(msg, reparados>0?'warn':'ok');
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+document.getElementById('nFecha').value = hoy();
+renderCriterios();
+guardar();
+renderTabla();
+addLog('info','CambioLog ENS v2 iniciado \u00b7 Procesamiento 100% local \u00b7 ENS op.exp.5');
+</script>
+</body>
+</html>
