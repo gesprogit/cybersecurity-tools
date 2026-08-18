@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Checklist de Bastionado</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --surface2: #f4f3ef;
+    --surface3: #ebe9e3;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1a1917;
+    --text-2: #5a5854;
+    --text-3: #9a978f;
+    --accent: #1a3a5c;
+    --accent-light: #e8eef5;
+    --aplica-bg: #e8eef5; --aplica-fg: #1a3a5c;
+    --cumple-bg: #eaf3de; --cumple-fg: #2d5a0e;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181a;
+      --surface: #222226;
+      --surface2: #2a2a2e;
+      --surface3: #323238;
+      --border: rgba(255,255,255,0.09);
+      --border-strong: rgba(255,255,255,0.16);
+      --text: #f0ede8;
+      --text-2: #a09d98;
+      --text-3: #6a6760;
+      --accent: #5b91cc;
+      --accent-light: #1a2535;
+      --aplica-bg: #1a2535; --aplica-fg: #5b91cc;
+      --cumple-bg: #1c3a0a; --cumple-fg: #8ecf55;
+    }
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .top-bar {
+    background: var(--accent);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .top-bar .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .top-bar .logo-icon {
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .top-bar .logo-icon svg { width: 16px; height: 16px; color: #fff; }
+  .top-bar h1 { font-size: 15px; font-weight: 400; color: #ffffff; letter-spacing: 0.02em; font-family: 'Georgia', serif; }
+  .top-bar .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-left: auto; font-family: 'Courier New', monospace; letter-spacing: 0.05em; }
+
+  /* Layout */
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  /* Intro */
+  .intro { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .intro p { font-size: 15px; color: var(--text-2); max-width: 620px; }
+  .intro .ens-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-family: 'Courier New', monospace; letter-spacing: 0.06em;
+    color: var(--accent); background: var(--accent-light);
+    padding: 3px 10px; border-radius: 4px; margin-bottom: 10px;
+    border: 1px solid rgba(26,58,92,0.2);
+  }
+
+  /* Main grid */
+  .main-grid { display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* Panel izquierdo */
+  .left-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: sticky;
+    top: 1rem;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .panel-header h2 { font-size: 13px; font-weight: 400; color: var(--text-2); letter-spacing: 0.04em; text-transform: uppercase; font-family: 'Courier New', monospace; }
+  .panel-body { padding: 18px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+  .tab {
+    flex: 1; padding: 8px 10px; font-size: 12px; cursor: pointer;
+    background: transparent; border: none; color: var(--text-2);
+    transition: all 0.15s; font-family: 'Courier New', monospace; letter-spacing: 0.03em;
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab:not(:last-child) { border-right: 1px solid var(--border); }
+
+  /* Input */
+  .field-label { font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; font-family: 'Courier New', monospace; margin-bottom: 6px; }
+  textarea {
+    width: 100%; min-height: 110px;
+    font-size: 13px; padding: 10px 12px;
+    border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    resize: vertical; font-family: 'Georgia', serif; line-height: 1.5;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-3); font-style: italic; }
+
+  /* Upload */
+  .panel-tab { display: none; }
+  .panel-tab.active { display: block; }
+
+  .upload-zone {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface2);
+    transition: all 0.15s;
+  }
+  .upload-zone:hover { background: var(--surface3); border-color: var(--accent); }
+  .upload-zone.has-file { border-color: var(--cumple-fg); background: var(--cumple-bg); }
+  .upload-zone input { display: none; }
+  .upload-zone .up-icon { margin: 0 auto 8px; color: var(--text-3); }
+  .upload-zone .up-text { font-size: 12px; color: var(--text-2); font-family: 'Courier New', monospace; }
+  .upload-zone .up-hint { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .upload-zone .file-chosen { font-size: 12px; color: var(--cumple-fg); font-weight: 600; margin-top: 6px; font-family: 'Courier New', monospace; }
+
+  /* API key */
+  .apikey-section { margin-top: 14px; }
+  .apikey-row { display: flex; gap: 6px; align-items: center; }
+  input[type=password], input[type=text].apikey {
+    flex: 1; padding: 8px 10px; font-size: 12px; font-family: 'Courier New', monospace;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface2); color: var(--text);
+  }
+  input[type=password]:focus, input[type=text].apikey:focus { outline: none; border-color: var(--accent); }
+  .eye-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; }
+  .apikey-hint { font-size: 10px; color: var(--text-3); margin-top: 4px; font-family: 'Courier New', monospace; }
+  .apikey-hint a { color: var(--accent); }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%; margin-top: 18px;
+    padding: 11px 16px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 13px; font-family: 'Courier New', monospace; letter-spacing: 0.04em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.15s;
+  }
+  .btn-generate:hover { opacity: 0.88; }
+  .btn-generate:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Progress */
+  .progress-wrap { margin-top: 14px; display: none; }
+  .progress-bar { width: 100%; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.5s ease; }
+  .status-msg { font-size: 11px; color: var(--text-3); margin-top: 6px; font-family: 'Courier New', monospace; min-height: 16px; }
+  .status-msg.error { color: #8a2020; }
+  .status-msg.ok { color: var(--cumple-fg); }
+
+  /* Right panel */
+  .right-panel { min-height: 300px; }
+  .empty-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-3);
+  }
+  .empty-state .empty-icon { margin: 0 auto 12px; opacity: 0.3; }
+  .empty-state p { font-size: 13px; font-style: italic; }
+
+  /* Results */
+  .results-panel { display: none; }
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;
+  }
+  .results-title { font-size: 16px; font-weight: 400; color: var(--text); }
+  .results-actions { display: flex; gap: 8px; }
+  .btn-export {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; font-size: 12px; font-family: 'Courier New', monospace;
+    border: 1px solid var(--border-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--text); cursor: pointer;
+    transition: all 0.15s; letter-spacing: 0.03em;
+  }
+  .btn-export:hover { background: var(--surface2); }
+  .btn-export.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-export.primary:hover { opacity: 0.88; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .stat-pill { font-size: 11px; padding: 4px 12px; border-radius: 99px; font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
+  .stat-total { background: var(--surface2); color: var(--text-2); border: 1px solid var(--border); }
+
+  /* Columnas tabla */
+  .td-id { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 600; white-space: nowrap; color: var(--accent); }
+  .td-req { font-weight: 600; font-size: 12px; min-width: 140px; }
+  .td-desc { color: var(--text-2); min-width: 200px; max-width: 280px; font-size: 12px; }
+  .td-aplica, .td-cumple { min-width: 70px; font-size: 12px; color: var(--text-3); font-style: italic; }
+  .td-est, .td-com { min-width: 80px; color: var(--text-3); font-style: italic; font-size: 11px; }
+
+  /* Table */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    overflow-x: auto;
+    background: var(--surface);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    color: var(--text-3);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky; top: 0;
+  }
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface2); }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  /* Footer */
+  footer { text-align: center; padding: 2rem; font-size: 11px; color: var(--text-3); font-family: 'Courier New', monospace; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 1L2 4v4c0 3.31 2.67 6.41 6 7 3.33-.59 6-3.69 6-7V4L8 1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M5.5 8l1.5 1.5L10.5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Generador de Checklist de Bastionado</h1>
+  </div>
+  <span class="sub">ENS · CCN-STIC</span>
+</div>
+
+<div class="container">
+
+  <div class="intro">
+    <div class="ens-badge">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M5 3v2.5L6.5 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Alineado con el Esquema Nacional de Seguridad
+    </div>
+    <p>Genera un checklist de bastionado auditable de entre 20 y 40 controles técnicos a partir de la descripción de una tecnología o de un documento de seguridad (PDF). Compatible con Anthropic y OpenRouter.</p>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- Panel izquierdo -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <h2>Configuración</h2>
+      </div>
+      <div class="panel-body">
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('text')">Descripción</button>
+          <button class="tab" onclick="switchTab('file')">Documento</button>
+        </div>
+
+        <!-- Tab texto -->
+        <div class="panel-tab active" id="tab-text">
+          <div class="field-label">Tecnología a bastionar</div>
+          <textarea id="tech-input" placeholder="Ej: quiero bastionar un firewall Fortinet FortiGate en un entorno corporativo con acceso a internet y usuarios remotos VPN..."></textarea>
+        </div>
+
+        <!-- Tab archivo -->
+        <div class="panel-tab" id="tab-file">
+          <div class="field-label">Documento de seguridad</div>
+          <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div class="up-icon">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M14 4v14M8 10l6-6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 20v2a2 2 0 002 2h16a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="up-text">Haz clic para seleccionar</div>
+            <div class="up-hint">PDF, DOC, DOCX admitidos</div>
+            <div class="file-chosen" id="file-chosen-name"></div>
+            <input type="file" id="file-input" accept=".pdf,.doc,.docx" onchange="handleFile(event)">
+          </div>
+        </div>
+
+        <!-- Proveedor + API Key -->
+        <div class="apikey-section">
+          <div class="field-label" style="margin-top:14px;">Proveedor</div>
+          <select id="provider" onchange="onProviderChange()" style="width:100%;padding:8px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);margin-bottom:10px;">
+            <option value="anthropic">Anthropic (claude-sonnet-4-20250514)</option>
+            <option value="openrouter">OpenRouter</option>
+          </select>
+
+          <div id="or-model-wrap" style="display:none;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <div class="field-label">Modelo OpenRouter</div>
+              <button onclick="loadModels()" id="btn-load-models" style="font-size:10px;font-family:'Courier New',monospace;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text-2);cursor:pointer;">↻ Actualizar lista</button>
+            </div>
+            <select id="or-model-select" onchange="onModelSelect()" style="width:100%;padding:8px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);margin-bottom:6px;">
+              <option value="">— Introduce tu clave y pulsa Actualizar lista —</option>
+            </select>
+            <input type="text" id="or-model-custom" style="display:none;width:100%;padding:8px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);margin-bottom:4px;" placeholder="ej: google/gemini-2.0-flash-exp:free">
+            <div class="apikey-hint" id="or-model-hint">Introduce tu clave API y pulsa <strong>Actualizar lista</strong> para ver los modelos disponibles en tu cuenta.</div>
+          </div>
+
+          <div class="field-label">Clave API</div>
+          <div class="apikey-row">
+            <input type="password" class="apikey" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
+            <button class="eye-btn" onclick="toggleKey()" title="Mostrar/ocultar">
+              <svg id="eye-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+              </svg>
+            </button>
+          </div>
+          <div class="apikey-hint" id="apikey-hint">Obtén tu clave en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. No se almacena.</div>
+        </div>
+
+        <div id="maxtokens-wrap" style="margin-top:12px;">
+          <div class="field-label">Máx. tokens de respuesta: <span id="maxtok-val">2000</span></div>
+          <input type="range" id="max-tokens" min="500" max="4000" step="100" value="2000"
+            oninput="document.getElementById('maxtok-val').textContent=this.value"
+            style="width:100%;margin-top:4px;">
+          <div class="apikey-hint" style="margin-top:3px;">Redúcelo si obtienes error de créditos insuficientes en OpenRouter.</div>
+        </div>
+
+        <!-- Metadatos del documento -->
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+          <div class="field-label" style="margin-bottom:10px;">Metadatos del documento</div>
+          <div style="margin-bottom:8px;">
+            <div class="field-label">Versión</div>
+            <input type="text" id="meta-version" value="1.0" style="width:100%;padding:7px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);">
+          </div>
+          <div style="margin-bottom:8px;">
+            <div class="field-label">Fecha última actualización</div>
+            <input type="date" id="meta-fecha" style="width:100%;padding:7px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);">
+          </div>
+          <div>
+            <div class="field-label">Responsable de la revisión</div>
+            <input type="text" id="meta-responsable" placeholder="Nombre o equipo responsable" style="width:100%;padding:7px 10px;font-size:12px;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);">
+          </div>
+        </div>
+
+        <button class="btn-generate" id="gen-btn" onclick="generate()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v6M1 7h6M7 13V7M13 7H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Generar checklist
+        </button>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="status-msg" id="status-msg"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Panel derecho -->
+    <div class="right-panel">
+
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="10" y="6" width="28" height="36" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16 16h16M16 22h16M16 28h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p>Los controles generados aparecerán aquí</p>
+      </div>
+
+      <div class="results-panel" id="results-panel">
+        <div class="results-header">
+          <div class="results-title">Controles de bastionado</div>
+          <div class="results-actions">
+            <button class="btn-export" onclick="exportCSV()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M1 12h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              CSV
+            </button>
+            <button class="btn-export primary" onclick="exportExcel()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M1 12h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Exportar Excel
+            </button>
+          </div>
+        </div>
+        <!-- Barra de metadatos -->
+        <div id="meta-bar" style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;font-family:'Courier New',monospace;color:var(--text-3);margin-bottom:12px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);"></div>
+        <div class="stats-row" id="stats-row"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Requisito</th>
+                <th>Descripción</th>
+                <th>Aplica</th>
+                <th>Cumple</th>
+                <th>Estado</th>
+                <th>Comentarios</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>Generador de Checklist de Bastionado &mdash; Compatible con Anthropic y OpenRouter &mdash; Datos no almacenados</footer>
+
+<script>
+  let currentTab = 'text';
+  let uploadedFileB64 = null;
+  let uploadedMediaType = null;
+  let uploadedFileName = null;
+  let checklistData = [];
+
+  // Fecha de hoy por defecto
+  document.getElementById('meta-fecha').value = new Date().toISOString().slice(0, 10);
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'text') || (i === 1 && tab === 'file'));
+    });
+    document.getElementById('tab-text').classList.toggle('active', tab === 'text');
+    document.getElementById('tab-file').classList.toggle('active', tab === 'file');
+  }
+
+  function toggleKey() {
+    const inp = document.getElementById('api-key');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    uploadedFileName = file.name;
+    document.getElementById('file-chosen-name').textContent = file.name;
+    document.getElementById('drop-zone').classList.add('has-file');
+    const reader = new FileReader();
+    reader.onload = ev => {
+      uploadedFileB64 = ev.target.result.split(',')[1];
+      uploadedMediaType = file.name.endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function setProgress(pct) {
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className = 'status-msg' + (type ? ' ' + type : '');
+  }
+
+  function showProgress(show) {
+    document.getElementById('progress-wrap').style.display = show ? 'block' : 'none';
+  }
+
+  function onProviderChange() {
+    const p = document.getElementById('provider').value;
+    const inp = document.getElementById('api-key');
+    const hint = document.getElementById('apikey-hint');
+    document.getElementById('or-model-wrap').style.display = p === 'openrouter' ? 'block' : 'none';
+    if (p === 'openrouter') {
+      inp.placeholder = 'sk-or-v1-...';
+      hint.innerHTML = 'Obtén tu clave en <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>. No se almacena.';
+    } else {
+      inp.placeholder = 'sk-ant-api03-...';
+      hint.innerHTML = 'Obtén tu clave en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. No se almacena.';
+    }
+  }
+
+  function onModelSelect() {
+    const sel = document.getElementById('or-model-select').value;
+    const customInp = document.getElementById('or-model-custom');
+    customInp.style.display = sel === '__custom__' ? 'block' : 'none';
+  }
+
+  function getSelectedModel() {
+    const sel = document.getElementById('or-model-select').value;
+    if (!sel || sel === '__custom__') {
+      return document.getElementById('or-model-custom').value.trim() || '';
+    }
+    return sel;
+  }
+
+  async function loadModels() {
+    const apiKey = document.getElementById('api-key').value.trim();
+    if (!apiKey) { alert('Introduce primero tu clave API de OpenRouter.'); return; }
+    const btn = document.getElementById('btn-load-models');
+    const hint = document.getElementById('or-model-hint');
+    const sel = document.getElementById('or-model-select');
+    btn.textContent = '⏳ Cargando...';
+    btn.disabled = true;
+    hint.textContent = 'Consultando modelos disponibles en tu cuenta...';
+    try {
+      const resp = await fetch('https://openrouter.ai/api/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const models = data.data || [];
+
+      // Separar gratuitos (pricing.prompt === "0") de pago
+      const free = models.filter(m => m.pricing && (m.pricing.prompt === '0' || parseFloat(m.pricing.prompt) === 0));
+      const paid = models.filter(m => !free.includes(m));
+
+      sel.innerHTML = '';
+
+      if (free.length) {
+        const grp = document.createElement('optgroup');
+        grp.label = `✅ Gratuitos (${free.length})`;
+        free.sort((a,b) => a.id.localeCompare(b.id)).forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = m.id;
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
+
+      if (paid.length) {
+        const grp = document.createElement('optgroup');
+        grp.label = `💳 De pago (${paid.length})`;
+        paid.sort((a,b) => a.id.localeCompare(b.id)).forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = m.id;
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
+
+      const customOpt = document.createElement('option');
+      customOpt.value = '__custom__';
+      customOpt.textContent = '✏️ Introducir manualmente...';
+      sel.appendChild(customOpt);
+
+      // Seleccionar primer gratuito por defecto
+      if (free.length) sel.value = free[0].id;
+
+      hint.innerHTML = `${free.length} modelos gratuitos encontrados. Los modelos <strong>:free</strong> no consumen créditos.`;
+    } catch(e) {
+      hint.textContent = 'Error al cargar modelos: ' + e.message;
+    }
+    btn.textContent = '↻ Actualizar lista';
+    btn.disabled = false;
+  }
+
+  async function generate() {
+    const apiKey = document.getElementById('api-key').value.trim();
+    const provider = document.getElementById('provider').value;
+    if (!apiKey) { alert('Introduce tu clave API.'); return; }
+
+    if (provider === 'openrouter') {
+      const m = getSelectedModel();
+      if (!m) { alert('Selecciona un modelo. Pulsa "Actualizar lista" para cargar los disponibles en tu cuenta.'); return; }
+    }
+
+    const btn = document.getElementById('gen-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Generando...';
+    showProgress(true);
+    setProgress(5);
+    setStatus('Analizando tecnología...');
+
+    document.getElementById('results-panel').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'block';
+
+    let messages = [];
+
+    if (currentTab === 'text') {
+      const txt = document.getElementById('tech-input').value.trim();
+      if (!txt) {
+        setStatus('Introduce una descripción de la tecnología.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v6M1 7h6M7 13V7M13 7H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Generar checklist';
+        return;
+      }
+      messages = [{ role: 'user', content: txt }];
+    } else {
+      if (!uploadedFileB64) {
+        setStatus('Selecciona un archivo primero.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v6M1 7h6M7 13V7M13 7H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Generar checklist';
+        return;
+      }
+      const isPdf = uploadedMediaType === 'application/pdf';
+      if (isPdf) {
+        messages = [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: uploadedFileB64 } },
+            { type: 'text', text: 'Este es el documento de seguridad. Genera el checklist de bastionado basándote en él, extrayendo los controles más relevantes.' }
+          ]
+        }];
+      } else {
+        messages = [{ role: 'user', content: `El usuario ha subido el documento: "${uploadedFileName}". Infiere la tecnología y genera el checklist completo.` }];
+      }
+    }
+
+    const systemPrompt = `Eres un experto en ciberseguridad especializado en bastionado de sistemas y cumplimiento del Esquema Nacional de Seguridad (ENS) de España.
+
+Tu única función es generar un checklist de bastionado en formato CSV limpio y estructurado.
+
+INSTRUCCIONES:
+1. Analiza la tecnología o documento proporcionado e identifica: tipo de sistema, funciones principales, riesgos de seguridad
+2. Genera entre 20 y 40 controles de seguridad específicos, verificables y auditables
+3. Infiere un prefijo de 2-4 letras mayúsculas según la tecnología:
+   - Firewall → FW, Endpoint → EP, Servidor → SRV, SaaS → SAAS, Red → NET, Base de datos → DB, Active Directory → AD, VPN → VPN, Cloud → CLD, Microsoft Teams → MTS, etc.
+4. Incluye controles de: autenticación y gestión de identidades, control de accesos, registro y monitorización, actualización y parcheado, configuración segura, cifrado (si aplica)
+5. Cada control debe poder validarse de forma objetiva — evita frases genéricas
+
+ESTRUCTURA DE CADA CONTROL:
+- ID: prefijo + número correlativo (ej: FW-001)
+- Requisito: frase corta tipo checklist
+- Descripción: explicación clara y técnica de qué se debe hacer o verificar
+- Aplica: dejar vacío (lo rellena el auditor)
+- Cumple: dejar vacío (lo rellena el auditor)
+- Estado: dejar vacío
+- Comentarios: dejar vacío
+
+FORMATO DE SALIDA — CSV ESTRICTO:
+- Primera línea (cabecera exacta): ID,Requisito,Descripción,Aplica,Cumple,Estado,Comentarios
+- Separador: coma (,)
+- Si un campo contiene comas o saltos de línea, enciérralo en comillas dobles
+- Los campos Aplica, Cumple, Estado y Comentarios: dejar siempre vacíos
+- NO añadas texto antes ni después del CSV
+- NO uses formato Markdown ni bloques de código
+- Solo el CSV limpio`;
+
+    try {
+      setProgress(20);
+      setStatus('Conectando con la API...');
+
+      let resp;
+      const maxTok = parseInt(document.getElementById('max-tokens').value) || 2000;
+
+      if (provider === 'openrouter') {
+        const model = getSelectedModel();
+        resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': window.location.href,
+            'X-Title': 'Checklist Bastionado ENS'
+          },
+          body: JSON.stringify({
+            model: model,
+            max_tokens: maxTok,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...messages.map(m => {
+                if (typeof m.content === 'string') return m;
+                const textPart = m.content.find(c => c.type === 'text');
+                const docPart  = m.content.find(c => c.type === 'document');
+                if (docPart) {
+                  return { role: 'user', content: (textPart ? textPart.text + '\n\n' : '') + '[Se ha proporcionado un documento PDF adjunto para análisis]' };
+                }
+                return { role: m.role, content: m.content.map(c => c.text || '').join(' ') };
+              })
+            ]
+          })
+        });
+      } else {
+        resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-calls': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: maxTok,
+            system: systemPrompt,
+            messages: messages
+          })
+        });
+      }
+
+      setProgress(70);
+      setStatus('Procesando respuesta...');
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error?.message || `Error HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      // Anthropic: data.content[].text — OpenRouter: data.choices[].message.content
+      const raw = (provider === 'openrouter')
+        ? (data.choices?.[0]?.message?.content || '')
+        : data.content.map(c => c.text || '').join('');
+      setProgress(90);
+
+      const parsed = parseCSV(raw);
+      if (parsed.length < 3) throw new Error('No se pudo parsear el checklist. Inténtalo de nuevo.');
+
+      // Filtrar cabecera
+      const header = parsed[0];
+      checklistData = parsed.slice(1).filter(r => r.length >= 5 && r[0]);
+
+      if (checklistData.length < 3) throw new Error('Pocos controles generados. Revisa la descripción.');
+
+      renderTable(checklistData);
+      setProgress(100);
+      setStatus(`${checklistData.length} controles generados correctamente.`, 'ok');
+
+      setTimeout(() => { showProgress(false); setProgress(0); }, 1200);
+
+    } catch (e) {
+      setStatus('Error: ' + e.message, 'error');
+      setProgress(0);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v6M1 7h6M7 13V7M13 7H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Generar checklist';
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const row = [];
+      let inQ = false, cur = '';
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"' && !inQ) { inQ = true; }
+        else if (c === '"' && inQ) {
+          if (line[i + 1] === '"') { cur += '"'; i++; }
+          else { inQ = false; }
+        } else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+        else { cur += c; }
+      }
+      row.push(cur.trim());
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function getMeta() {
+    return {
+      version: document.getElementById('meta-version').value.trim() || '1.0',
+      fecha: document.getElementById('meta-fecha').value || '',
+      responsable: document.getElementById('meta-responsable').value.trim() || ''
+    };
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    for (const row of data) {
+      const [id, req, desc] = row;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="td-id">${esc(id)}</td>
+        <td class="td-req">${esc(req)}</td>
+        <td class="td-desc">${esc(desc)}</td>
+        <td class="td-aplica">&mdash;</td>
+        <td class="td-cumple">&mdash;</td>
+        <td class="td-est">&mdash;</td>
+        <td class="td-com">&mdash;</td>`;
+      tbody.appendChild(tr);
+    }
+
+    const stats = document.getElementById('stats-row');
+    stats.innerHTML = `<span class="stat-pill stat-total">${data.length} controles</span>`;
+
+    // Barra de metadatos
+    const meta = getMeta();
+    const bar = document.getElementById('meta-bar');
+    const parts = [];
+    parts.push(`<span>Versión: <strong>${esc(meta.version)}</strong></span>`);
+    if (meta.fecha) parts.push(`<span>Última actualización: <strong>${meta.fecha}</strong></span>`);
+    if (meta.responsable) parts.push(`<span>Responsable: <strong>${esc(meta.responsable)}</strong></span>`);
+    bar.innerHTML = parts.join('<span style="opacity:0.3">·</span>');
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('results-panel').style.display = 'block';
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function getFileName() {
+    const txt = document.getElementById('tech-input').value.trim().slice(0, 30);
+    const src = uploadedFileName ? uploadedFileName.replace(/\.[^.]+$/, '') : txt;
+    return 'checklist_' + (src || 'bastionado').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '');
+  }
+
+  function exportCSV() {
+    if (!checklistData.length) return;
+    const meta = getMeta();
+    let csv = `# Versión: ${meta.version}\n`;
+    if (meta.fecha) csv += `# Fecha última actualización: ${meta.fecha}\n`;
+    if (meta.responsable) csv += `# Responsable: ${meta.responsable}\n`;
+    csv += 'ID,Requisito,Descripción,Aplica,Cumple,Estado,Comentarios\n';
+    for (const row of checklistData) {
+      const cols = [row[0]||'', row[1]||'', row[2]||'', '', '', '', ''];
+      csv += cols.map(v => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v.replace(/"/g,'""')}"` : v).join(',') + '\n';
+    }
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = getFileName() + '.csv';
+    a.click();
+  }
+
+  function exportExcel() {
+    if (!checklistData.length || typeof XLSX === 'undefined') { alert('Librería XLSX no cargada. Verifica tu conexión.'); return; }
+    const meta = getMeta();
+    const wb = XLSX.utils.book_new();
+
+    // Hoja principal
+    const wsData = [['ID', 'Requisito', 'Descripción', 'Aplica', 'Cumple', 'Estado', 'Comentarios']];
+    for (const row of checklistData) {
+      wsData.push([row[0]||'', row[1]||'', row[2]||'', '', '', '', '']);
+    }
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [
+      { wch: 12 }, { wch: 30 }, { wch: 55 },
+      { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 28 }
+    ];
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { patternType: 'solid', fgColor: { rgb: '1A3A5C' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
+    };
+    ['A1','B1','C1','D1','E1','F1','G1'].forEach(cell => {
+      if (ws[cell]) ws[cell].s = headerStyle;
+    });
+
+    const baseStyle = { alignment: { vertical: 'top', wrapText: true }, font: { sz: 10 } };
+    const rows = checklistData.length;
+    for (let r = 2; r <= rows + 1; r++) {
+      ['A','B','C','D','E','F','G'].forEach(col => {
+        const cell = col + r;
+        if (ws[cell]) ws[cell].s = { ...baseStyle };
+      });
+    }
+    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+    XLSX.utils.book_append_sheet(wb, ws, 'Checklist Bastionado');
+
+    // Hoja de metadatos e instrucciones
+    const instrData = [
+      ['CHECKLIST DE BASTIONADO'],
+      [''],
+      ['Versión', meta.version],
+      ['Fecha última actualización', meta.fecha || ''],
+      ['Responsable de la revisión', meta.responsable || ''],
+      [''],
+      ['INSTRUCCIONES DE USO'],
+      [''],
+      ['Columna', 'Descripción'],
+      ['ID', 'Identificador único del control (prefijo según tecnología + número correlativo)'],
+      ['Requisito', 'Nombre corto del control de seguridad'],
+      ['Descripción', 'Explicación técnica de qué se debe configurar o verificar'],
+      ['Aplica', 'Indicar si el control aplica al entorno auditado: Sí / No / N/A'],
+      ['Cumple', 'Indicar si se cumple el control: Sí / No / Parcial'],
+      ['Estado', 'Estado de implementación: Implementado / En progreso / Pendiente / No aplica'],
+      ['Comentarios', 'Observaciones, hallazgos o plan de remediación'],
+      [''],
+      ['Generado con: Generador de Checklist de Bastionado'],
+      ['Alineado conceptualmente con el Esquema Nacional de Seguridad (ENS)']
+    ];
+    const wsInstr = XLSX.utils.aoa_to_sheet(instrData);
+    wsInstr['!cols'] = [{ wch: 28 }, { wch: 70 }];
+
+    // Estilo título
+    if (wsInstr['A1']) wsInstr['A1'].s = { font: { bold: true, sz: 14, color: { rgb: '1A3A5C' } } };
+    if (wsInstr['A7']) wsInstr['A7'].s = { font: { bold: true, sz: 11, color: { rgb: '1A3A5C' } } };
+
+    XLSX.utils.book_append_sheet(wb, wsInstr, 'Información');
+    XLSX.writeFile(wb, getFileName() + '.xlsx');
+  }
+</script>
+</body>
+</html>
