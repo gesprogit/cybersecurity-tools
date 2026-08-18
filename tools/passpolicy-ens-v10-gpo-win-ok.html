@@ -1,0 +1,2907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PassPolicy ENS — Política de Contraseñas · CCN-STIC-807 · CCN-STIC-140</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum:        #814e83;
+  --plum-deep:   #60345e;
+  --plum-darker: #4a2648;
+  --gold:        #ffe855;
+  --gold-mid:    #fcc123;
+  --gold-dark:   #b18a20;
+  --blush:       #dca0b5;
+  --rose:        #ca7191;
+  --magenta:     #b33f76;
+  --navy:       var(--plum-deep);
+  --navy-mid:   var(--plum-darker);
+  --navy-light: var(--plum);
+  --blue:       var(--plum);
+  --blue-bright:var(--magenta);
+  --cyan:       var(--gold-mid);
+  --green:      #1a7a4a;
+  --green-light:#22a860;
+  --amber:      var(--gold-dark);
+  --red:        #b83232;
+  --red-light:  #d44444;
+  --bg:        #f9f5fa;
+  --surface:   #ffffff;
+  --surface2:  #f3edf5;
+  --surface3:  #ecddf0;
+  --border:    rgba(96,52,94,0.13);
+  --border-med:rgba(96,52,94,0.22);
+  --text:      #2e1430;
+  --text-mid:  #523658;
+  --text-muted:#7a5080;
+  --text-dim:  #aa88b0;
+  --r4: 4px; --r6: 6px; --r8: 8px;
+  --shadow:    0 1px 4px rgba(96,52,94,0.09), 0 0 0 1px rgba(96,52,94,0.07);
+  --shadow-md: 0 4px 20px rgba(96,52,94,0.12), 0 0 0 1px rgba(96,52,94,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13.5px; line-height: 1.6; min-height: 100vh;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(179,63,118,0.055) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 5%, rgba(255,232,85,0.04) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgba(129,78,131,0.04) 0%, transparent 60%);
+}
+.classification-bar {
+  background: linear-gradient(90deg, var(--plum-darker) 0%, var(--plum-deep) 40%, var(--plum) 100%);
+  color: #fff; padding: 6px 20px 7px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+  letter-spacing: 3px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+}
+.classification-bar .pill {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,228,85,0.35);
+  border-radius: 2px; padding: 1px 8px; color: var(--gold);
+}
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface); border-bottom: 2px solid var(--plum-deep);
+  padding: 0 40px; display: flex; align-items: center; justify-content: space-between;
+  height: 54px; box-shadow: 0 2px 8px rgba(96,52,94,0.08);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+  border-radius: var(--r4); display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 600;
+  color: var(--gold); letter-spacing: -0.5px; flex-shrink: 0;
+}
+.brand-name { font-family: 'IBM Plex Serif', serif; font-size: 1.05rem; font-weight: 600; color: var(--plum-deep); letter-spacing: -0.3px; }
+.brand-sep { width: 1px; height: 22px; background: var(--border-med); margin: 0 4px; }
+.brand-norm { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 1px; }
+.local-badge {
+  font-size: 0.65rem; font-family: 'IBM Plex Mono', monospace;
+  background: rgba(26,122,74,0.1); color: var(--green);
+  border: 1px solid rgba(26,122,74,0.25);
+  padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;
+}
+.app { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 36px 32px 80px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
+.page-eyebrow { font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace; color: var(--plum); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.page-title { font-family: 'IBM Plex Serif', serif; font-size: 2rem; font-weight: 600; color: var(--plum-deeper, #3a1b38); line-height: 1.15; margin-bottom: 12px; }
+.page-desc { color: var(--text-mid); max-width: 540px; font-size: 0.88rem; line-height: 1.65; }
+.norm-ref {
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--plum);
+  border-radius: var(--r6); padding: 14px 18px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-muted);
+  line-height: 1.9; min-width: 240px; flex-shrink: 0;
+}
+.norm-ref strong { color: var(--plum-deep); display: block; margin-bottom: 6px; font-size: 0.72rem; }
+
+/* ─── STATS ─── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r8); padding: 14px 16px; box-shadow: var(--shadow); }
+.stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 1.7rem; font-weight: 600; color: var(--plum-deep); line-height: 1; margin-bottom: 3px; }
+.stat-value.green { color: var(--green-light); }
+.stat-value.red   { color: var(--red); }
+.stat-value.amber { color: var(--amber); }
+.stat-sub { font-size: 0.68rem; color: var(--text-dim); }
+
+/* ─── TABS ─── */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
+.tab {
+  padding: 10px 18px; font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
+  border: none; background: none; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color .15s, border-color .15s; font-family: 'IBM Plex Sans', sans-serif;
+}
+.tab:hover { color: var(--plum); }
+.tab.active { color: var(--plum-deep); border-bottom-color: var(--plum-deep); font-weight: 600; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── PANEL ─── */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r8); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+.panel-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 0.78rem; font-weight: 600; color: var(--plum-deep); letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-med); }
+.dot.green { background: var(--green-light); }
+.dot.amber { background: var(--gold-mid); }
+.dot.red   { background: var(--red-light); }
+.dot.blue  { background: var(--plum); }
+.panel-body { padding: 18px 16px; }
+
+/* ─── FORM ─── */
+.field-group { margin-bottom: 16px; }
+.field-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; letter-spacing: 0.3px; }
+.field-label .norm-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--plum); background: rgba(129,78,131,0.08); border: 1px solid rgba(129,78,131,0.2); padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
+.field-label .guide-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border-med); border-radius: var(--r6);
+  padding: 8px 12px; font-size: 0.85rem; font-family: 'IBM Plex Sans', sans-serif; color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, select:focus { outline: none; border-color: var(--plum); box-shadow: 0 0 0 3px rgba(129,78,131,0.12); }
+
+.password-input-wrap { position: relative; }
+.password-input { font-family: 'IBM Plex Mono', monospace !important; font-size: 0.95rem !important; letter-spacing: 0.5px; padding-right: 44px !important; }
+.password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; padding: 2px 4px; transition: color .15s; }
+.password-toggle:hover { color: var(--plum); }
+
+.strength-wrap { margin-top: 10px; }
+.strength-bar-track { height: 5px; background: var(--surface3); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.strength-bar-fill { height: 100%; border-radius: 3px; transition: width .35s ease, background .35s ease; width: 0%; }
+.strength-label { font-size: 0.72rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
+
+/* ─── REQUIREMENTS GRID ─── */
+.req-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.req-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r6); font-size: 0.78rem; transition: border-color .2s, background .2s; }
+.req-item.pass { background: rgba(26,122,74,0.06); border-color: rgba(26,122,74,0.25); }
+.req-item.fail { background: rgba(184,50,50,0.05); border-color: rgba(184,50,50,0.18); }
+.req-item.na   { opacity: 0.5; }
+.req-icon { width: 16px; height: 16px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; background: var(--surface3); color: var(--text-dim); transition: background .2s, color .2s; margin-top: 1px; }
+.req-item.pass .req-icon { background: var(--green); color: #fff; }
+.req-item.fail .req-icon { background: var(--red); color: #fff; }
+.req-item.na .req-icon   { background: var(--surface3); color: var(--text-dim); }
+.req-text  { color: var(--text-mid); line-height: 1.3; }
+.req-detail{ font-size: 0.67rem; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+.req-item.pass .req-text { color: var(--green); }
+.req-item.fail .req-text { color: var(--red); }
+.req-src { font-size: 0.6rem; font-family: 'IBM Plex Mono', monospace; color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border); padding: 0 4px; border-radius: 2px; margin-left: 4px; }
+
+/* ─── LEVEL / USER TYPE SELECTOR ─── */
+.selector-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.selector-group label.group-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 8px; }
+.btn-group-seg { display: flex; border: 1px solid var(--border-med); border-radius: var(--r6); overflow: hidden; }
+.seg-btn {
+  flex: 1; padding: 9px 8px; border: none; background: var(--surface);
+  font-size: 0.78rem; font-weight: 500; color: var(--text-muted);
+  cursor: pointer; transition: background .15s, color .15s;
+  font-family: 'IBM Plex Sans', sans-serif; border-right: 1px solid var(--border-med);
+  text-align: center;
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover { background: var(--surface2); color: var(--plum); }
+.seg-btn.active { background: var(--plum-deep); color: #fff; }
+
+.level-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.level-card {
+  border: 2px solid var(--border-med); background: var(--surface); border-radius: var(--r8);
+  padding: 14px 12px; cursor: pointer; text-align: center;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.level-card:hover { border-color: var(--plum); background: var(--surface2); }
+.level-card.active { border-color: var(--plum-deep); background: var(--surface2); box-shadow: 0 0 0 3px rgba(96,52,94,0.1); }
+.level-card:active { transform: scale(0.98); }
+.level-badge { display: inline-block; margin-bottom: 6px; font-size: 0.62rem; font-family: 'IBM Plex Mono', monospace; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; font-weight: 600; }
+.lv-bajo   { background: rgba(177,138,32,0.15); color: #7a5e00; }
+.lv-medio  { background: rgba(129,78,131,0.12); color: var(--plum-deep); }
+.lv-alto   { background: rgba(184,50,50,0.1);   color: var(--red); }
+.level-name { font-weight: 600; font-size: 0.85rem; color: var(--plum-deep); display: block; margin-bottom: 4px; }
+.level-policy { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
+.level-policy span { display: block; }
+.level-policy strong { color: var(--plum-deep); }
+
+/* ─── CONFIG GRID ─── */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.config-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r6); padding: 12px 14px; }
+.config-item-label { font-size: 0.72rem; font-weight: 600; color: var(--text-mid); margin-bottom: 3px; letter-spacing: 0.2px; }
+.config-item-norm  { font-size: 0.62rem; font-family: 'IBM Plex Mono', monospace; color: var(--text-dim); margin-bottom: 8px; }
+.config-item input[type="number"] { width: 100%; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; }
+
+.toggle-wrap { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.toggle { position: relative; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: var(--surface3); border: 1px solid var(--border-med); border-radius: 10px; transition: background .2s; }
+.toggle input:checked ~ .toggle-track { background: var(--plum); border-color: var(--plum-deep); }
+.toggle-knob { position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform .2s; }
+.toggle input:checked ~ .toggle-knob { transform: translateX(16px); }
+.toggle-label { font-size: 0.78rem; color: var(--text-mid); }
+
+/* ─── GENERATOR ─── */
+.gen-password-box { background: var(--plum-darker); border-radius: var(--r8); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.gen-password-text { font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; font-weight: 500; color: var(--gold); letter-spacing: 2px; word-break: break-all; flex: 1; }
+.gen-password-text.empty { color: var(--text-dim); font-size: 0.85rem; letter-spacing: 0; }
+.btn-copy { background: rgba(255,232,85,0.15); color: var(--gold); border: 1px solid rgba(255,232,85,0.3); border-radius: var(--r6); padding: 8px 16px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.5px; transition: background .15s; }
+.btn-copy:hover { background: rgba(255,232,85,0.25); }
+.btn-copy.copied { background: rgba(26,122,74,0.25); color: #6ee09a; border-color: rgba(26,122,74,0.3); }
+
+/* ─── BUTTONS ─── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--r6); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: 'IBM Plex Sans', sans-serif; border: none; }
+.btn-primary { background: var(--plum-deep); color: #fff; }
+.btn-primary:hover { background: var(--plum-darker); }
+.btn-secondary { background: transparent; color: var(--plum-deep); border: 1px solid var(--border-med); }
+.btn-secondary:hover { background: var(--surface2); border-color: var(--plum); }
+.btn-export { background: transparent; color: var(--plum-deep); border: 1px solid var(--border-med); font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.3px; }
+.btn-export:hover { background: rgba(129,78,131,0.08); border-color: var(--plum); }
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* ─── LOG ─── */
+.log-panel { background: var(--plum-darker); border-radius: var(--r8); padding: 14px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--blush); max-height: 160px; overflow-y: auto; line-height: 1.7; }
+.log-entry { display: flex; gap: 12px; }
+.log-time { color: var(--text-dim); flex-shrink: 0; }
+.log-msg.ok   { color: #6ee09a; }
+.log-msg.warn { color: var(--gold); }
+.log-msg.err  { color: #f08080; }
+.log-msg.info { color: var(--blush); }
+
+/* ─── LAYOUT ─── */
+.main-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ─── COMPLIANCE TABLE ─── */
+.compliance-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.compliance-table th { background: var(--surface2); padding: 8px 12px; text-align: left; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.compliance-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text-mid); vertical-align: top; }
+.compliance-table tr:last-child td { border-bottom: none; }
+.ens-code { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 600; color: var(--plum); background: rgba(129,78,131,0.08); border: 1px solid rgba(129,78,131,0.2); padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
+.compliance-ok   { color: var(--green); font-weight: 600; }
+.compliance-warn { color: var(--amber); font-weight: 600; }
+
+/* ─── ENTROPY DISPLAY ─── */
+.entropy-display { display: flex; gap: 10px; align-items: stretch; margin-top: 14px; }
+.entropy-card { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r6); padding: 10px 14px; text-align: center; }
+.entropy-val { font-family: 'IBM Plex Mono', monospace; font-size: 1.3rem; font-weight: 600; color: var(--plum-deep); }
+.entropy-lbl { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+/* ─── VERDICT ─── */
+.verdict { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: var(--r8); margin-bottom: 16px; border: 1px solid; }
+.verdict.pass { background: rgba(26,122,74,0.07); border-color: rgba(26,122,74,0.25); }
+.verdict.fail { background: rgba(184,50,50,0.06); border-color: rgba(184,50,50,0.2); }
+.verdict.warn { background: rgba(177,138,32,0.07); border-color: rgba(177,138,32,0.25); }
+.verdict-icon { font-size: 1.4rem; flex-shrink: 0; }
+.verdict-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 2px; }
+.verdict.pass .verdict-title { color: var(--green); }
+.verdict.fail .verdict-title { color: var(--red); }
+.verdict.warn .verdict-title { color: var(--amber); }
+.verdict-desc { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ─── MODAL ─── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(46,20,48,0.55); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 10px; box-shadow: 0 20px 60px rgba(46,20,48,0.3); max-width: 800px; width: 100%; max-height: 88vh; overflow-y: auto; }
+.modal-header { background: var(--plum-darker); color: #fff; padding: 18px 24px; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-family: 'IBM Plex Serif', serif; font-size: 1rem; font-weight: 600; }
+.modal-close { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: rgba(255,255,255,0.2); }
+.modal-body { padding: 24px; }
+.report-section { margin-bottom: 20px; }
+.report-section-title { font-size: 0.72rem; font-family: 'IBM Plex Mono', monospace; color: var(--plum); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.report-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.report-table th { background: var(--surface2); padding: 7px 12px; text-align: left; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.report-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-mid); font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; }
+.report-table tr:last-child td { border-bottom: none; }
+.report-table td.pass { color: var(--green); font-weight: 600; }
+.report-table td.fail { color: var(--red); font-weight: 600; }
+
+/* ─── DIFF HIGHLIGHT ─── */
+.diff-up   { color: var(--red); }
+.diff-same { color: var(--text-dim); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 760px) {
+  .main-cols { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .req-grid  { grid-template-columns: 1fr; }
+  .config-grid { grid-template-columns: 1fr 1fr; }
+  .level-cards { grid-template-columns: 1fr; }
+  .selector-pair { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; }
+  .topbar { padding: 0 16px; }
+  .app { padding: 24px 16px 60px; }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="classification-bar">
+  <span class="pill">SIN CLASIFICAR</span>
+  <span>CCN-STIC-807 5.4/5.5 · CCN-STIC-140 REQ.21/29 · ENS [op.acc.5/op.acc.6]</span>
+  <span class="pill">Procesamiento 100% local · Sin transferencia de datos</span>
+</div>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">PP</div>
+    <span class="brand-name">PassPolicy ENS</span>
+    <div class="brand-sep"></div>
+    <span class="brand-norm">v2 · CCN-STIC-807 · CCN-STIC-140</span>
+  </div>
+  <div class="local-badge">Verificación 100% local · Sin servidores</div>
+</nav>
+
+<div class="app">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-eyebrow">Herramienta de seguridad de acceso</div>
+      <h1 class="page-title">Política de Contraseñas<br>conforme al ENS</h1>
+      <p class="page-desc">Verificación y generación de contraseñas según los requisitos exactos de la <strong>CCN-STIC-807</strong> (5.4 usuarios externos, 5.5 usuarios internos) y <strong>CCN-STIC-140</strong> (REQ.21, REQ.29). Diferencia por nivel de categoría ENS (BAJO/MEDIO/ALTO) y tipo de usuario.</p>
+    </div>
+    <div class="norm-ref">
+      <strong>Base normativa</strong>
+      RD 311/2022 · ENS [op.acc.5/6]<br>
+      CCN-STIC-807 5.4 (ext.)<br>
+      CCN-STIC-807 5.5 (int.)<br>
+      CCN-STIC-140 REQ.21/REQ.29<br>
+      CCN-STIC-808 Fila 78
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Perfil activo</div>
+      <div class="stat-value" id="statPerfil" style="font-size:0.85rem;padding-top:4px;">MEDIO · EXT</div>
+      <div class="stat-sub">categoría ENS · tipo usuario</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Longitud mínima</div>
+      <div class="stat-value" id="statLong">12</div>
+      <div class="stat-sub">caracteres requeridos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Verificaciones</div>
+      <div class="stat-value green" id="statVerif">0</div>
+      <div class="stat-sub">esta sesión</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Generadas</div>
+      <div class="stat-value amber" id="statGen">0</div>
+      <div class="stat-sub">esta sesión</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('verificar', this)">🔍 Verificar contraseña</button>
+    <button class="tab" onclick="switchTab('generar',   this)">⚙️ Generador</button>
+    <button class="tab" onclick="switchTab('politica',  this)">📋 Configurar política</button>
+    <button class="tab" onclick="switchTab('referencia',this)">📖 Referencia CCN-STIC-807</button>
+    <button class="tab" onclick="switchTab('gpo',this)">💾 Exportar GPO / PAM</button>
+  </div>
+
+  <!-- ════════════════════════════ TAB: VERIFICAR ════════════════════════════ -->
+  <div id="tab-verificar" class="tab-panel active">
+    <div class="main-cols">
+      <div>
+        <!-- SELECTOR INTEGRADO -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Perfil de verificación</span></div>
+          <div class="panel-body">
+            <div class="selector-pair">
+              <div>
+                <label class="group-label" style="font-size:0.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px;">Categoría ENS</label>
+                <div class="btn-group-seg" id="segLevel">
+                  <button class="seg-btn" onclick="setLevel('bajo',this)">BAJO</button>
+                  <button class="seg-btn active" onclick="setLevel('medio',this)">MEDIO</button>
+                  <button class="seg-btn" onclick="setLevel('alto',this)">ALTO</button>
+                </div>
+              </div>
+              <div>
+                <label class="group-label" style="font-size:0.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px;">Tipo de usuario</label>
+                <div class="btn-group-seg" id="segUser">
+                  <button class="seg-btn active" onclick="setUserType('ext',this)">Externo [op.acc.5]</button>
+                  <button class="seg-btn" onclick="setUserType('int',this)">Interno [op.acc.6]</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot green" id="dotVerif"></span>Verificador de contraseña</span>
+          </div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">
+                Contraseña a verificar
+                <span class="norm-tag" id="labelNorm">op.acc.5</span>
+                <span class="guide-tag">CCN-STIC-807 5.4</span>
+              </label>
+              <div class="password-input-wrap">
+                <input type="password" class="password-input" id="inputPassword"
+                  placeholder="Introduce la contraseña…"
+                  oninput="verifyPassword()" autocomplete="new-password">
+                <button class="password-toggle" onclick="toggleVis('inputPassword', this)" title="Mostrar/ocultar">👁</button>
+              </div>
+              <div class="strength-wrap">
+                <div class="strength-bar-track"><div class="strength-bar-fill" id="strengthBar"></div></div>
+                <span class="strength-label" id="strengthLabel">— Introduce una contraseña para analizar</span>
+              </div>
+            </div>
+            <div id="verdictBox" style="display:none;"></div>
+            <div class="entropy-display" id="entropyDisplay" style="display:none;">
+              <div class="entropy-card"><div class="entropy-val" id="entropyBits">—</div><div class="entropy-lbl">bits entropía</div></div>
+              <div class="entropy-card"><div class="entropy-val" id="charsetSize">—</div><div class="entropy-lbl">tamaño alfabeto</div></div>
+              <div class="entropy-card"><div class="entropy-val" id="crackTime">—</div><div class="entropy-lbl">fuerza bruta aprox.</div></div>
+            </div>
+            <div class="req-grid" id="reqGrid"></div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="generateReport()">📋 Generar evidencia</button>
+          <button class="btn btn-export" onclick="exportEvidencia()">⬇ Exportar informe</button>
+          <button class="btn btn-secondary" onclick="clearVerif()">✕ Limpiar</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot"></span>Política activa · CCN-STIC-807</span></div>
+          <div class="panel-body">
+            <table class="compliance-table">
+              <thead><tr><th>Parámetro</th><th>Valor</th><th>Fuente</th></tr></thead>
+              <tbody id="policyDisplay"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:0;">
+          <div class="panel-header"><span class="panel-title"><span class="dot"></span>Registro de actividad</span></div>
+          <div class="panel-body" style="padding:0;">
+            <div class="log-panel" id="logPanel">
+              <div class="log-entry"><span class="log-time">—</span><span class="log-msg info">Sistema listo. Política por defecto: MEDIO · Externo [op.acc.5] · CCN-STIC-807 5.4.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ TAB: GENERAR ════════════════════════════ -->
+  <div id="tab-generar" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Generador de contraseñas conformes</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Longitud <span class="norm-tag">CCN-STIC-807</span></label>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <input type="range" id="genLength" min="8" max="64" value="16" style="flex:1;" oninput="document.getElementById('genLenVal').textContent=this.value; regenerate();">
+                <span id="genLenVal" style="font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;color:var(--plum-deep);min-width:28px;">16</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genUpper" checked onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Mayúsculas (A-Z)</span></label>
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genLower" checked onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Minúsculas (a-z)</span></label>
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genDigits" checked onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Dígitos (0-9)</span></label>
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genSymbols" checked onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Símbolos (!@#$…)</span></label>
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genNoAmbig" onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Sin ambiguos (0Ol1)</span></label>
+              <label class="toggle-wrap"><label class="toggle"><input type="checkbox" id="genPronounce" onchange="regenerate()"><span class="toggle-track"></span><span class="toggle-knob"></span></label><span class="toggle-label">Modo pronunciable</span></label>
+            </div>
+            <div class="gen-password-box">
+              <span class="gen-password-text" id="genPasswordText">—</span>
+              <button class="btn-copy" id="btnCopy" onclick="copyPassword()">COPIAR</button>
+            </div>
+            <div class="entropy-display">
+              <div class="entropy-card"><div class="entropy-val" id="genEntropyBits">—</div><div class="entropy-lbl">bits entropía</div></div>
+              <div class="entropy-card"><div class="entropy-val" id="genCharset">—</div><div class="entropy-lbl">tamaño alfabeto</div></div>
+              <div class="entropy-card"><div class="entropy-val" id="genCrackTime">—</div><div class="entropy-lbl">fuerza bruta</div></div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="regenerate()">↻ Nueva</button>
+              <button class="btn btn-secondary" onclick="generateBatch()">⊕ Generar 5 opciones</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot"></span>Lote de contraseñas</span></div>
+          <div class="panel-body" style="padding:0;">
+            <div id="batchList" style="padding:14px 16px;font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--text-dim);min-height:80px;">Pulsa "Generar 5 opciones" para crear un lote</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:0;">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Verificación automática (política activa)</span></div>
+          <div class="panel-body"><div id="genReqGrid" class="req-grid"><div style="color:var(--text-dim);font-size:0.78rem;grid-column:1/-1;">Genera una contraseña para ver la verificación</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ TAB: POLÍTICA ════════════════════════════ -->
+  <div id="tab-politica" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Selección de perfil ENS · CCN-STIC-807 5.4 y 5.5</span></div>
+      <div class="panel-body">
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:16px;">La CCN-STIC-807 establece requisitos distintos según categoría ENS y tipo de usuario. Selecciona el perfil para cargar los parámetros normativos exactos.</p>
+        <div class="selector-pair" style="margin-bottom:16px;">
+          <div>
+            <label class="group-label" style="font-size:0.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px;">Tipo de usuario</label>
+            <div class="btn-group-seg" id="segUserCfg">
+              <button class="seg-btn active" onclick="setUserTypeCfg('ext',this)">Externo [op.acc.5]</button>
+              <button class="seg-btn" onclick="setUserTypeCfg('int',this)">Interno [op.acc.6]</button>
+            </div>
+          </div>
+        </div>
+        <div class="level-cards">
+          <div class="level-card" id="lcBajo" onclick="setLevelCfg('bajo',this)">
+            <span class="level-badge lv-bajo">BAJO</span>
+            <span class="level-name">Categoría BAJO</span>
+            <div class="level-policy" id="lpBajo"></div>
+          </div>
+          <div class="level-card active" id="lcMedio" onclick="setLevelCfg('medio',this)">
+            <span class="level-badge lv-medio">MEDIO</span>
+            <span class="level-name">Categoría MEDIO</span>
+            <div class="level-policy" id="lpMedio"></div>
+          </div>
+          <div class="level-card" id="lcAlto" onclick="setLevelCfg('alto',this)">
+            <span class="level-badge lv-alto">ALTO</span>
+            <span class="level-name">Categoría ALTO</span>
+            <div class="level-policy" id="lpAlto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot"></span>Parámetros ajustables</span>
+        <button class="btn btn-secondary" style="font-size:0.72rem;padding:5px 12px;" onclick="resetPolicy()">↺ Restablecer perfil</button>
+      </div>
+      <div class="panel-body">
+        <div class="config-grid" id="configGrid"></div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="applyPolicy()">✓ Aplicar política</button>
+      <button class="btn btn-export" onclick="exportPolicy()">⬇ Exportar política (HTML)</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ TAB: REFERENCIA ════════════════════════════ -->
+  <div id="tab-referencia" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><span class="dot green"></span>CCN-STIC-807 5.4 — Usuarios externos [op.acc.5] · Tabla 5-2</span></div>
+      <div class="panel-body">
+        <table class="compliance-table">
+          <thead><tr><th>Nivel ENS</th><th>Long. mín. contraseña</th><th>Tipos mín.</th><th>Rotación máx.</th><th>Historial</th><th>Intentos fallidos</th></tr></thead>
+          <tbody>
+            <tr><td><span class="level-badge lv-bajo" style="font-size:0.65rem;">BAJO</span></td><td>8 caracteres</td><td>3 tipos</td><td>2 años</td><td>5 anteriores</td><td>5</td></tr>
+            <tr><td><span class="level-badge lv-medio" style="font-size:0.65rem;">MEDIO</span></td><td>12 caracteres</td><td>3 tipos</td><td>2 años</td><td>10 anteriores</td><td>5</td></tr>
+            <tr><td><span class="level-badge lv-alto" style="font-size:0.65rem;">ALTO</span></td><td>12 caracteres</td><td>3 tipos</td><td>2 años</td><td>10 anteriores</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Nota: En niveles BAJO/MEDIO/ALTO se permiten además contraseñas+OTP y certificados con distintos requisitos. Esta tabla recoge exclusivamente los requisitos de contraseña.</p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:0;">
+      <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>CCN-STIC-807 5.5 — Usuarios internos [op.acc.6] · Tabla 5-3</span></div>
+      <div class="panel-body">
+        <table class="compliance-table">
+          <thead><tr><th>Nivel ENS</th><th>Long. mín. contraseña</th><th>Tipos mín.</th><th>Rotación máx.</th><th>Historial</th><th>Intentos fallidos</th></tr></thead>
+          <tbody>
+            <tr><td><span class="level-badge lv-bajo" style="font-size:0.65rem;">BAJO</span></td><td>9 caracteres</td><td>3 tipos</td><td>2 años</td><td>5 anteriores</td><td>5</td></tr>
+            <tr><td><span class="level-badge lv-medio" style="font-size:0.65rem;">MEDIO</span></td><td>12 caracteres</td><td>3 tipos</td><td>2 años</td><td>10 anteriores</td><td>5</td></tr>
+            <tr><td><span class="level-badge lv-alto" style="font-size:0.65rem;">ALTO</span></td><td>12 caracteres</td><td>3 tipos</td><td>2 años</td><td>10 anteriores</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Nota interna BAJO: el acceso debe producirse desde "zona controlada" (no acceso público) y el usuario debe haberse autenticado físicamente de forma previa (control de acceso a instalaciones).</p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:0;">
+      <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>CCN-STIC-807 5.4.1 — Lista negra de contraseñas prohibidas</span></div>
+      <div class="panel-body">
+        <table class="compliance-table">
+          <thead><tr><th>Categoría prohibida</th><th>Ejemplos</th></tr></thead>
+          <tbody>
+            <tr><td>Contraseñas de brechas anteriores</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">bases tipo Have I Been Pwned</td></tr>
+            <tr><td>Nombre del host o razón social</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">ministerio, agencia, nombre-org</td></tr>
+            <tr><td>Palabras de diccionario (cualquier idioma)</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">contraseña, password, seguridad</td></tr>
+            <tr><td>Datos personales</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">matrícula, f.nacimiento, mascota</td></tr>
+            <tr><td>Secuencias y patrones de teclado</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">aaaa, 12345, abcde, qwerty, zaq12wsx</td></tr>
+            <tr><td>Permutaciones de los anteriores</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;">c0ntr4s3ña, P@ssw0rd, segur1dad</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:0;">
+      <div class="panel-header"><span class="panel-title"><span class="dot red"></span>CCN-STIC-140 — Requisitos de contraseña para dispositivos de almacenamiento cifrado</span></div>
+      <div class="panel-body">
+        <table class="compliance-table">
+          <thead><tr><th>REQ.</th><th>Requisito</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td><span class="ens-code">REQ.21c</span></td><td>Bloqueo o retardo tras intentos fallidos</td><td>Bloqueo tras N (N&gt;1) intentos consecutivos, o retardo que permita solo N intentos en 24h, o reinicio obligatorio tras N intentos fallidos</td></tr>
+            <tr><td><span class="ens-code">REQ.22</span></td><td>Nueva autenticación tras apagado/suspensión</td><td>El producto requerirá nueva autenticación tras estado apagado, suspensión o hibernación</td></tr>
+            <tr><td><span class="ens-code">REQ.29</span></td><td>Doble factor obligatorio</td><td>La autenticación de usuario deberá implementar doble factor: contraseña + smartcard</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Aplica a dispositivos/herramientas de almacenamiento cifrado de datos que opten a inclusión en el CPSTIC. La contraseña es uno de los factores de autenticación (CFA) junto con Clave Hw/Token o biométrico.</p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:0;">
+      <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Evidencias requeridas · Fila 78 · CCN-STIC-808</span></div>
+      <div class="panel-body">
+        <table class="compliance-table">
+          <thead><tr><th>Evidencia</th><th>Generada por esta herramienta</th></tr></thead>
+          <tbody>
+            <tr><td>Política técnica configurada y documentada por nivel ENS</td><td class="compliance-ok">✓ Exportable desde "Configurar política"</td></tr>
+            <tr><td>Verificación de complejidad (capturas, resultado, timestamp)</td><td class="compliance-ok">✓ Informe exportable con resultado y sello horario</td></tr>
+            <tr><td>Diferenciación usuarios externos/internos por nivel (CCN-STIC-807)</td><td class="compliance-ok">✓ Política generada diferencia 5.4 vs 5.5</td></tr>
+            <tr><td>Registro de verificaciones realizadas</td><td class="compliance-ok">✓ Log exportable de la sesión</td></tr>
+            <tr><td>Demostración en el sistema real (GPO, PAM, directiva)</td><td class="compliance-ok">✓ Exportable como ZIP Windows (.inf+.bat+.ps1) o Linux (PAM+sh)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ════════════════════════════ TAB: GPO / PAM ════════════════════════════ -->
+  <div id="tab-gpo" class="tab-panel">
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Perfil activo para la exportación</span></div>
+      <div class="panel-body">
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:14px;">
+          Los archivos se generan con los parámetros del perfil seleccionado en la pestaña <strong>Verificar</strong> / <strong>Configurar política</strong>.
+          Cambia el perfil allí si necesitas exportar para otro nivel o tipo de usuario.
+        </p>
+        <table class="compliance-table" style="max-width:560px;">
+          <thead><tr><th>Parámetro</th><th>Valor activo</th></tr></thead>
+          <tbody>
+            <tr><td>Nivel ENS</td><td id="gpoNivel" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Tipo de usuario</td><td id="gpoUsuario" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Longitud mínima</td><td id="gpoLong" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Intentos de bloqueo</td><td id="gpoIntentos" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Historial</td><td id="gpoHistorial" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Rotación</td><td id="gpoRotacion" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Bloqueo por inactividad</td><td id="gpoScreenSave" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Bloqueo tras intentos (min)</td><td id="gpoLockoutDur" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Último inicio de sesión</td><td id="gpoLastLogon" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Aviso legal</td><td id="gpoLegal" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+            <tr><td>Normativa</td><td id="gpoNorma" style="font-family:'IBM Plex Mono',monospace;font-weight:600;"></td></tr>
+          </tbody>
+        </table>
+        <div id="gpoRefreshHint" style="margin-top:10px;font-size:0.72rem;color:var(--text-dim);"></div>
+      </div>
+    </div>
+
+    <!-- WINDOWS -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot blue"></span>🪟 Windows — Equipo standalone (sin Directorio Activo)</span>
+        <button class="btn btn-primary" style="font-size:0.78rem;padding:7px 16px;" onclick="downloadZip('windows')">⬇ Descargar ZIP Windows</button>
+      </div>
+      <div class="panel-body">
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:14px;">
+          Aplica la política localmente mediante <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;">secedit.exe</code> (Security Templates).
+          No requiere Directorio Activo. Funciona en Windows 10/11 Pro y Server 2016+.
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📄 password_policy_ENS.inf</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Plantilla de seguridad Windows con todos los parámetros ENS configurados.</div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('inf')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📜 apply_windows.bat</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Script de aplicación. Clic derecho → "Ejecutar como administrador".</div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('bat')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">💙 apply_windows.ps1</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Alternativa PowerShell con verificación y salida detallada.</div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('ps1')">👁 Vista previa</button>
+          </div>
+        </div>
+
+        <div style="background:rgba(129,78,131,0.06);border:1px solid rgba(129,78,131,0.2);border-radius:var(--r6);padding:12px 16px;">
+          <div style="font-size:0.75rem;font-weight:600;color:var(--plum-deep);margin-bottom:8px;">Pasos de aplicación</div>
+          <ol style="font-size:0.78rem;color:var(--text-mid);line-height:1.8;padding-left:18px;">
+            <li>Descargar y extraer el ZIP en cualquier carpeta.</li>
+            <li>Clic derecho sobre <code style="background:var(--surface2);padding:1px 4px;border-radius:2px;font-family:'IBM Plex Mono',monospace;">apply_windows.bat</code> → <strong>Ejecutar como administrador</strong>.</li>
+            <li>El script aplica la política y muestra confirmación.</li>
+            <li>Para verificar: <code style="background:var(--surface2);padding:1px 4px;border-radius:2px;font-family:'IBM Plex Mono',monospace;">secpol.msc</code> → Directivas de cuenta → Directiva de contraseñas.</li>
+          </ol>
+          <div style="margin-top:8px;font-size:0.72rem;color:var(--text-dim);">Mecanismo: <code style="font-family:'IBM Plex Mono',monospace;">secedit /configure /areas SECURITYPOLICY</code> · Efecto inmediato, sin reinicio.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINUX -->
+    <div class="panel" style="margin-top:0;">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot green"></span>🐧 Linux — Equipo standalone (PAM local)</span>
+        <button class="btn btn-primary" style="font-size:0.78rem;padding:7px 16px;" onclick="downloadZip('linux')">⬇ Descargar ZIP Linux</button>
+      </div>
+      <div class="panel-body">
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:14px;">
+          Aplica la política mediante PAM (<code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;">pam_pwquality</code>, <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;">pam_faillock</code>, <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;">login.defs</code>).
+          Compatible con Debian/Ubuntu, RHEL/CentOS/Fedora. No requiere servidor LDAP ni NIS.
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📄 pwquality.conf</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Complejidad y longitud de contraseña. Destino: <code style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">/etc/security/pwquality.conf</code></div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('pwq')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📄 common-password</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Módulo PAM: historial y hash SHA-512. Destino: <code style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">/etc/pam.d/common-password</code></div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('pampwd')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📄 common-auth</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Bloqueo por intentos fallidos con <code style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">pam_faillock</code>. Destino: <code style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">/etc/pam.d/common-auth</code></div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('pamauth')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">📄 login.defs.patch</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Rotación y expiración de contraseñas. Fusionar en <code style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">/etc/login.defs</code></div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('ldefs')">👁 Vista previa</button>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px;grid-column:1/-1;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--plum-deep);margin-bottom:4px;">🔧 apply_linux.sh</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Script bash que detecta la distro, instala dependencias, hace backups automáticos y aplica todos los archivos en un solo paso.</div>
+            <button class="btn btn-secondary" style="font-size:0.7rem;padding:5px 10px;" onclick="previewContent('sh')">👁 Vista previa</button>
+          </div>
+        </div>
+
+        <div style="background:rgba(26,122,74,0.06);border:1px solid rgba(26,122,74,0.25);border-radius:var(--r6);padding:12px 16px;">
+          <div style="font-size:0.75rem;font-weight:600;color:var(--green);margin-bottom:8px;">Pasos de aplicación</div>
+          <ol style="font-size:0.78rem;color:var(--text-mid);line-height:1.8;padding-left:18px;">
+            <li>Descargar y extraer el ZIP.</li>
+            <li><code style="background:var(--surface2);padding:1px 4px;border-radius:2px;font-family:'IBM Plex Mono',monospace;">chmod +x apply_linux.sh</code></li>
+            <li><code style="background:var(--surface2);padding:1px 4px;border-radius:2px;font-family:'IBM Plex Mono',monospace;">sudo ./apply_linux.sh</code></li>
+            <li>El script hace backups, instala dependencias y aplica la política.</li>
+            <li>Para verificar: <code style="background:var(--surface2);padding:1px 4px;border-radius:2px;font-family:'IBM Plex Mono',monospace;">sudo chage -l &lt;usuario&gt;</code></li>
+          </ol>
+          <div style="margin-top:8px;font-size:0.72rem;color:var(--text-dim);">Mecanismo: PAM (<code style="font-family:'IBM Plex Mono',monospace;">pam_pwquality + pam_faillock + pam_unix</code>) + <code style="font-family:'IBM Plex Mono',monospace;">login.defs</code> · Los backups se guardan automáticamente.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Informe de Evidencia · Verificación de Contraseña · ENS [op.acc.5/6]</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// POLÍTICAS EXACTAS CCN-STIC-807 (Mayo 2022)
+// 5.4 Tabla 5-2 (Usuarios externos op.acc.5)
+// 5.5 Tabla 5-3 (Usuarios internos op.acc.6)
+// ═══════════════════════════════════════════════════════
+const CCN_POLICIES = {
+  ext: {  // 5.4 — Usuarios externos [op.acc.5]
+    bajo: {
+      minLength: 8, minTypes: 3, rotationDays: 730,
+      history: 5, maxAttempts: 5,
+      label: 'BAJO', userLabel: 'Externo',
+      control: 'op.acc.5', section: '5.4 Tabla 5-2',
+      note: '1 o 2 factores. Con contraseña sola (1 factor) para categoría BÁSICA.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    },
+    medio: {
+      minLength: 12, minTypes: 3, rotationDays: 730,
+      history: 10, maxAttempts: 5,
+      label: 'MEDIO', userLabel: 'Externo',
+      control: 'op.acc.5', section: '5.4 Tabla 5-2',
+      note: '2 factores obligatorio. Contraseña+OTP o certificado+PIN/biométrico.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    },
+    alto: {
+      minLength: 12, minTypes: 3, rotationDays: 730,
+      history: 10, maxAttempts: 3,
+      label: 'ALTO', userLabel: 'Externo',
+      control: 'op.acc.5', section: '5.4 Tabla 5-2',
+      note: '2 factores obligatorio. Opción recomendada: certificado dispositivo físico+PIN. Máx. 3 intentos.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    }
+  },
+  int: {  // 5.5 — Usuarios internos [op.acc.6]
+    bajo: {
+      minLength: 9, minTypes: 3, rotationDays: 730,
+      history: 5, maxAttempts: 5,
+      label: 'BAJO', userLabel: 'Interno',
+      control: 'op.acc.6', section: '5.5 Tabla 5-3',
+      note: 'Zona controlada + autenticación física previa al acceso lógico.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    },
+    medio: {
+      minLength: 12, minTypes: 3, rotationDays: 730,
+      history: 10, maxAttempts: 5,
+      label: 'MEDIO', userLabel: 'Interno',
+      control: 'op.acc.6', section: '5.5 Tabla 5-3',
+      note: '2 factores obligatorio. Contraseña+OTP o certificado+PIN/biométrico.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    },
+    alto: {
+      minLength: 12, minTypes: 3, rotationDays: 730,
+      history: 10, maxAttempts: 3,
+      label: 'ALTO', userLabel: 'Interno',
+      control: 'op.acc.6', section: '5.5 Tabla 5-3',
+      note: '2 factores obligatorio. Opción recomendada: certificado dispositivo físico+PIN. Máx. 3 intentos.',
+      lockoutDuration: 30,
+      screenSaveTimeout: 15,
+      legalNoticeCaption: '',
+      legalNoticeText: '',
+      displayLastLogon: true
+    }
+  }
+};
+
+// Lista negra básica CCN-STIC-807 5.4.1
+const BLACKLIST = [
+  /^[0-9]+$/,
+  /qwerty/i, /asdfgh/i, /zxcvbn/i, /qazwsx/i, /zaq12wsx/i,
+  /12345/, /password/i, /contraseña/i, /administrador/i, /admin/i,
+  /abcdef/i, /(.)\1{3,}/,
+  /segur/i, /acceso/i,
+];
+
+let currentLevel = 'medio';
+let currentUserType = 'ext';
+let policy = { ...CCN_POLICIES.ext.medio };
+let verifyCount = 0;
+let genCount = 0;
+
+// ─── INIT ───
+window.onload = () => {
+  renderPolicyCards();
+  renderPolicyConfig();
+  renderPolicyDisplay();
+  refreshGPOSummary();
+  regenerate();
+  updateStats();
+};
+
+// ─── TABS ───
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'gpo') refreshGPOSummary();
+}
+
+function refreshGPOSummary() {
+  // Lee siempre de `policy` (variable activa), no del objeto base CCN_POLICIES,
+  // para reflejar cualquier ajuste manual aplicado desde "Configurar politica".
+  const el = id => document.getElementById(id);
+  if (!el('gpoNivel')) return;
+  const base = CCN_POLICIES[currentUserType][currentLevel];
+  const changed = (a, b) => String(a) !== String(b);
+
+  el('gpoNivel').textContent     = policy.label;
+  el('gpoUsuario').textContent   = policy.userLabel + ' [' + policy.control + ']';
+
+  const setVal = (id, val, baseVal) => {
+    const el2 = document.getElementById(id);
+    if (!el2) return;
+    if (changed(val, baseVal)) {
+      el2.innerHTML = val + ' <span style="font-size:0.63rem;color:var(--amber);font-weight:600;">(personalizado)</span>';
+    } else {
+      el2.textContent = val;
+    }
+  };
+
+  setVal('gpoLong',      policy.minLength + ' caracteres',
+                         base.minLength   + ' caracteres');
+  setVal('gpoIntentos',  policy.maxAttempts + ' intentos',
+                         base.maxAttempts   + ' intentos');
+  setVal('gpoHistorial', policy.history + ' contraseñas anteriores',
+                         base.history   + ' contraseñas anteriores');
+
+  const rotFmt = d => Math.round(d/365) + ' año(s) (' + d + ' días)';
+  setVal('gpoRotacion',  rotFmt(policy.rotationDays),
+                         rotFmt(base.rotationDays));
+
+  setVal('gpoScreenSave',
+    policy.screenSaveTimeout + ' min',
+    (base.screenSaveTimeout || 15) + ' min');
+
+  const ldFmt = d => d === 0 ? 'permanente (requiere admin)' : d + ' min';
+  setVal('gpoLockoutDur',
+    ldFmt(policy.lockoutDuration),
+    ldFmt(base.lockoutDuration || 30));
+
+  el('gpoLastLogon').textContent = policy.displayLastLogon ? 'Activado' : 'Desactivado';
+
+  const cap = policy.legalNoticeCaption;
+  el('gpoLegal').textContent = cap
+    ? '✓ Configurado: “' + cap.slice(0,40) + (cap.length > 40 ? '…' : '') + '”'
+    : '— Sin aviso legal configurado';
+
+  el('gpoNorma').textContent = 'CCN-STIC-807 ' + policy.section;
+}
+
+// ─── LEVEL / USER TYPE ───
+function setLevel(lv, btn) {
+  currentLevel = lv;
+  document.querySelectorAll('#segLevel .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPolicy();
+}
+
+function setUserType(ut, btn) {
+  currentUserType = ut;
+  document.querySelectorAll('#segUser .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Sync label
+  const normTag = document.getElementById('labelNorm');
+  const guideTag = document.querySelector('.guide-tag');
+  if (normTag) normTag.textContent = CCN_POLICIES[ut][currentLevel].control;
+  loadPolicy();
+}
+
+function setLevelCfg(lv, card) {
+  currentLevel = lv;
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  // sync verificar tab selector
+  document.querySelectorAll('#segLevel .seg-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['bajo','medio','alto'][i] === lv);
+  });
+  loadPolicy();
+  renderPolicyConfig();
+}
+
+function setUserTypeCfg(ut, btn) {
+  currentUserType = ut;
+  document.querySelectorAll('#segUserCfg .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // sync verificar tab selector
+  document.querySelectorAll('#segUser .seg-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['ext','int'][i] === ut);
+  });
+  renderPolicyCards();
+  loadPolicy();
+  renderPolicyConfig();
+}
+
+function loadPolicy() {
+  policy = { ...CCN_POLICIES[currentUserType][currentLevel] };
+  renderPolicyDisplay();
+  updateStats();
+  refreshGPOSummary();
+  addLog('info', `→ Perfil: ${policy.label} · ${policy.userLabel} [${policy.control}] · Long.mín:${policy.minLength} · Intentos:${policy.maxAttempts}`);
+  const pwd = document.getElementById('inputPassword').value;
+  if (pwd) verifyPassword();
+}
+
+function renderPolicyCards() {
+  ['bajo','medio','alto'].forEach(lv => {
+    const p = CCN_POLICIES[currentUserType][lv];
+    const el = document.getElementById('lp' + lv.charAt(0).toUpperCase() + lv.slice(1));
+    if (el) el.innerHTML = `
+      <span>Long. mín: <strong>${p.minLength} chars</strong></span>
+      <span>Tipos: <strong>${p.minTypes}</strong> · Rot: <strong>${Math.round(p.rotationDays/365)} año${p.rotationDays>365?'s':''}</strong></span>
+      <span>Historial: <strong>${p.history}</strong> · Intentos: <strong>${p.maxAttempts}</strong></span>
+    `;
+  });
+}
+
+// ─── PASSWORD ANALYSIS ───
+function analyzePassword(pwd) {
+  const hasUpper  = /[A-Z]/.test(pwd);
+  const hasLower  = /[a-z]/.test(pwd);
+  const hasDigit  = /[0-9]/.test(pwd);
+  const hasSymbol = /[^A-Za-z0-9]/.test(pwd);
+  const typeCount = [hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length;
+
+  const charsetSize = (hasUpper?26:0)+(hasLower?26:0)+(hasDigit?10:0)+(hasSymbol?32:0);
+  const entropy = pwd.length > 0 ? Math.log2(charsetSize) * pwd.length : 0;
+  const crackSecs = Math.pow(2, entropy) / 1e10;
+  const isBlacklisted = BLACKLIST.some(p => p.test(pwd));
+
+  const reqs = [
+    {
+      key: 'length',
+      label: `Longitud mínima (≥${policy.minLength} chars)`,
+      pass: pwd.length >= policy.minLength,
+      detail: `${pwd.length} de ${policy.minLength} requeridos`,
+      src: policy.section
+    },
+    {
+      key: 'upper',
+      label: 'Contiene mayúsculas (A-Z)',
+      pass: hasUpper,
+      detail: hasUpper ? 'detectadas' : 'no encontradas',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+    {
+      key: 'lower',
+      label: 'Contiene minúsculas (a-z)',
+      pass: hasLower,
+      detail: hasLower ? 'detectadas' : 'no encontradas',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+    {
+      key: 'digit',
+      label: 'Contiene dígitos (0-9)',
+      pass: hasDigit,
+      detail: hasDigit ? 'detectados' : 'no encontrados',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+    {
+      key: 'symbol',
+      label: 'Contiene símbolos (!@#…)',
+      pass: hasSymbol,
+      detail: hasSymbol ? 'detectados' : 'no encontrados',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+    {
+      key: 'types',
+      label: `Tipos distintos (≥${policy.minTypes} requeridos)`,
+      pass: typeCount >= policy.minTypes,
+      detail: `${typeCount} de ${policy.minTypes} tipos`,
+      src: policy.section
+    },
+    {
+      key: 'norepeat',
+      label: 'Sin repetición 3+ chars iguales seguidos',
+      pass: !/(.)\1\1/.test(pwd),
+      detail: /(.)\1\1/.test(pwd) ? 'patrón detectado' : 'ok',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+    {
+      key: 'nopattern',
+      label: 'Sin patrones teclado / palabras comunes',
+      pass: !isBlacklisted,
+      detail: isBlacklisted ? 'patrón detectado' : 'ok',
+      src: 'CCN-STIC-807 5.4.1'
+    },
+  ];
+
+  const allPass = reqs.every(r => r.pass);
+  const score   = reqs.filter(r => r.pass).length / reqs.length;
+  return { reqs, allPass, score, entropy, charsetSize, crackSecs, typeCount };
+}
+
+function formatCrackTime(secs) {
+  if (secs < 1) return '<1s';
+  if (secs < 60) return `${secs.toFixed(0)}s`;
+  if (secs < 3600) return `${(secs/60).toFixed(0)}min`;
+  if (secs < 86400) return `${(secs/3600).toFixed(0)}h`;
+  if (secs < 31536000) return `${(secs/86400).toFixed(0)}d`;
+  if (secs < 31536000*1000) return `${(secs/31536000).toFixed(0)}años`;
+  return `>${(secs/31536000/1e6).toFixed(0)}M años`;
+}
+
+// ─── VERIFY ───
+function verifyPassword() {
+  const pwd = document.getElementById('inputPassword').value;
+  if (!pwd) { resetVerify(); return; }
+
+  const r = analyzePassword(pwd);
+
+  // Strength bar
+  const bar = document.getElementById('strengthBar');
+  const lbl = document.getElementById('strengthLabel');
+  let color, label;
+  if (r.score < 0.4)      { color = 'var(--red)';   label = 'Muy débil'; }
+  else if (r.score < 0.6) { color = '#d47b00';       label = 'Débil'; }
+  else if (r.score < 0.75){ color = 'var(--amber)';  label = 'Aceptable'; }
+  else if (r.score < 0.9) { color = 'var(--green)';  label = 'Fuerte'; }
+  else                    { color = '#0d6e3a';        label = 'Muy fuerte'; }
+  bar.style.width = (r.score * 100) + '%';
+  bar.style.background = color;
+  lbl.textContent = `${label} · ${Math.round(r.score*100)}% requisitos · ${pwd.length} chars · ${r.entropy.toFixed(0)} bits`;
+
+  // Verdict
+  const vb = document.getElementById('verdictBox');
+  vb.style.display = 'block';
+  if (r.allPass) {
+    vb.innerHTML = `<div class="verdict pass"><span class="verdict-icon">✅</span><div><div class="verdict-title">CONFORME — ENS [${policy.control}] · Nivel ${policy.label} · ${policy.userLabel} · ${policy.section}</div><div class="verdict-desc">Cumple todos los requisitos de la CCN-STIC-807. Válida como evidencia de política de contraseñas.</div></div></div>`;
+    document.getElementById('dotVerif').className = 'dot green';
+  } else {
+    const fails = r.reqs.filter(rq => !rq.pass).length;
+    vb.innerHTML = `<div class="verdict fail"><span class="verdict-icon">❌</span><div><div class="verdict-title">NO CONFORME — ${fails} requisito${fails>1?'s':''} incumplido${fails>1?'s':''} · ENS ${policy.label} · ${policy.userLabel}</div><div class="verdict-desc">No cumple la política CCN-STIC-807 para nivel ${policy.label} (${policy.section}). Revisa los items en rojo.</div></div></div>`;
+    document.getElementById('dotVerif').className = 'dot red';
+  }
+
+  // Entropy
+  document.getElementById('entropyDisplay').style.display = 'flex';
+  document.getElementById('entropyBits').textContent = r.entropy.toFixed(1);
+  document.getElementById('charsetSize').textContent = r.charsetSize;
+  document.getElementById('crackTime').textContent = formatCrackTime(r.crackSecs);
+
+  renderReqGrid('reqGrid', r.reqs);
+
+  verifyCount++;
+  addLog(r.allPass ? 'ok' : 'err',
+    `${r.allPass?'✓':'✗'} Ver.#${verifyCount} · ${policy.label}·${policy.userLabel} · ${r.allPass?'CONFORME':'NO CONFORME'} · ${pwd.length}chars · ${r.entropy.toFixed(0)}bits`);
+  updateStats();
+}
+
+function resetVerify() {
+  document.getElementById('strengthBar').style.width = '0';
+  document.getElementById('strengthLabel').textContent = '— Introduce una contraseña para analizar';
+  document.getElementById('verdictBox').style.display = 'none';
+  document.getElementById('entropyDisplay').style.display = 'none';
+  document.getElementById('reqGrid').innerHTML = '';
+  document.getElementById('dotVerif').className = 'dot';
+}
+
+function clearVerif() {
+  document.getElementById('inputPassword').value = '';
+  resetVerify();
+}
+
+function renderReqGrid(id, reqs) {
+  document.getElementById(id).innerHTML = reqs.map(req => `
+    <div class="req-item ${req.pass ? 'pass' : 'fail'}">
+      <div class="req-icon">${req.pass ? '✓' : '✗'}</div>
+      <div>
+        <div class="req-text">${req.label} <span class="req-src">${req.src}</span></div>
+        <div class="req-detail">${req.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── GENERATOR ───
+function regenerate() {
+  const pwd = generatePassword();
+  const el = document.getElementById('genPasswordText');
+  el.textContent = pwd;
+  el.className = 'gen-password-text';
+
+  const r = analyzePassword(pwd);
+  document.getElementById('genEntropyBits').textContent = r.entropy.toFixed(1);
+  document.getElementById('genCharset').textContent = r.charsetSize;
+  document.getElementById('genCrackTime').textContent = formatCrackTime(r.crackSecs);
+  renderReqGrid('genReqGrid', r.reqs);
+  genCount++;
+  updateStats();
+}
+
+function generatePassword() {
+  const upper   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower   = 'abcdefghijklmnopqrstuvwxyz';
+  const digits  = '0123456789';
+  const symbols = '!@#$%^&*()-_=+[]{}|;:,.<>?';
+  const ambig   = '0O1lI';
+
+  const useUpper   = document.getElementById('genUpper').checked;
+  const useLower   = document.getElementById('genLower').checked;
+  const useDigits  = document.getElementById('genDigits').checked;
+  const useSymbols = document.getElementById('genSymbols').checked;
+  const noAmbig    = document.getElementById('genNoAmbig').checked;
+  const pronounce  = document.getElementById('genPronounce').checked;
+  const length     = parseInt(document.getElementById('genLength').value);
+
+  if (pronounce) return generatePronounceable(length, useUpper, useDigits, useSymbols);
+
+  let charset = '';
+  if (useUpper)   charset += upper;
+  if (useLower)   charset += lower;
+  if (useDigits)  charset += digits;
+  if (useSymbols) charset += symbols;
+  if (noAmbig) [...ambig].forEach(c => { charset = charset.split(c).join(''); });
+  if (!charset) charset = lower + digits;
+
+  const required = [];
+  if (useUpper)   required.push(pick(noAmbig ? upper.replace(/[O]/g,'') : upper));
+  if (useLower)   required.push(pick(noAmbig ? lower.replace(/[l]/g,'') : lower));
+  if (useDigits)  required.push(pick(noAmbig ? digits.replace(/[01]/g,'') : digits));
+  if (useSymbols) required.push(pick(symbols));
+
+  const rest = Array.from({ length: length - required.length }, () => pick(charset));
+  return shuffle([...required, ...rest]).join('');
+}
+
+function generatePronounceable(length, upper, digits, symbols) {
+  const vowels = 'aeiou'; const cons = 'bcdfghjklmnprstvwz';
+  let pwd = '';
+  for (let i = 0; i < length; i++) pwd += i%2===0 ? pick(cons) : pick(vowels);
+  if (upper) pwd = pwd[0].toUpperCase() + pwd.slice(1);
+  if (digits && length > 6) { const p = Math.floor(length*0.7); pwd = pwd.slice(0,p)+pick('23456789')+pwd.slice(p+1); }
+  if (symbols && length > 8) pwd = pwd.slice(0,-1)+pick('!@#$');
+  return pwd;
+}
+
+function pick(str) {
+  const a = new Uint32Array(1); crypto.getRandomValues(a);
+  return str[a[0] % str.length];
+}
+function shuffle(arr) {
+  for (let i = arr.length-1; i>0; i--) {
+    const a = new Uint32Array(1); crypto.getRandomValues(a);
+    const j = a[0]%(i+1); [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function copyPassword() {
+  const pwd = document.getElementById('genPasswordText').textContent;
+  if (pwd === '—') return;
+  navigator.clipboard.writeText(pwd).then(() => {
+    const btn = document.getElementById('btnCopy');
+    btn.textContent = '✓ COPIADO'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='COPIAR'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function generateBatch() {
+  const container = document.getElementById('batchList');
+  const batch = Array.from({length:5}, () => {
+    const p = generatePassword(); const r = analyzePassword(p);
+    return {p, r};
+  });
+  genCount += 5; updateStats();
+  container.innerHTML = batch.map((b,i)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:${i<4?'1px solid var(--border)':'none'};gap:12px;">
+      <span style="color:var(--gold);font-size:0.82rem;letter-spacing:1px;flex:1;word-break:break-all;">${b.p}</span>
+      <span style="color:${b.r.allPass?'var(--green-light)':'var(--red)'};font-size:0.65rem;white-space:nowrap;">${b.r.allPass?'✓ CONFORME':'✗ NO CONF.'}</span>
+      <button onclick="navigator.clipboard.writeText('${b.p}')" style="background:rgba(129,78,131,0.15);border:1px solid var(--border-med);color:var(--text-mid);padding:3px 8px;border-radius:3px;cursor:pointer;font-size:0.65rem;font-family:'IBM Plex Mono',monospace;flex-shrink:0;">COPIAR</button>
+    </div>`).join('');
+}
+
+// ─── POLICY CONFIG ───
+function renderPolicyConfig() {
+  const base = CCN_POLICIES[currentUserType][currentLevel];
+  const p = policy;
+
+  const typesBadge = n => {
+    const labels = {
+      1: {t:'1 tipo',  d:'Solo un tipo de carácter (p.ej. solo minúsculas). No recomendado.', c:'#b83232'},
+      2: {t:'2 tipos', d:'2 tipos distintos, p.ej. minúsculas + dígitos.', c:'#b18a20'},
+      3: {t:'3 tipos', d:'Mínimo normativo ENS MEDIO/ALTO: mayúsculas, minúsculas y dígitos o símbolos.', c:'#1a7a4a'},
+      4: {t:'4 tipos', d:'Máxima complejidad: mayúsculas, minúsculas, dígitos y símbolos especiales.', c:'#1a7a4a'},
+    };
+    return labels[n] || labels[3];
+  };
+  const tb = typesBadge(p.minTypes);
+
+  document.getElementById('configGrid').innerHTML = `
+    <div class="config-item" style="grid-column:1/-1;background:var(--surface2);border-color:var(--border-med);">
+      <div class="config-item-label" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:0;">
+        ── Política de contraseñas
+      </div>
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Longitud mínima</div>
+      <div class="config-item-norm">${base.section}</div>
+      <input type="number" id="cfgLength" value="${p.minLength}" min="6" max="128" onchange="updatePolicyFromConfig()">
+    </div>
+
+    <div class="config-item" style="grid-column:span 2;">
+      <div class="config-item-label">Tipos de caracteres
+        <span id="cfgTypesBadge" style="font-size:0.65rem;font-weight:600;padding:1px 6px;border-radius:3px;margin-left:6px;
+          background:${tb.c}22;color:${tb.c};border:1px solid ${tb.c}44;">${tb.t}</span>
+      </div>
+      <div class="config-item-norm">${base.section}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <input type="range" id="cfgTypes" min="1" max="4" value="${p.minTypes}" style="flex:1;"
+          oninput="updatePolicyFromConfig();renderTypesHelp()">
+        <span id="cfgTypesVal" style="font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;
+          color:var(--plum-deep);min-width:20px;">${p.minTypes}</span>
+      </div>
+      <div id="cfgTypesHelp" style="font-size:0.72rem;line-height:1.5;padding:6px 10px;
+        border-radius:4px;background:${tb.c}11;border-left:3px solid ${tb.c};color:var(--text-mid);">
+        <strong>Tipo ${p.minTypes}:</strong> ${tb.d}
+        <div style="margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--text-dim);">
+          1=solo un tipo &nbsp;|&nbsp; 2=dos tipos &nbsp;|&nbsp; <strong style="color:#1a7a4a;">3=ENS estándar</strong> &nbsp;|&nbsp; 4=máxima complejidad
+        </div>
+      </div>
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Intentos fallidos máx.</div>
+      <div class="config-item-norm">${base.section}</div>
+      <input type="number" id="cfgAttempts" value="${p.maxAttempts}" min="1" max="10" onchange="updatePolicyFromConfig()">
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Bloqueo tras intentos (min)</div>
+      <div class="config-item-norm">LockoutDuration / pam_faillock</div>
+      <input type="number" id="cfgLockoutDuration" value="${p.lockoutDuration}" min="0" max="1440" onchange="updatePolicyFromConfig()">
+      <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">0 = bloqueo permanente hasta que admin desbloquee</div>
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Rotación máxima (días)</div>
+      <div class="config-item-norm">CCN-STIC-807 5.4.1</div>
+      <input type="number" id="cfgRotation" value="${p.rotationDays}" min="1" max="730" onchange="updatePolicyFromConfig()">
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Historial contraseñas</div>
+      <div class="config-item-norm">${base.section}</div>
+      <input type="number" id="cfgHistory" value="${p.history}" min="0" max="24" onchange="updatePolicyFromConfig()">
+    </div>
+
+    <div class="config-item">
+      <div class="config-item-label">Bloqueo pantalla por inactividad (min)</div>
+      <div class="config-item-norm">ScreenSaveTimeOut / GNOME lock-delay</div>
+      <input type="number" id="cfgScreenSave" value="${p.screenSaveTimeout}" min="1" max="120" onchange="updatePolicyFromConfig()">
+      <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Recomendado ENS: ≤15 min</div>
+    </div>
+
+    <div class="config-item" style="grid-column:1/-1;background:var(--surface2);border-color:var(--border-med);margin-top:4px;">
+      <div class="config-item-label" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:0;">
+        ── Aviso legal en el inicio de sesión (LegalNotice / /etc/issue)
+      </div>
+    </div>
+
+    <div class="config-item" style="grid-column:1/-1;">
+      <div class="config-item-label">Mostrar información del último inicio de sesión</div>
+      <div class="config-item-norm">DisplayLastLogonInfo (Win) / pam_lastlog (Linux)</div>
+      <div class="toggle-wrap" style="margin-top:8px;">
+        <label class="toggle">
+          <input type="checkbox" id="cfgDisplayLastLogon" ${p.displayLastLogon ? 'checked' : ''} onchange="updatePolicyFromConfig()">
+          <span class="toggle-track"></span><span class="toggle-knob"></span>
+        </label>
+        <span class="toggle-label" id="cfgDisplayLastLogonLabel">${p.displayLastLogon ? 'Activado — se muestra fecha/hora y equipo del último acceso' : 'Desactivado'}</span>
+      </div>
+    </div>
+
+    <div class="config-item" style="grid-column:1/-1;">
+      <div class="config-item-label">Título del aviso legal (LegalNoticeCaption)</div>
+      <div class="config-item-norm">HKLM\...\LegalNoticeCaption · /etc/issue</div>
+      <input type="text" id="cfgLegalCaption" value="${p.legalNoticeCaption.replace(/"/g,'&quot;')}"
+        placeholder="Ej: AVISO — Sistema de uso restringido" maxlength="120"
+        style="margin-top:6px;" oninput="updatePolicyFromConfig()">
+      <div style="font-size:0.68rem;color:var(--text-dim);margin-top:3px;">Dejar vacío para no mostrar aviso</div>
+    </div>
+
+    <div class="config-item" style="grid-column:1/-1;">
+      <div class="config-item-label">Texto del aviso legal (LegalNoticeText)</div>
+      <div class="config-item-norm">HKLM\...\LegalNoticeText · /etc/issue</div>
+      <textarea id="cfgLegalText" rows="3" maxlength="1024"
+        placeholder="Ej: Este sistema es de uso exclusivo para personal autorizado. Toda actividad puede ser monitorizada y registrada conforme al ENS."
+        style="margin-top:6px;resize:vertical;" oninput="updatePolicyFromConfig()">${p.legalNoticeText}</textarea>
+    </div>
+
+    <div class="config-item" style="background:rgba(179,63,118,0.05);border-color:rgba(129,78,131,0.25);">
+      <div class="config-item-label" style="color:var(--plum-deep);">Nota normativa</div>
+      <div class="config-item-norm" style="color:var(--plum);">${p.section}</div>
+      <div style="font-size:0.72rem;color:var(--text-mid);line-height:1.4;margin-top:6px;">${p.note}</div>
+    </div>
+  `;
+}
+
+function renderTypesHelp() {
+  const n = parseInt(document.getElementById('cfgTypes').value);
+  document.getElementById('cfgTypesVal').textContent = n;
+  const labels = {
+    1: {t:'1 tipo',  d:'Solo un tipo de carácter (p.ej. solo minúsculas). No recomendado.', c:'#b83232'},
+    2: {t:'2 tipos', d:'2 tipos distintos, p.ej. minúsculas + dígitos.', c:'#b18a20'},
+    3: {t:'3 tipos', d:'Mínimo normativo ENS MEDIO/ALTO: mayúsculas, minúsculas y dígitos o símbolos.', c:'#1a7a4a'},
+    4: {t:'4 tipos', d:'Máxima complejidad: mayúsculas, minúsculas, dígitos y símbolos especiales.', c:'#1a7a4a'},
+  };
+  const tb = labels[n] || labels[3];
+  const badge = document.getElementById('cfgTypesBadge');
+  const help  = document.getElementById('cfgTypesHelp');
+  if (badge) {
+    badge.textContent = tb.t;
+    badge.style.background = tb.c + '22';
+    badge.style.color      = tb.c;
+    badge.style.border     = '1px solid ' + tb.c + '44';
+  }
+  if (help) {
+    help.style.background  = tb.c + '11';
+    help.style.borderColor = tb.c;
+    help.innerHTML = `<strong>Tipo ${n}:</strong> ${tb.d}
+      <div style="margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--text-dim);">
+        1=solo un tipo &nbsp;|&nbsp; 2=dos tipos &nbsp;|&nbsp; <strong style="color:#1a7a4a;">3=ENS estándar</strong> &nbsp;|&nbsp; 4=máxima complejidad
+      </div>`;
+  }
+  updatePolicyFromConfig();
+}
+
+function updatePolicyFromConfig() {
+  const gi = id => document.getElementById(id);
+  if (!gi('cfgLength')) return;
+
+  policy.minLength         = parseInt(gi('cfgLength').value)           || policy.minLength;
+  policy.minTypes          = parseInt(gi('cfgTypes').value)            || policy.minTypes;
+  policy.maxAttempts       = parseInt(gi('cfgAttempts').value)         || policy.maxAttempts;
+  policy.lockoutDuration   = parseInt(gi('cfgLockoutDuration').value);
+  if (isNaN(policy.lockoutDuration)) policy.lockoutDuration = 30;
+  policy.rotationDays      = parseInt(gi('cfgRotation').value)         || policy.rotationDays;
+  policy.history           = parseInt(gi('cfgHistory').value);
+  policy.screenSaveTimeout = parseInt(gi('cfgScreenSave').value)       || policy.screenSaveTimeout;
+  policy.displayLastLogon  = gi('cfgDisplayLastLogon').checked;
+  policy.legalNoticeCaption = gi('cfgLegalCaption').value.trim();
+  policy.legalNoticeText    = gi('cfgLegalText').value.trim();
+
+  const lbl = gi('cfgDisplayLastLogonLabel');
+  if (lbl) lbl.textContent = policy.displayLastLogon
+    ? 'Activado — se muestra fecha/hora y equipo del último acceso'
+    : 'Desactivado';
+}
+
+function applyPolicy() {
+  updatePolicyFromConfig();
+  renderPolicyDisplay();
+  updateStats();
+  refreshGPOSummary();  // sincronizar tabla GPO/PAM con valores personalizados
+  addLog('ok', `✓ Política aplicada · ${policy.label}·${policy.userLabel} [${policy.control}] · Long.mín:${policy.minLength} · Intentos:${policy.maxAttempts}`);
+  const pwd = document.getElementById('inputPassword').value;
+  if (pwd) verifyPassword();
+  alert(`✓ Política aplicada: Nivel ${policy.label} · ${policy.userLabel} [${policy.control}]`);
+}
+
+function resetPolicy() {
+  policy = { ...CCN_POLICIES[currentUserType][currentLevel] };
+  renderPolicyConfig();
+  addLog('info', `↺ Política restablecida: ${policy.label}·${policy.userLabel} · CCN-STIC-807 ${policy.section}`);
+}
+
+function renderPolicyDisplay() {
+  const tbody = document.getElementById('policyDisplay');
+  if (!tbody) return;
+  const p = policy;
+  const src = p.section || 'CCN-STIC-807';
+  const ldFmt = d => d === 0 ? 'permanente (admin)' : d + ' min';
+  tbody.innerHTML = [
+    ['Longitud mínima',             `${p.minLength} caracteres`,                                    src],
+    ['Tipos de caracteres',         `${p.minTypes} tipos`,                                          src],
+    ['Rotación máxima',             `${Math.round(p.rotationDays/365)} año${p.rotationDays>365?'s':''}`, src],
+    ['Historial (no reutilizar)',    `${p.history} anteriores`,                                     src],
+    ['Bloqueo tras intentos',       `${p.maxAttempts} intentos`,                                    src],
+    ['Duración bloqueo',            ldFmt(p.lockoutDuration),                                       'LockoutDuration'],
+    ['Inactividad pantalla',        `${p.screenSaveTimeout} min`,                                   'ScreenSaveTimeOut'],
+    ['Último inicio de sesión',     p.displayLastLogon ? 'Mostrar' : 'No mostrar',                  'DisplayLastLogonInfo'],
+    ['Aviso legal',                 p.legalNoticeCaption ? `"${p.legalNoticeCaption.slice(0,30)}${p.legalNoticeCaption.length>30?'…':''}"` : '—', 'LegalNotice'],
+    ['Control ENS',                 `[${p.control}]`,                                               'RD 311/2022'],
+    ['2.º factor',                  'Obligatorio en MEDIO/ALTO',                                    'CCN-STIC-807 5.4'],
+  ].map(([k,v,s])=>`<tr><td>${k}</td><td style="font-family:'IBM Plex Mono',monospace;font-weight:600;">${v}</td><td><span class="ens-code">${s}</span></td></tr>`).join('');
+}
+
+// ─── REPORTS ───
+function generateReport() {
+  const pwd = document.getElementById('inputPassword').value;
+  if (!pwd) { alert('Introduce primero una contraseña en el verificador.'); return; }
+  const r = analyzePassword(pwd);
+  const now = new Date();
+  document.getElementById('modalBody').innerHTML = `
+    <div class="report-section">
+      <div class="report-section-title">Datos de la verificación</div>
+      <table class="report-table"><tbody>
+        <tr><td>Fecha/hora</td><td>${now.toLocaleString('es-ES')}</td></tr>
+        <tr><td>Perfil aplicado</td><td>${policy.label} · ${policy.userLabel} · [${policy.control}] · ${policy.section}</td></tr>
+        <tr><td>Longitud verificada</td><td>${pwd.length} caracteres</td></tr>
+        <tr><td>Entropía</td><td>${r.entropy.toFixed(2)} bits</td></tr>
+        <tr><td>Fuerza bruta (10¹⁰ ops/s)</td><td>${formatCrackTime(r.crackSecs)}</td></tr>
+        <tr><td>Resultado</td><td class="${r.allPass?'pass':'fail'}">${r.allPass?'✓ CONFORME':'✗ NO CONFORME'}</td></tr>
+      </tbody></table>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">Requisitos CCN-STIC-807 verificados</div>
+      <table class="report-table">
+        <thead><tr><th>Requisito</th><th>Resultado</th><th>Detalle</th><th>Fuente</th></tr></thead>
+        <tbody>${r.reqs.map(rq=>`<tr><td>${rq.label}</td><td class="${rq.pass?'pass':'fail'}">${rq.pass?'✓ CUMPLE':'✗ INCUMPLE'}</td><td>${rq.detail}</td><td style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;">${rq.src}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="btn-group" style="margin-top:16px;">
+      <button class="btn btn-primary" onclick="exportEvidencia()">⬇ Descargar informe HTML</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+function exportEvidencia() {
+  const pwd = document.getElementById('inputPassword').value;
+  if (!pwd) { alert('Introduce una contraseña en el verificador.'); return; }
+  const r = analyzePassword(pwd);
+  const now = new Date();
+  const nowStr = now.toLocaleString('es-ES');
+  const stamp  = now.toISOString().replace(/[:.]/g,'-').slice(0,16);
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Evidencia ENS [${policy.control}] · PassPolicy v2 · ${nowStr}</title>
+<style>body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#2e1430;background:#f9f5fa;margin:0;padding:0;}
+.header{background:linear-gradient(90deg,#4a2648,#60345e,#814e83);color:#fff;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{font-size:1.1rem;margin:0;}.header .sub{font-size:0.72rem;opacity:0.8;margin-top:4px;}
+.body{max-width:820px;margin:32px auto;padding:0 32px 60px;}
+.verdict{padding:14px 18px;border-radius:6px;margin-bottom:20px;border:1px solid;}
+.verdict.pass{background:rgba(26,122,74,0.07);border-color:rgba(26,122,74,0.3);}
+.verdict.fail{background:rgba(184,50,50,0.07);border-color:rgba(184,50,50,0.3);}
+.verdict-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
+.pass .verdict-title{color:#1a7a4a;}.fail .verdict-title{color:#b83232;}
+h2{font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:#814e83;border-bottom:1px solid #dca0b5;padding-bottom:6px;margin:20px 0 10px;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+th{background:#f3edf5;padding:7px 12px;text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;color:#7a5080;border-bottom:1px solid rgba(96,52,94,0.15);}
+td{padding:8px 12px;border-bottom:1px solid rgba(96,52,94,0.1);color:#523658;}
+td.pass{color:#1a7a4a;font-weight:700;}.td.fail{color:#b83232;font-weight:700;}
+.mono{font-family:monospace;}.footer{text-align:center;color:#aa88b0;font-size:0.68rem;margin-top:40px;padding-top:16px;border-top:1px solid rgba(96,52,94,0.1);}
+</style></head><body>
+<div class="header">
+  <div><h1>Informe de Evidencia · Verificación de Contraseña · ENS [${policy.control}]</h1>
+  <div class="sub">PassPolicy ENS v2 · CCN-STIC-807 ${policy.section} · CCN-STIC-808 Fila 78</div></div>
+  <div style="text-align:right;font-size:0.72rem;opacity:0.85;">${nowStr}<br>Perfil: ${policy.label} · ${policy.userLabel}</div>
+</div>
+<div class="body">
+  <div class="verdict ${r.allPass?'pass':'fail'}">
+    <div class="verdict-title">${r.allPass?'✅ CONTRASEÑA CONFORME':'❌ CONTRASEÑA NO CONFORME'} · ENS [${policy.control}] · Nivel ${policy.label} · Usuario ${policy.userLabel}</div>
+    <div style="font-size:0.82rem;color:#523658;">${r.allPass?`Cumple todos los requisitos de la CCN-STIC-807 (${policy.section}) para nivel ${policy.label} y usuario ${policy.userLabel}.`:`No cumple los requisitos mínimos de la CCN-STIC-807 (${policy.section}). Se requieren correcciones.`}</div>
+  </div>
+  <h2>Datos de la verificación</h2>
+  <table><tbody>
+    <tr><td>Fecha y hora</td><td class="mono">${nowStr}</td></tr>
+    <tr><td>Herramienta</td><td>PassPolicy ENS v2 · CCN-STIC-807 · CCN-STIC-140</td></tr>
+    <tr><td>Perfil ENS</td><td><strong>${policy.label}</strong> · Usuario ${policy.userLabel} · Control [${policy.control}]</td></tr>
+    <tr><td>Norma aplicada</td><td class="mono">${policy.section}</td></tr>
+    <tr><td>Longitud verificada</td><td class="mono">${pwd.length} caracteres</td></tr>
+    <tr><td>Entropía calculada</td><td class="mono">${r.entropy.toFixed(2)} bits</td></tr>
+    <tr><td>Fuerza bruta (10¹⁰ ops/s)</td><td class="mono">${formatCrackTime(r.crackSecs)}</td></tr>
+    <tr><td>Resultado</td><td style="font-weight:700;color:${r.allPass?'#1a7a4a':'#b83232'};">${r.allPass?'✓ CONFORME':'✗ NO CONFORME'}</td></tr>
+  </tbody></table>
+  <h2>Requisitos CCN-STIC-807 verificados</h2>
+  <table>
+    <thead><tr><th>Requisito</th><th>Resultado</th><th>Detalle</th><th>Fuente normativa</th></tr></thead>
+    <tbody>${r.reqs.map(rq=>`<tr><td>${rq.label}</td><td style="font-weight:700;color:${rq.pass?'#1a7a4a':'#b83232'};">${rq.pass?'✓ CUMPLE':'✗ INCUMPLE'}</td><td class="mono" style="font-size:0.75rem;">${rq.detail}</td><td class="mono" style="font-size:0.7rem;color:#7a5080;">${rq.src}</td></tr>`).join('')}</tbody>
+  </table>
+  <h2>Política activa en el momento de la verificación</h2>
+  <table><tbody>
+    <tr><td>Longitud mínima</td><td class="mono">${policy.minLength} caracteres</td></tr>
+    <tr><td>Tipos de caracteres</td><td class="mono">${policy.minTypes} tipos</td></tr>
+    <tr><td>Rotación máxima</td><td class="mono">${Math.round(policy.rotationDays/365)} año(s)</td></tr>
+    <tr><td>Historial</td><td class="mono">${policy.history} contraseñas anteriores</td></tr>
+    <tr><td>Bloqueo tras intentos fallidos</td><td class="mono">${policy.maxAttempts} intentos</td></tr>
+    <tr><td>Segundo factor</td><td class="mono">Obligatorio en MEDIO y ALTO (CCN-STIC-807 5.4)</td></tr>
+  </tbody></table>
+  <div class="footer">Generado por PassPolicy ENS v2 · Procesamiento íntegramente local, sin transmisión de datos.<br>Evidencia para auditoría ENS [${policy.control}] conforme a CCN-STIC-808 (Fila 78) · ${nowStr}</div>
+</div></body></html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `evidencia_${policy.control.replace('.','')}_${policy.label}_${stamp}.html`; a.click();
+  addLog('ok', `⬇ Evidencia exportada · ${policy.label}·${policy.userLabel} · ${stamp}`);
+}
+
+function exportPolicy() {
+  // Exporta ÚNICAMENTE la política activa (variable `policy`), con todos
+  // los valores personalizados que el usuario haya configurado y aplicado.
+  const p      = { ...policy };
+  const base   = CCN_POLICIES[currentUserType][currentLevel];
+  const now    = new Date();
+  const nowStr = now.toLocaleString('es-ES');
+  const stamp  = now.toISOString().replace(/[:.]/g,'-').slice(0,16);
+
+  // Marcar valores que difieren del perfil base normativo
+  const mark = (val, baseVal, unit) => {
+    const vs = val + (unit ? ' ' + unit : '');
+    if (String(val) !== String(baseVal)) {
+      return vs + ' <span style="background:#fff3cd;color:#856404;font-size:0.7rem;padding:1px 5px;border-radius:3px;margin-left:4px;">personalizado</span>';
+    }
+    return vs;
+  };
+
+  const tiposDesc = p.minTypes >= 4
+    ? 'Mayúsculas, minúsculas, dígitos y símbolos (4 tipos)'
+    : p.minTypes === 3
+    ? 'Mayúsculas, minúsculas y dígitos o símbolos (mín. 3 tipos)'
+    : p.minTypes === 2
+    ? 'Al menos 2 tipos distintos'
+    : '1 tipo mínimo';
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Política de Contraseñas ENS — ${p.label} · ${p.userLabel} · ${nowStr}</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#2e1430;background:#f9f5fa;margin:0;padding:0;}
+  .header{background:linear-gradient(90deg,#4a2648,#60345e,#814e83);color:#fff;padding:20px 32px;}
+  .header h1{font-size:1.15rem;margin:0 0 4px 0;}
+  .header .sub{font-size:0.75rem;opacity:0.85;}
+  .badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,232,85,0.4);
+    border-radius:2px;padding:1px 8px;color:#ffe855;font-size:0.65rem;letter-spacing:1px;
+    text-transform:uppercase;margin-left:8px;}
+  .body{max-width:760px;margin:32px auto;padding:0 32px 60px;}
+  h2{font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:#814e83;
+    border-bottom:1px solid #dca0b5;padding-bottom:6px;margin:28px 0 12px;}
+  table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:8px;}
+  th{background:#f3edf5;padding:9px 14px;text-align:left;font-size:0.7rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.5px;color:#7a5080;
+    border-bottom:2px solid rgba(96,52,94,0.15);}
+  td{padding:10px 14px;border-bottom:1px solid rgba(96,52,94,0.1);color:#523658;vertical-align:top;}
+  td.param{font-weight:600;color:#2e1430;width:220px;}
+  td.val{font-family:monospace;font-size:0.88rem;}
+  td.norm{font-size:0.72rem;color:#7a5080;font-family:monospace;}
+  tr:last-child td{border-bottom:none;}
+  .note{font-size:0.82rem;color:#523658;line-height:1.7;margin-bottom:12px;
+    padding:12px 16px;background:#fff;border-radius:6px;border-left:3px solid #814e83;}
+  .alert{background:#fff8e1;border-left:3px solid #f59e0b;padding:10px 14px;
+    border-radius:6px;font-size:0.8rem;color:#856404;margin-bottom:16px;}
+  .footer{text-align:center;color:#aa88b0;font-size:0.68rem;margin-top:48px;
+    padding-top:16px;border-top:1px solid rgba(96,52,94,0.1);}
+</style></head><body>
+<div class="header">
+  <h1>Política de Contraseñas — ENS
+    <span class="badge">${p.label}</span>
+    <span class="badge">${p.userLabel}</span>
+  </h1>
+  <div class="sub">
+    Control: [${p.control}] · Normativa: CCN-STIC-807 ${p.section} ·
+    Generada: ${nowStr}
+  </div>
+</div>
+<div class="body">
+
+  <h2>Parámetros de la política configurada</h2>
+  <table>
+    <thead><tr><th>Parámetro</th><th>Valor</th><th>Referencia normativa</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="param">Tipo de usuario</td>
+        <td class="val">${p.userLabel}</td>
+        <td class="norm">${p.control} · ${p.section}</td>
+      </tr>
+      <tr>
+        <td class="param">Categoría ENS</td>
+        <td class="val">${p.label}</td>
+        <td class="norm">RD 311/2022 Anexo I</td>
+      </tr>
+      <tr>
+        <td class="param">Longitud mínima</td>
+        <td class="val">${mark(p.minLength, base.minLength, 'caracteres')}</td>
+        <td class="norm">${p.section}</td>
+      </tr>
+      <tr>
+        <td class="param">Tipos de caracteres</td>
+        <td class="val">${mark(p.minTypes, base.minTypes, 'tipos')} — ${tiposDesc}</td>
+        <td class="norm">CCN-STIC-807 5.4.1</td>
+      </tr>
+      <tr>
+        <td class="param">Rotación máxima</td>
+        <td class="val">${mark(p.rotationDays, base.rotationDays, 'días')} (${Math.round(p.rotationDays/365)} año/s)</td>
+        <td class="norm">CCN-STIC-807 5.4.1</td>
+      </tr>
+      <tr>
+        <td class="param">Historial de contraseñas</td>
+        <td class="val">${mark(p.history, base.history, 'contraseñas anteriores')}</td>
+        <td class="norm">${p.section}</td>
+      </tr>
+      <tr>
+        <td class="param">Bloqueo tras intentos fallidos</td>
+        <td class="val">${mark(p.maxAttempts, base.maxAttempts, 'intentos')}</td>
+        <td class="norm">${p.section}</td>
+      </tr>
+      <tr>
+        <td class="param">Vigencia mínima</td>
+        <td class="val">1 día (evita reutilización por cambio rápido)</td>
+        <td class="norm">CCN-STIC-807 5.4.1</td>
+      </tr>
+      <tr>
+        <td class="param">Aviso de expiración</td>
+        <td class="val">14 días antes de la expiración</td>
+        <td class="norm">Buena práctica CCN</td>
+      </tr>
+      <tr>
+        <td class="param">Bloqueo tras intentos (min)</td>
+        <td class="val">${p.lockoutDuration === 0 ? 'Permanente (requiere desbloqueo por administrador)' : p.lockoutDuration + ' minutos'}</td>
+        <td class="norm">LockoutDuration / pam_faillock</td>
+      </tr>
+      <tr>
+        <td class="param">Bloqueo por inactividad</td>
+        <td class="val">${p.screenSaveTimeout} minutos</td>
+        <td class="norm">ScreenSaveTimeOut / GNOME idle-delay</td>
+      </tr>
+      <tr>
+        <td class="param">Mostrar último inicio de sesión</td>
+        <td class="val">${p.displayLastLogon ? 'Activado' : 'Desactivado'}</td>
+        <td class="norm">DisplayLastLogonInfo / pam_lastlog</td>
+      </tr>
+      <tr>
+        <td class="param">Aviso legal (título)</td>
+        <td class="val">${p.legalNoticeCaption || '— No configurado'}</td>
+        <td class="norm">LegalNoticeCaption / /etc/issue</td>
+      </tr>
+      ${p.legalNoticeText ? `<tr>
+        <td class="param">Aviso legal (texto)</td>
+        <td class="val" style="font-size:0.82rem;">${p.legalNoticeText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>
+        <td class="norm">LegalNoticeText / /etc/issue</td>
+      </tr>` : ''}
+      <tr>
+        <td class="param">Segundo factor (MFA)</td>
+        <td class="val">${p.label === 'BAJO' ? 'Recomendado (no obligatorio en nivel BAJO)' : 'Obligatorio — contraseña + OTP o certificado + PIN/biométrico'}</td>
+        <td class="norm">${p.section}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Tipos de caracteres aceptados · CCN-STIC-807 5.4.1</h2>
+  <div class="note">
+    Los ${p.minTypes} tipos mínimos requeridos deben seleccionarse entre las siguientes categorías:
+    <strong>números</strong> (0-9), <strong>mayúsculas</strong> (A-Z),
+    <strong>minúsculas</strong> (a-z) y <strong>caracteres especiales</strong>
+    (!, @, #, $, %, ^, &amp;, *, (, )).
+  </div>
+
+  <h2>Contraseñas prohibidas · CCN-STIC-807 5.4.1</h2>
+  <table>
+    <thead><tr><th>Categoría prohibida</th><th>Ejemplos</th></tr></thead>
+    <tbody>
+      <tr><td>Contraseñas de brechas anteriores</td><td style="font-family:monospace;font-size:0.8rem;">bases tipo Have I Been Pwned</td></tr>
+      <tr><td>Nombre del host o razón social</td><td style="font-family:monospace;font-size:0.8rem;">ministerio, agencia, nombre-org</td></tr>
+      <tr><td>Palabras de diccionario (cualquier idioma)</td><td style="font-family:monospace;font-size:0.8rem;">contraseña, password, seguridad</td></tr>
+      <tr><td>Datos personales</td><td style="font-family:monospace;font-size:0.8rem;">matrícula, fecha nacimiento, mascota</td></tr>
+      <tr><td>Secuencias y patrones de teclado</td><td style="font-family:monospace;font-size:0.8rem;">aaaa, 12345, abcde, qwerty, zaq12wsx</td></tr>
+      <tr><td>Permutaciones de los anteriores</td><td style="font-family:monospace;font-size:0.8rem;">c0ntr4s3ña, P@ssw0rd, segur1dad</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Nota normativa</h2>
+  <div class="note">${p.note}</div>
+
+  <h2>Base normativa</h2>
+  <table>
+    <thead><tr><th>Documento</th><th>Referencia</th></tr></thead>
+    <tbody>
+      <tr><td>Esquema Nacional de Seguridad</td><td class="norm">RD 311/2022 · Anexo II · [${p.control}]</td></tr>
+      <tr><td>Criptología de empleo en el ENS</td><td class="norm">CCN-STIC-807 (Mayo 2022) · ${p.section}</td></tr>
+      <tr><td>Evidencias requeridas</td><td class="norm">CCN-STIC-808 · Fila 78</td></tr>
+      <tr><td>Bloqueo por intentos fallidos</td><td class="norm">CCN-STIC-140 · REQ.21c</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    Generado por PassPolicy ENS v3 · Procesamiento 100% local · Sin transferencia de datos<br>
+    Política: ${p.label} · ${p.userLabel} · [${p.control}] · ${nowStr}
+  </div>
+</div></body></html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `politica_ENS_${p.label}_${p.userLabel === 'Externo' ? 'ext' : 'int'}_${stamp}.html`;
+  a.click();
+  addLog('ok', `⬇ Política exportada · ${p.label}·${p.userLabel} [${p.control}] · Long:${p.minLength} · Rot:${p.rotationDays}d · Intentos:${p.maxAttempts} · ${stamp}`);
+}
+
+// ─── UTILS ───
+function addLog(type, msg) {
+  const panel = document.getElementById('logPanel');
+  const now = new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${type}">${msg}</span>`;
+  panel.appendChild(entry); panel.scrollTop = panel.scrollHeight;
+}
+
+function updateStats() {
+  document.getElementById('statPerfil').textContent = `${policy.label} · ${policy.userLabel}`;
+  document.getElementById('statLong').textContent   = policy.minLength;
+  document.getElementById('statVerif').textContent  = verifyCount;
+  document.getElementById('statGen').textContent    = genCount;
+}
+
+function toggleVis(id, btn) {
+  const el = document.getElementById(id);
+  if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+  else { el.type = 'password'; btn.textContent = '👁'; }
+}
+
+// ═══════════════════════════════════════════════════════
+// GPO / PAM EXPORT  ─  MÓDULO COMPLETO
+// ═══════════════════════════════════════════════════════
+
+// ── Librería ZIP mínima (sin dependencias externas) ──
+// Implementación de DEFLATE-store (sin compresión) + CRC32 + estructura ZIP
+// Suficiente para empaquetar archivos de texto < 1 MB
+const ZipBuilder = (() => {
+  function crc32(buf) {
+    let c = 0xFFFFFFFF;
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let n = i;
+      for (let k = 0; k < 8; k++) n = (n & 1) ? (0xEDB88320 ^ (n >>> 1)) : (n >>> 1);
+      t[i] = n;
+    }
+    for (let i = 0; i < buf.length; i++) c = t[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
+  function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
+  function str2arr(s) { return new TextEncoder().encode(s); }
+
+  return {
+    create() {
+      const files = [];
+      return {
+        add(name, content) {
+          const nameArr  = str2arr(name);
+          const dataArr  = typeof content === 'string' ? str2arr(content) : content;
+          const crc      = crc32(dataArr);
+          const now      = new Date();
+          const dosDate  = ((now.getFullYear()-1980) << 9) | ((now.getMonth()+1) << 5) | now.getDate();
+          const dosTime  = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+          files.push({ nameArr, dataArr, crc, dosDate, dosTime, name });
+        },
+        build() {
+          const parts = [];
+          const centralDir = [];
+          let offset = 0;
+
+          for (const f of files) {
+            const localHeader = [
+              0x50,0x4B,0x03,0x04,      // local file header sig
+              0x14,0x00,                 // version needed: 2.0
+              0x00,0x00,                 // general purpose
+              0x00,0x00,                 // compression: store
+              ...u16(f.dosTime),
+              ...u16(f.dosDate),
+              ...u32(f.crc),
+              ...u32(f.dataArr.length),  // compressed size = uncompressed (store)
+              ...u32(f.dataArr.length),
+              ...u16(f.nameArr.length),
+              0x00,0x00,                 // extra field length
+              ...f.nameArr,
+            ];
+            centralDir.push({ nameArr: f.nameArr, crc: f.crc, size: f.dataArr.length, dosDate: f.dosDate, dosTime: f.dosTime, offset });
+            parts.push(new Uint8Array(localHeader));
+            parts.push(f.dataArr);
+            offset += localHeader.length + f.dataArr.length;
+          }
+
+          const cdParts = [];
+          let cdSize = 0;
+          for (const c of centralDir) {
+            const entry = [
+              0x50,0x4B,0x01,0x02,      // central dir sig
+              0x14,0x00,                 // version made by
+              0x14,0x00,                 // version needed
+              0x00,0x00,                 // general purpose
+              0x00,0x00,                 // compression: store
+              ...u16(c.dosTime),
+              ...u16(c.dosDate),
+              ...u32(c.crc),
+              ...u32(c.size),
+              ...u32(c.size),
+              ...u16(c.nameArr.length),
+              0x00,0x00,                 // extra
+              0x00,0x00,                 // comment
+              0x00,0x00,                 // disk
+              0x00,0x00,                 // internal attr
+              0x00,0x00,0x00,0x00,       // external attr
+              ...u32(c.offset),
+              ...c.nameArr,
+            ];
+            cdParts.push(new Uint8Array(entry));
+            cdSize += entry.length;
+          }
+
+          const eocd = [
+            0x50,0x4B,0x05,0x06,        // end of central dir sig
+            0x00,0x00,                   // disk number
+            0x00,0x00,                   // disk with cd
+            ...u16(files.length),
+            ...u16(files.length),
+            ...u32(cdSize),
+            ...u32(offset),
+            0x00,0x00,                   // comment length
+          ];
+
+          const allParts = [...parts, ...cdParts, new Uint8Array(eocd)];
+          const total = allParts.reduce((s, p) => s + p.length, 0);
+          const out = new Uint8Array(total);
+          let pos = 0;
+          for (const p of allParts) { out.set(p, pos); pos += p.length; }
+          return out;
+        }
+      };
+    }
+  };
+})();
+
+// ── Generadores de contenido ──────────────────────────
+
+function generateWindowsINF(p) {
+  // Genera Security Template (.inf) con saltos CRLF (requerido por secedit)
+  // Secciones validas para secedit /areas SECURITYPOLICY:
+  //   [System Access]  -> politica de contrasenas
+  //   [Account Lockout] -> bloqueo de cuenta
+  // El resto (pantalla, aviso legal, ultimo logon) va en registry_policy_ENS.reg
+  const complexity   = p.minTypes >= 3 ? 1 : 0;
+  const maxAgeDays   = Math.round(p.rotationDays);
+  const lockoutReset = p.lockoutDuration === 0 ? 30 : p.lockoutDuration;
+  const CRLF = '\r\n';
+
+  const lines = [
+    '[Unicode]',
+    'Unicode=yes',
+    '',
+    '[Version]',
+    'signature="$CHICAGO$"',
+    'Revision=1',
+    '',
+    '; =====================================================================',
+    ';  Plantilla de Seguridad ENS - Politica de Contrasenas y Bloqueo',
+    ';  Generado por PassPolicy ENS v3',
+    `;  Normativa: CCN-STIC-807 ${p.section} - Nivel ${p.label} - ${p.userLabel}`,
+    `;  Control ENS: [${p.control}]`,
+    `;  Fecha: ${new Date().toLocaleString('es-ES')}`,
+    ';',
+    ';  APLICACION (standalone, sin Directorio Activo):',
+    ';  1. Ejecutar apply_windows.bat como Administrador (recomendado), O:',
+    ';  2. Manualmente en cmd como Admin:',
+    `;       secedit /configure /db "%TEMP%\\secedit_ens.sdb" /cfg "password_policy_ENS.inf" /areas SECURITYPOLICY`,
+    ';  3. La configuracion de registro (pantalla, aviso, ultimo logon)',
+    ';     se aplica desde registry_policy_ENS.reg (incluido en el ZIP)',
+    '; =====================================================================',
+    '',
+    '[System Access]',
+    '',
+    `; Longitud minima de contrasena: ${p.minLength} caracteres`,
+    `; CCN-STIC-807 ${p.section}`,
+    `MinimumPasswordLength = ${p.minLength}`,
+    '',
+    `; Vigencia maxima: ${maxAgeDays} dias (${Math.round(maxAgeDays/365)} anio/s)`,
+    `; CCN-STIC-807 ${p.section}`,
+    `MaximumPasswordAge = ${maxAgeDays}`,
+    '',
+    '; Vigencia minima: 1 dia',
+    '; Evita que el usuario cambie N veces seguidas para saltarse el historial',
+    'MinimumPasswordAge = 1',
+    '',
+    `; Historial: no reutilizar las ultimas ${p.history} contrasenas`,
+    `; CCN-STIC-807 ${p.section}`,
+    `PasswordHistorySize = ${p.history}`,
+    '',
+    `; Complejidad de contrasena: ${complexity === 1 ? 'ACTIVADA' : 'DESACTIVADA'}`,
+    '; Cuando = 1, Windows exige al menos 3 de 4 categorias:',
+    ';   mayusculas (A-Z), minusculas (a-z), digitos (0-9), simbolos (!@#...)',
+    `; CCN-STIC-807 ${p.section}: minimo ${p.minTypes} tipo(s) requerido(s)`,
+    `PasswordComplexity = ${complexity}`,
+    '',
+    '; Almacenamiento reversible: DESACTIVADO (obligatorio ENS)',
+    'ClearTextPassword = 0',
+    '',
+    '[Account Lockout]',
+    '',
+    `; Bloqueo de cuenta tras ${p.maxAttempts} intentos fallidos consecutivos`,
+    `; CCN-STIC-807 ${p.section}`,
+    `LockoutBadCount = ${p.maxAttempts}`,
+    '',
+    `; Duracion del bloqueo: ${p.lockoutDuration} minutos`,
+    `; 0 = bloqueo permanente (requiere que administrador ejecute: net user <usuario> /active:yes)`,
+    `LockoutDuration = ${p.lockoutDuration}`,
+    '',
+    `; Ventana de observacion para contar fallos: ${lockoutReset} minutos`,
+    `; Si no hay nuevos fallos en este tiempo, el contador de intentos se resetea`,
+    `ResetLockoutCount = ${lockoutReset}`,
+    '',
+  ];
+
+  return lines.join(CRLF);
+}
+
+function generateWindowsREG(p) {
+  // Escapar caracteres especiales para el formato .reg
+  const escReg = s => (s || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const caption = escReg(p.legalNoticeCaption);
+  const text    = escReg(p.legalNoticeText).replace(/\r?\n/g, '\\r\\n');
+  const screenSecs = String(p.screenSaveTimeout * 60);
+  const lastLogon  = p.displayLastLogon ? 'dword:00000001' : 'dword:00000000';
+
+  // NOTA sobre ScreenSaver via registro:
+  // - HKCU\Control Panel\Desktop: aplica al usuario actual (efecto inmediato)
+  // - Para forzarlo a todos los usuarios sin GP, se usa también la clave de usuario Default
+  // - HKLM\SOFTWARE\Policies\Microsoft\Windows\Control Panel\Desktop: solo efectivo
+  //   si hay una CSE de GP activa; en standalone sin AD se usa HKCU
+  // - La clave SCRNSAVE.EXE apunta al salvapantallas; usamos el de Windows por defecto
+
+  const lines = [
+    'Windows Registry Editor Version 5.00',
+    '',
+    '; =====================================================================',
+    ';  Registro de politica de seguridad ENS',
+    ';  Generado por PassPolicy ENS v3',
+    `;  Nivel ${p.label} - ${p.userLabel} - [${p.control}]`,
+    `;  Fecha: ${new Date().toLocaleString('es-ES')}`,
+    ';',
+    ';  APLICACION: doble clic o: reg import registry_policy_ENS.reg',
+    ';  Requiere privilegios de Administrador.',
+    ';  El script apply_windows.bat y apply_windows.ps1 lo importan automaticamente.',
+    '; =====================================================================',
+    '',
+    '; == BLOQUEO DE PANTALLA POR INACTIVIDAD =============================',
+    `; Inactividad: ${p.screenSaveTimeout} minutos = ${screenSecs} segundos`,
+    '; Aplica al usuario actual. Para todos los usuarios, ejecutar como cada usuario',
+    '; o desplegar via GPO de dominio / script de inicio de sesion.',
+    '',
+    '[HKEY_CURRENT_USER\\Control Panel\\Desktop]',
+    '"ScreenSaveActive"="1"',
+    `"ScreenSaveTimeOut"="${screenSecs}"`,
+    '"ScreenSaverIsSecure"="1"',
+    '"SCRNSAVE.EXE"="scrnsave.scr"',
+    '',
+    '; Forzar tambien via politica de maquina (requiere reinicio de sesion):',
+    '[HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop]',
+    '"ScreenSaveActive"="1"',
+    `"ScreenSaveTimeOut"="${screenSecs}"`,
+    '"ScreenSaverIsSecure"="1"',
+    '',
+    '; == AVISO LEGAL EN EL INICIO DE SESION ==============================',
+    '; Muestra un cuadro de dialogo que el usuario debe aceptar antes de iniciar sesion.',
+    '; Si caption esta vacio, no se muestra ningun aviso.',
+    '[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System]',
+  ];
+
+  if (p.legalNoticeCaption) {
+    lines.push(`"LegalNoticeCaption"="${caption}"`);
+    lines.push(`"LegalNoticeText"="${text}"`);
+  } else {
+    lines.push('; Sin aviso legal configurado — se eliminan valores previos');
+    lines.push('"LegalNoticeCaption"=""');
+    lines.push('"LegalNoticeText"=""');
+  }
+
+  lines.push('');
+  lines.push('; == MOSTRAR ULTIMO INICIO DE SESION ==========================');
+  lines.push('; 1=muestra fecha, hora y equipo del ultimo inicio exitoso');
+  lines.push('; 0=no muestra (valor por defecto de Windows)');
+  lines.push(`"DisplayLastLogonInfo"=${lastLogon}`);
+
+  return lines.join('\r\n') + '\r\n';
+}
+
+function generateWindowsBAT(p) {
+  const infName = 'password_policy_ENS.inf';
+  const regName = 'registry_policy_ENS.reg';
+  const level   = p.label.toLowerCase();
+  const control = p.control.replace('.','_');
+  const lockDesc = p.lockoutDuration === 0 ? 'permanente' : `${p.lockoutDuration} min`;
+  return `@echo off
+REM =====================================================================
+REM  Aplicador de Politica de Seguridad ENS -- Windows standalone
+REM  Normativa: CCN-STIC-807 ${p.section}
+REM  Perfil: Nivel ${p.label} - ${p.userLabel} - [${p.control}]
+REM  Generado por PassPolicy ENS v3
+REM
+REM  EJECUCION: clic derecho -> "Ejecutar como administrador"
+REM =====================================================================
+
+echo.
+echo  PassPolicy ENS v3 -- Aplicador de Politica de Seguridad
+echo  Nivel ${p.label} - ${p.userLabel} - [${p.control}]
+echo  -----------------------------------------------------------
+echo.
+
+REM -- Verificar privilegios de administrador
+net session >nul 2>&1
+if %errorLevel% NEQ 0 (
+    echo  ERROR: Ejecutar como Administrador.
+    echo  Clic derecho sobre el archivo ^> Ejecutar como administrador
+    pause & exit /b 1
+)
+
+REM -- [1/4] Verificar archivos
+echo  [1/4] Verificando archivos de politica...
+if not exist "%~dp0${infName}" (
+    echo  ERROR: No se encuentra ${infName} en la carpeta del script.
+    pause & exit /b 1
+)
+echo        OK -- ${infName} encontrado.
+if not exist "%~dp0${regName}" (
+    echo        AVISO: ${regName} no encontrado (se omitira configuracion de registro).
+)
+echo.
+
+REM -- [2/4] Aplicar politica de contrasenas y bloqueo (secedit)
+echo  [2/4] Aplicando politica de contrasenas (secedit)...
+secedit /configure /db "%TEMP%\\passpolicy_ens_${control}_${level}.sdb" /cfg "%~dp0${infName}" /areas SECURITYPOLICY /log "%TEMP%\\passpolicy_ens_${control}_${level}.log"
+if %errorLevel% NEQ 0 (
+    echo  ERROR: secedit fallo. Revisa el log en:
+    echo  %TEMP%\\passpolicy_ens_${control}_${level}.log
+    pause & exit /b 1
+)
+echo        OK -- Politica de contrasenas y bloqueo aplicada.
+echo        Longitud min: ${p.minLength} chars / Historial: ${p.history} / Intentos: ${p.maxAttempts} / Bloqueo: ${lockDesc}
+echo.
+
+REM -- [3/4] Aplicar configuracion de registro (pantalla, aviso, logon)
+echo  [3/4] Aplicando configuracion de registro...
+if exist "%~dp0${regName}" (
+    reg import "%~dp0${regName}"
+    if %errorLevel% NEQ 0 (
+        echo  AVISO: No se pudo importar ${regName}
+    ) else (
+        echo        OK -- Registro importado.
+        echo        Pantalla: ${p.screenSaveTimeout} min / Aviso legal: ${p.legalNoticeCaption ? 'SI' : 'NO'} / Ultimo logon: ${p.displayLastLogon ? 'SI' : 'NO'}
+    )
+) else (
+    echo  OMITIDO: ${regName} no encontrado.
+)
+echo.
+
+REM -- [4/4] Verificar aplicacion (exportar politica actual)
+echo  [4/4] Verificando -- exportando politica actual...
+secedit /export /cfg "%TEMP%\\passpolicy_verificacion_${control}_${level}.inf" /areas SECURITYPOLICY >nul 2>&1
+echo        Verificacion guardada en:
+echo        %TEMP%\\passpolicy_verificacion_${control}_${level}.inf
+echo.
+
+echo  =====================================================================
+echo   POLITICA ENS APLICADA -- RESUMEN
+echo.
+echo   Contrasenas (secedit / password_policy_ENS.inf):
+echo     Longitud minima  : ${p.minLength} caracteres
+echo     Tipos requeridos : ${p.minTypes} (${p.minTypes >= 3 ? 'complejidad ACTIVADA' : 'complejidad desactivada'})
+echo     Rotacion maxima  : ${Math.round(p.rotationDays/365)} anio(s) (${p.rotationDays} dias)
+echo     Historial        : ${p.history} contrasenas anteriores
+echo     Intentos max.    : ${p.maxAttempts} fallidos
+echo     Duracion bloqueo : ${lockDesc}
+echo.
+echo   Registro (registry_policy_ENS.reg):
+echo     Pantalla inactiv.: ${p.screenSaveTimeout} min
+echo     Aviso legal      : ${p.legalNoticeCaption ? 'CONFIGURADO: ' + p.legalNoticeCaption.slice(0,40) : 'No configurado'}
+echo     Ultimo logon     : ${p.displayLastLogon ? 'MOSTRAR' : 'No mostrar'}
+echo.
+echo   Normativa: CCN-STIC-807 ${p.section} -- [${p.control}]
+echo  =====================================================================
+echo.
+pause
+`;
+}
+
+function generateWindowsPS1(p) {
+  const control  = p.control.replace('.','_');
+  const level    = p.label.toLowerCase();
+  const lockDesc = p.lockoutDuration === 0
+    ? 'permanente (requiere: net user <usuario> /active:yes)'
+    : String(p.lockoutDuration) + ' minutos';
+  // IMPORTANTE: este template literal NO puede contener caracteres Unicode decorativos
+  // (como U+2500 o U+2550) ni scriptblocks PowerShell con llaves {} porque el motor
+  // JS los interpreta como inicio/fin de expresion del template, corrompiendo el PS1.
+  // Usamos solo ASCII 7-bit y sustituimos $get por Get-SeceditValue function.
+
+  return '#Requires -RunAsAdministrator\r\n' +
+'<#\r\n' +
+'.SYNOPSIS\r\n' +
+'    Aplica politica de seguridad ENS en equipo Windows standalone (sin AD).\r\n' +
+`    Normativa: CCN-STIC-807 ${p.section} - Nivel ${p.label} - ${p.userLabel} - [${p.control}]\r\n` +
+'    Generado por PassPolicy ENS v3\r\n' +
+'\r\n' +
+'.DESCRIPTION\r\n' +
+'    [1/4] Verifica archivos de politica.\r\n' +
+'    [2/4] Aplica password_policy_ENS.inf via secedit (contrasenas y bloqueo).\r\n' +
+'    [3/4] Importa registry_policy_ENS.reg (pantalla, aviso legal, ultimo logon).\r\n' +
+'    [4/4] Verifica y muestra los valores aplicados.\r\n' +
+'\r\n' +
+'.NOTES\r\n' +
+'    Ejecutar en PowerShell como Administrador.\r\n' +
+'    Si es necesario: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser\r\n' +
+'#>\r\n' +
+'\r\n' +
+'$ErrorActionPreference = "Stop"\r\n' +
+'$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path\r\n' +
+'$InfFile   = Join-Path $ScriptDir "password_policy_ENS.inf"\r\n' +
+'$RegFile   = Join-Path $ScriptDir "registry_policy_ENS.reg"\r\n' +
+`$SdbFile   = Join-Path $env:TEMP "passpolicy_ens_${control}_${level}.sdb"\r\n` +
+`$LogFile   = Join-Path $env:TEMP "passpolicy_ens_${control}_${level}.log"\r\n` +
+`$VerifFile = Join-Path $env:TEMP "passpolicy_verif_${control}_${level}.inf"\r\n` +
+'\r\n' +
+'# Funcion auxiliar: leer valor del INF exportado por secedit\r\n' +
+'function Get-SeceditValue {\r\n' +
+'    param([string]$Key, [string[]]$Lines)\r\n' +
+'    $match = $Lines | Select-String -Pattern "^$Key"\r\n' +
+'    if ($match) {\r\n' +
+'        return ($match.Line -replace "^$Key\\s*=\\s*", "").Trim()\r\n' +
+'    }\r\n' +
+'    return "(no encontrado)"\r\n' +
+'}\r\n' +
+'\r\n' +
+'Write-Host ""\r\n' +
+`Write-Host "  PassPolicy ENS v3 - Nivel ${p.label} - ${p.userLabel} - [${p.control}]" -ForegroundColor Cyan\r\n` +
+`Write-Host "  Normativa: CCN-STIC-807 ${p.section}" -ForegroundColor Yellow\r\n` +
+'Write-Host "  ------------------------------------------------------------"\r\n' +
+'Write-Host ""\r\n' +
+'\r\n' +
+'# [1/4] Verificar archivos\r\n' +
+'Write-Host "  [1/4] Verificando archivos de politica..." -ForegroundColor Cyan\r\n' +
+'if (-not (Test-Path $InfFile)) {\r\n' +
+'    Write-Host "  ERROR: No se encuentra password_policy_ENS.inf" -ForegroundColor Red\r\n' +
+'    Write-Host "         Ejecuta el script desde la carpeta donde estan los archivos." -ForegroundColor Red\r\n' +
+'    exit 1\r\n' +
+'}\r\n' +
+'Write-Host "         OK - password_policy_ENS.inf encontrado" -ForegroundColor Green\r\n' +
+'if (-not (Test-Path $RegFile)) {\r\n' +
+'    Write-Host "         AVISO: registry_policy_ENS.reg no encontrado (registro se omitira)" -ForegroundColor Yellow\r\n' +
+'}\r\n' +
+'Write-Host ""\r\n' +
+'\r\n' +
+'# [2/4] Aplicar INF via secedit\r\n' +
+'Write-Host "  [2/4] Aplicando politica de contrasenas y bloqueo (secedit)..." -ForegroundColor Cyan\r\n' +
+'$ErrorActionPreference = "Continue"\r\n' +
+'& secedit /configure /db $SdbFile /cfg $InfFile /areas SECURITYPOLICY /log $LogFile\r\n' +
+'$seceditExit = $LASTEXITCODE\r\n' +
+'$ErrorActionPreference = "Stop"\r\n' +
+'if ($seceditExit -ne 0) {\r\n' +
+'    Write-Host "  ERROR: secedit fallo (codigo $seceditExit). Revisa el log:" -ForegroundColor Red\r\n' +
+'    Write-Host "         $LogFile" -ForegroundColor Red\r\n' +
+'    exit 1\r\n' +
+'}\r\n' +
+'Write-Host "         OK - Politica de contrasenas y bloqueo aplicada." -ForegroundColor Green\r\n' +
+`Write-Host "         Longitud min: ${p.minLength} chars | Historial: ${p.history} | Intentos: ${p.maxAttempts} | Bloqueo: ${lockDesc}"\r\n` +
+'Write-Host ""\r\n' +
+'\r\n' +
+'# [3/4] Importar REG\r\n' +
+'Write-Host "  [3/4] Aplicando configuracion de registro..." -ForegroundColor Cyan\r\n' +
+'if (Test-Path $RegFile) {\r\n' +
+'    $ErrorActionPreference = "Continue"\r\n' +
+'    & reg import $RegFile 2>&1 | Out-Null\r\n' +
+'    $regExit = $LASTEXITCODE\r\n' +
+'    $ErrorActionPreference = "Stop"\r\n' +
+'    if ($regExit -eq 0) {\r\n' +
+'        Write-Host "         OK - Registro importado (pantalla, aviso legal, ultimo logon)." -ForegroundColor Green\r\n' +
+`        Write-Host "         Pantalla: ${p.screenSaveTimeout} min | Aviso: ${p.legalNoticeCaption ? 'SI' : 'NO'} | Ultimo logon: ${p.displayLastLogon ? 'SI' : 'NO'}"\r\n` +
+'    } else {\r\n' +
+'        Write-Host "         AVISO: Error al importar registro (codigo $regExit)." -ForegroundColor Yellow\r\n' +
+'    }\r\n' +
+'} else {\r\n' +
+'    Write-Host "         OMITIDO: registry_policy_ENS.reg no encontrado." -ForegroundColor Yellow\r\n' +
+'}\r\n' +
+'Write-Host ""\r\n' +
+'\r\n' +
+'# [4/4] Verificar valores aplicados\r\n' +
+'Write-Host "  [4/4] Verificando valores aplicados..." -ForegroundColor Cyan\r\n' +
+'$ErrorActionPreference = "Continue"\r\n' +
+'& secedit /export /cfg $VerifFile /areas SECURITYPOLICY | Out-Null\r\n' +
+'$ErrorActionPreference = "Stop"\r\n' +
+'\r\n' +
+'if (Test-Path $VerifFile) {\r\n' +
+'    $infLines = Get-Content $VerifFile\r\n' +
+'    Write-Host ""\r\n' +
+'    Write-Host "  Valores de contrasenas (secedit / password_policy_ENS.inf):"\r\n' +
+`    Write-Host ("    MinimumPasswordLength : " + (Get-SeceditValue "MinimumPasswordLength" $infLines) + "  [requerido: ${p.minLength}]")\r\n` +
+`    Write-Host ("    MaximumPasswordAge    : " + (Get-SeceditValue "MaximumPasswordAge" $infLines) + " dias  [requerido: ${p.rotationDays}]")\r\n` +
+`    Write-Host ("    PasswordHistorySize   : " + (Get-SeceditValue "PasswordHistorySize" $infLines) + "  [requerido: ${p.history}]")\r\n` +
+`    Write-Host ("    PasswordComplexity    : " + (Get-SeceditValue "PasswordComplexity" $infLines) + "  [requerido: ${p.minTypes >= 3 ? 1 : 0}]")\r\n` +
+`    Write-Host ("    LockoutBadCount       : " + (Get-SeceditValue "LockoutBadCount" $infLines) + "  [requerido: ${p.maxAttempts}]")\r\n` +
+`    Write-Host ("    LockoutDuration       : " + (Get-SeceditValue "LockoutDuration" $infLines) + " min  [requerido: ${p.lockoutDuration}]")\r\n` +
+`    Write-Host ("    ResetLockoutCount     : " + (Get-SeceditValue "ResetLockoutCount" $infLines) + " min")\r\n` +
+'    Write-Host ""\r\n' +
+'    Write-Host "  Valores de registro (registry_policy_ENS.reg):"\r\n' +
+'    try {\r\n' +
+'        $st = (Get-ItemProperty -Path "HKCU:\\Control Panel\\Desktop" -Name ScreenSaveTimeOut -ErrorAction Stop).ScreenSaveTimeOut\r\n' +
+`        Write-Host ("    ScreenSaveTimeOut     : " + $st + " s  [requerido: ${p.screenSaveTimeout * 60} s = ${p.screenSaveTimeout} min]")\r\n` +
+'        $si = (Get-ItemProperty -Path "HKCU:\\Control Panel\\Desktop" -Name ScreenSaverIsSecure -ErrorAction Stop).ScreenSaverIsSecure\r\n' +
+'        Write-Host ("    ScreenSaverIsSecure   : " + $si + "  [requerido: 1]")\r\n' +
+'    } catch {\r\n' +
+'        Write-Host "    ScreenSave: clave no encontrada (normal antes de cerrar sesion)" -ForegroundColor Yellow\r\n' +
+'    }\r\n' +
+'    try {\r\n' +
+'        $lnc = (Get-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" -Name LegalNoticeCaption -ErrorAction Stop).LegalNoticeCaption\r\n' +
+'        Write-Host ("    LegalNoticeCaption    : " + $lnc)\r\n' +
+'    } catch {\r\n' +
+'        Write-Host "    LegalNoticeCaption    : (no configurado)"\r\n' +
+'    }\r\n' +
+'    try {\r\n' +
+'        $dll = (Get-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" -Name DisplayLastLogonInfo -ErrorAction Stop).DisplayLastLogonInfo\r\n' +
+`        Write-Host ("    DisplayLastLogonInfo  : " + $dll + "  [requerido: ${p.displayLastLogon ? 1 : 0}]")\r\n` +
+'    } catch {\r\n' +
+'        Write-Host "    DisplayLastLogonInfo  : (no configurado)"\r\n' +
+'    }\r\n' +
+'} else {\r\n' +
+'    Write-Host "  AVISO: No se pudo exportar la verificacion." -ForegroundColor Yellow\r\n' +
+'}\r\n' +
+'\r\n' +
+'Write-Host ""\r\n' +
+'Write-Host "  ============================================================"\r\n' +
+'Write-Host "   POLITICA ENS APLICADA CORRECTAMENTE" -ForegroundColor Green\r\n' +
+`Write-Host "   Nivel ${p.label} - ${p.userLabel} - [${p.control}]" -ForegroundColor Yellow\r\n` +
+'Write-Host "  ============================================================"\r\n' +
+'Write-Host ""\r\n';
+}
+
+function generateLinuxPwquality(p) {
+  // dcredit/ucredit/lcredit/ocredit: -1 exige al menos 1 de ese tipo
+  // Valor 0 significa que no se exige ese tipo específico
+  // Se activan según p.minTypes:
+  //   1: solo minlen, sin exigir tipos concretos
+  //   2: minusculas + digitos
+  //   3: minusculas + mayusculas + digitos (estándar ENS)
+  //   4: minusculas + mayusculas + digitos + especiales
+  const lcredit = p.minTypes >= 1 ? '-1' : '0';   // minusculas: siempre
+  const dcredit = p.minTypes >= 2 ? '-1' : '0';   // digitos: desde tipo 2
+  const ucredit = p.minTypes >= 3 ? '-1' : '0';   // mayusculas: desde tipo 3
+  const ocredit = p.minTypes >= 4 ? '-1' : '0';   // especiales: solo tipo 4
+
+  return '# /etc/security/pwquality.conf\n' +
+'# =====================================================================\n' +
+'#  Configuracion de calidad de contrasenas ENS\n' +
+'#  Generado por PassPolicy ENS v3\n' +
+`#  Normativa: CCN-STIC-807 ${p.section} - Nivel ${p.label} - ${p.userLabel} - [${p.control}]\n` +
+`#  Fecha: ${new Date().toLocaleString('es-ES')}\n` +
+'#\n' +
+'#  Copiar a /etc/security/pwquality.conf\n' +
+'#  Requiere: libpam-pwquality (Debian) o libpwquality (RHEL)\n' +
+'# =====================================================================\n\n' +
+'# -- Longitud minima --------------------------------------------------\n' +
+`# CCN-STIC-807 ${p.section}: minimo ${p.minLength} caracteres\n` +
+`minlen = ${p.minLength}\n\n` +
+'# -- Clases de caracteres requeridas ----------------------------------\n' +
+`# CCN-STIC-807 5.4.1: minimo ${p.minTypes} tipo(s) distintos\n` +
+`# minclass fuerza que haya al menos ${p.minTypes} categorias distintas en la contrasena\n` +
+`minclass = ${p.minTypes}\n\n` +
+'# Creditos por tipo (-1 = exigir al menos 1 de ese tipo, 0 = no exigir)\n' +
+`lcredit = ${lcredit}   # minusculas${p.minTypes >= 1 ? ' [REQUERIDO]' : ''}\n` +
+`dcredit = ${dcredit}   # digitos${p.minTypes >= 2 ? ' [REQUERIDO]' : ''}\n` +
+`ucredit = ${ucredit}   # mayusculas${p.minTypes >= 3 ? ' [REQUERIDO]' : ''}\n` +
+`ocredit = ${ocredit}   # especiales (!@#$...)${p.minTypes >= 4 ? ' [REQUERIDO]' : ''}\n\n` +
+'# -- Anti-patrones ----------------------------------------------------\n' +
+'# Verificar contra diccionario del sistema (cracklib)\n' +
+'# CCN-STIC-807 5.4.1: lista negra de contrasenas prohibidas\n' +
+'dictcheck = 1\n\n' +
+'# Rechazar si contiene el nombre de usuario\n' +
+'usercheck = 1\n\n' +
+'# Rechazar si contiene el nombre real del usuario (campo gecos)\n' +
+'gecoscheck = 1\n\n' +
+'# Maximo de caracteres consecutivos iguales\n' +
+'maxrepeat = 2\n\n' +
+'# Maximo de caracteres consecutivos de la misma clase\n' +
+'maxclassrepeat = 4\n\n' +
+'# Longitud minima de secuencias monotónicas a rechazar (ej: "abcde", "12345")\n' +
+'maxsequence = 4\n\n' +
+'# Minimo de caracteres distintos respecto a la contrasena anterior\n' +
+'difok = 5\n\n' +
+'# Palabras prohibidas adicionales (CCN-STIC-807 5.4.1)\n' +
+'badwords = password contrasena admin administrador seguridad acceso\n';
+}
+
+function generateLinuxLoginDefs(p) {
+  const maxDays = Math.round(p.rotationDays);
+  return `# Fragmento para /etc/login.defs — Parámetros de contraseña ENS
+# ══════════════════════════════════════════════════════════════════════
+#  Generado por PassPolicy ENS v3
+#  Normativa: CCN-STIC-807 ${p.section} — Nivel ${p.label} · ${p.userLabel} · [${p.control}]
+#  Fecha: ${new Date().toLocaleString('es-ES')}
+#
+#  INSTRUCCIONES:
+#  Fusionar (o reemplazar) estos valores en /etc/login.defs
+#  Afectan a nuevas cuentas; para cuentas existentes usar:
+#    chage -M ${maxDays} -m 1 -W 14 <usuario>
+# ══════════════════════════════════════════════════════════════════════
+
+# Vigencia máxima de contraseña en días (${maxDays} días = ${Math.round(maxDays/365)} año/s)
+# Fuente: CCN-STIC-807 5.4.1
+PASS_MAX_DAYS   ${maxDays}
+
+# Vigencia mínima (1 día — evita cambio inmediato para saltarse historial)
+PASS_MIN_DAYS   1
+
+# Días de aviso previo a la expiración
+PASS_WARN_AGE   14
+
+# Longitud mínima (reforzada también por PAM/pwquality)
+# Fuente: CCN-STIC-807 ${p.section}
+PASS_MIN_LEN    ${p.minLength}
+`;
+}
+
+function generateLinuxPAMPassword(p) {
+  return `# /etc/pam.d/common-password — Política de contraseñas ENS
+# ══════════════════════════════════════════════════════════════════════
+#  Generado por PassPolicy ENS v3
+#  Normativa: CCN-STIC-807 ${p.section} — Nivel ${p.label} · ${p.userLabel} · [${p.control}]
+#  Fecha: ${new Date().toLocaleString('es-ES')}
+#
+#  INSTRUCCIONES:
+#  1. Instalar libpam-pwquality:
+#       Debian/Ubuntu: sudo apt-get install libpam-pwquality
+#       RHEL/CentOS:   sudo dnf install pam_pwquality
+#  2. Copiar /etc/security/pwquality.conf del paquete
+#  3. Reemplazar (o fusionar) este archivo en /etc/pam.d/common-password
+#  4. Verificar con: sudo passwd --status <usuario>
+#
+#  ADVERTENCIA: Hacer copia de seguridad antes de modificar archivos PAM:
+#    sudo cp /etc/pam.d/common-password /etc/pam.d/common-password.bak
+# ══════════════════════════════════════════════════════════════════════
+
+# Módulo de calidad de contraseña (debe ir ANTES de pam_unix)
+# retry=3 → máximo 3 intentos de cambio en una llamada a passwd
+# enforce_for_root → aplica también al usuario root
+password  requisite     pam_pwquality.so  retry=3 enforce_for_root
+
+# Módulo principal: almacena la contraseña cifrada
+# remember=${p.history} → no reutilizar las últimas ${p.history} contraseñas
+# Fuente: CCN-STIC-807 ${p.section}
+# sha512 → algoritmo de hash recomendado (CCN-STIC-807 3.3)
+# rounds=65536 → aumenta el coste de fuerza bruta
+password  [success=1 default=ignore]  pam_unix.so  sha512 rounds=65536 remember=${p.history}
+password  requisite     pam_deny.so
+password  required      pam_permit.so
+`;
+}
+
+function generateLinuxPAMAuth(p) {
+  const unlockSecs   = p.lockoutDuration === 0 ? 0 : p.lockoutDuration * 60;
+  const failInterval = p.lockoutDuration === 0 ? 900 : Math.max(p.lockoutDuration * 60, 60);
+  const lockDesc     = p.lockoutDuration === 0
+    ? 'PERMANENTE (0 = solo admin desbloquea con: faillock --user <u> --reset)'
+    : `desbloqueo automatico tras ${p.lockoutDuration} minutos`;
+
+  const header =
+    '# /etc/pam.d/common-auth  (Debian/Ubuntu)\n' +
+    '# /etc/pam.d/password-auth (RHEL/CentOS/Fedora — usar este archivo en RHEL)\n' +
+    '# =====================================================================\n' +
+    '#  Control de intentos fallidos y bloqueo de cuenta ENS\n' +
+    '#  Generado por PassPolicy ENS v3\n' +
+    `#  Normativa: CCN-STIC-807 ${p.section} - Nivel ${p.label} - ${p.userLabel} - [${p.control}]\n` +
+    `#  Fecha: ${new Date().toLocaleString('es-ES')}\n` +
+    '#\n' +
+    '#  INSTRUCCIONES DEBIAN/UBUNTU:\n' +
+    '#    cp /etc/pam.d/common-auth /etc/pam.d/common-auth.bak\n' +
+    '#    cp common-auth /etc/pam.d/common-auth\n' +
+    '#\n' +
+    '#  INSTRUCCIONES RHEL/CENTOS/FEDORA:\n' +
+    '#    cp /etc/pam.d/password-auth /etc/pam.d/password-auth.bak\n' +
+    '#    Fusionar las lineas pam_faillock en /etc/pam.d/password-auth\n' +
+    '#    (no reemplazar completo — RHEL tiene lineas adicionales de sistema)\n' +
+    '#\n' +
+    '#  VERIFICAR BLOQUEOS: sudo faillock --user <usuario>\n' +
+    '#  DESBLOQUEAR:        sudo faillock --user <usuario> --reset\n' +
+    '# =====================================================================\n\n';
+
+  const body =
+    `# pam_faillock: bloqueo tras ${p.maxAttempts} intentos fallidos\n` +
+    `# CCN-STIC-807 ${p.section}\n` +
+    '#\n' +
+    `# deny=${p.maxAttempts}              -> bloquear tras ${p.maxAttempts} intentos fallidos consecutivos\n` +
+    `# unlock_time=${unlockSecs}   -> ${lockDesc}\n` +
+    `# fail_interval=${failInterval} -> ventana en segundos para contar fallos\n` +
+    '# audit                   -> registrar en syslog (trazabilidad ENS)\n' +
+    '# silent                  -> no revelar si la cuenta esta bloqueada (anti-enumeracion)\n' +
+    '#\n' +
+    `auth  required   pam_faillock.so preauth silent audit deny=${p.maxAttempts} unlock_time=${unlockSecs} fail_interval=${failInterval}\n` +
+    'auth  [success=1 default=ignore]  pam_unix.so  nullok\n' +
+    `auth  [default=die]               pam_faillock.so authfail audit deny=${p.maxAttempts} unlock_time=${unlockSecs} fail_interval=${failInterval}\n` +
+    `auth  sufficient  pam_faillock.so authsucc audit deny=${p.maxAttempts} unlock_time=${unlockSecs} fail_interval=${failInterval}\n` +
+    'auth  requisite   pam_deny.so\n' +
+    'auth  required    pam_permit.so\n';
+
+  return header + body;
+}
+
+function generateLinuxScript(p) {
+  const maxDays = Math.round(p.rotationDays);
+  return `#!/usr/bin/env bash
+# ══════════════════════════════════════════════════════════════════════
+#  Aplicador de Política de Contraseñas ENS — Linux (standalone / local)
+#  Generado por PassPolicy ENS v3
+#  Normativa: CCN-STIC-807 ${p.section} — Nivel ${p.label} · ${p.userLabel} · [${p.control}]
+#  Fecha: ${new Date().toLocaleString('es-ES')}
+#
+#  EJECUCIÓN:
+#    chmod +x apply_linux.sh
+#    sudo ./apply_linux.sh
+#
+#  Distribuciones soportadas: Debian/Ubuntu/Linux Mint, RHEL/CentOS/Fedora
+#  Requisito: ejecutar como root (sudo)
+# ══════════════════════════════════════════════════════════════════════
+set -euo pipefail
+
+# ── Colores ─────────────────────────────────────────
+RED='\\033[0;31m'; GREEN='\\033[0;32m'; YELLOW='\\033[1;33m'
+CYAN='\\033[0;36m'; BOLD='\\033[1m'; NC='\\033[0m'
+ok()   { echo -e "  \${GREEN}✓\${NC} \$*"; }
+err()  { echo -e "  \${RED}✗\${NC} \$*"; exit 1; }
+info() { echo -e "  \${CYAN}→\${NC} \$*"; }
+warn() { echo -e "  \${YELLOW}!\${NC} \$*"; }
+
+SCRIPT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+
+echo ""
+echo -e "\${BOLD}\${CYAN}  PassPolicy ENS v3 — Aplicador de Política de Contraseñas Linux\${NC}"
+echo -e "  Perfil: \${BOLD}${p.label} · ${p.userLabel} · [${p.control}]\${NC}"
+echo -e "  Normativa: CCN-STIC-807 ${p.section}"
+echo    "  ──────────────────────────────────────────────────────────────"
+echo ""
+
+# ── Verificar root ──────────────────────────────────
+[[ \$EUID -eq 0 ]] || err "Ejecutar como root: sudo ./apply_linux.sh"
+ok "Privilegios root confirmados."
+
+# ── Detectar distribución ───────────────────────────
+if   command -v apt-get &>/dev/null; then DISTRO="debian"
+elif command -v dnf     &>/dev/null; then DISTRO="rhel"
+elif command -v yum     &>/dev/null; then DISTRO="centos"
+else warn "Distribución no detectada. Continuando..."; DISTRO="unknown"; fi
+info "Distribución detectada: \$DISTRO"
+
+# ── Instalar dependencias ───────────────────────────
+echo ""
+info "Verificando dependencias PAM..."
+if [[ "\$DISTRO" == "debian" ]]; then
+    dpkg -l libpam-pwquality &>/dev/null || { info "Instalando libpam-pwquality..."; apt-get install -y libpam-pwquality; }
+    dpkg -l libpam-modules   &>/dev/null || apt-get install -y libpam-modules
+elif [[ "\$DISTRO" == "rhel" ]]; then
+    rpm -q pam_pwquality &>/dev/null || dnf install -y libpwquality
+fi
+ok "Dependencias PAM OK."
+
+# ── Backup de archivos PAM actuales ────────────────
+echo ""
+info "Creando backups de configuración PAM actual..."
+BACKUP_DIR="/etc/pam.d/bak_passpolicy_ens_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "\$BACKUP_DIR"
+for f in common-auth common-password; do
+    [[ -f "/etc/pam.d/\$f" ]] && cp "/etc/pam.d/\$f" "\$BACKUP_DIR/\$f.bak"
+done
+[[ -f /etc/security/pwquality.conf ]] && cp /etc/security/pwquality.conf "\$BACKUP_DIR/pwquality.conf.bak"
+[[ -f /etc/login.defs ]]              && cp /etc/login.defs "\$BACKUP_DIR/login.defs.bak"
+ok "Backups guardados en: \$BACKUP_DIR"
+
+# ── Aplicar pwquality.conf ──────────────────────────
+echo ""
+info "Aplicando /etc/security/pwquality.conf..."
+[[ -f "\$SCRIPT_DIR/pwquality.conf" ]] || err "No se encuentra pwquality.conf en \$SCRIPT_DIR"
+cp "\$SCRIPT_DIR/pwquality.conf" /etc/security/pwquality.conf
+chmod 644 /etc/security/pwquality.conf
+ok "pwquality.conf aplicado."
+
+# ── Aplicar common-password ─────────────────────────
+info "Aplicando /etc/pam.d/common-password..."
+[[ -f "\$SCRIPT_DIR/common-password" ]] || err "No se encuentra common-password en \$SCRIPT_DIR"
+cp "\$SCRIPT_DIR/common-password" /etc/pam.d/common-password
+chmod 644 /etc/pam.d/common-password
+ok "common-password aplicado."
+
+# ── Aplicar common-auth ──────────────────────────────
+info "Aplicando /etc/pam.d/common-auth..."
+[[ -f "\$SCRIPT_DIR/common-auth" ]] || err "No se encuentra common-auth en \$SCRIPT_DIR"
+cp "\$SCRIPT_DIR/common-auth" /etc/pam.d/common-auth
+chmod 644 /etc/pam.d/common-auth
+ok "common-auth aplicado."
+
+# ── Aplicar login.defs ───────────────────────────────
+info "Fusionando parámetros en /etc/login.defs..."
+# Reemplazar/añadir cada parámetro en login.defs de forma idempotente
+apply_logindefs() {
+    local key="\$1" val="\$2"
+    if grep -qE "^#?\\s*\${key}" /etc/login.defs; then
+        sed -i "s|^#*\\s*\${key}.*|\${key}\\t\${val}|" /etc/login.defs
+    else
+        echo "\${key}\\t\${val}" >> /etc/login.defs
+    fi
+}
+apply_logindefs PASS_MAX_DAYS ${maxDays}
+apply_logindefs PASS_MIN_DAYS 1
+apply_logindefs PASS_WARN_AGE 14
+apply_logindefs PASS_MIN_LEN  ${p.minLength}
+ok "login.defs actualizado."
+
+# ── Bloqueo de pantalla por inactividad ─────────────
+echo ""
+info "Configurando bloqueo de pantalla por inactividad (${p.screenSaveTimeout} min)..."
+SCREEN_SECS=${p.screenSaveTimeout * 60}
+# GNOME (Wayland/X11)
+if command -v gsettings &>/dev/null; then
+    gsettings set org.gnome.desktop.session idle-delay \$SCREEN_SECS 2>/dev/null && \
+        ok "GNOME: idle-delay = \$SCREEN_SECS s" || warn "GNOME: no se pudo configurar idle-delay"
+    gsettings set org.gnome.desktop.screensaver lock-enabled true 2>/dev/null || true
+    gsettings set org.gnome.desktop.screensaver lock-delay 0 2>/dev/null || true
+fi
+# X11 xset (fallback)
+if command -v xset &>/dev/null && [ -n "\${DISPLAY:-}" ]; then
+    xset s ${p.screenSaveTimeout * 60} ${p.screenSaveTimeout * 60} 2>/dev/null && \
+        ok "X11: xset s \$SCREEN_SECS" || true
+fi
+# También como política systemd-logind
+if systemctl is-active --quiet systemd-logind 2>/dev/null; then
+    mkdir -p /etc/systemd/logind.conf.d
+    cat > /etc/systemd/logind.conf.d/ens_idle.conf << 'LOGINDEOF'
+[Login]
+# Tiempo de inactividad antes de bloqueo (segundos) — ENS PassPolicy
+IdleAction=lock
+IdleActionSec=${p.screenSaveTimeout}min
+LOGINDEOF
+    systemctl restart systemd-logind 2>/dev/null && ok "systemd-logind: IdleActionSec=${p.screenSaveTimeout}min" || warn "systemd-logind: no se pudo reiniciar"
+fi
+
+# ── Aviso legal en el inicio de sesión ───────────────
+${p.legalNoticeCaption ? `echo ""
+info "Configurando aviso legal en /etc/issue y /etc/issue.net..."
+cat > /etc/issue << 'ISSUEEOF'
+${p.legalNoticeCaption}
+${p.legalNoticeText}
+ISSUEEOF
+cp /etc/issue /etc/issue.net
+ok "Aviso legal configurado en /etc/issue y /etc/issue.net."
+# PAM display (si existe)
+if [ -f /etc/pam.d/login ]; then
+    grep -q "pam_issue" /etc/pam.d/login || \
+        sed -i '1s|^|auth       optional   pam_issue.so issue=/etc/issue\n|' /etc/pam.d/login
+    ok "pam_issue añadido a /etc/pam.d/login."
+fi` : `info "Sin aviso legal configurado — se omite /etc/issue."`}
+
+# ── Mostrar último inicio de sesión (pam_lastlog) ────
+echo ""
+info "Configurando visualización del último inicio de sesión..."
+${p.displayLastLogon ? `# Asegurar que pam_lastlog está activo en common-session
+if [ -f /etc/pam.d/common-session ]; then
+    if ! grep -q "pam_lastlog" /etc/pam.d/common-session; then
+        echo "session    optional   pam_lastlog.so showfailed" >> /etc/pam.d/common-session
+        ok "pam_lastlog añadido a common-session."
+    else
+        ok "pam_lastlog ya presente en common-session."
+    fi
+fi` : `# Desactivar pam_lastlog si estuviera presente
+if [ -f /etc/pam.d/common-session ]; then
+    sed -i '/pam_lastlog/d' /etc/pam.d/common-session 2>/dev/null || true
+    info "pam_lastlog desactivado."
+fi`}
+
+# ── Aplicar política a cuentas locales existentes ───
+echo ""
+info "Aplicando expiración de contraseña a cuentas locales activas..."
+UPDATED=0
+while IFS=: read -r user _ uid _ _ _ shell; do
+    [[ \$uid -ge 1000 && "\$shell" != "/usr/sbin/nologin" && "\$shell" != "/bin/false" ]] || continue
+    chage -M ${maxDays} -m 1 -W 14 "\$user" 2>/dev/null && (( UPDATED++ )) || true
+done < /etc/passwd
+ok "\$UPDATED cuenta(s) locales actualizadas."
+
+# ── Verificación final ───────────────────────────────
+echo ""
+echo    "  ══════════════════════════════════════════════════════════════"
+echo -e "  \${GREEN}\${BOLD}  POLÍTICA ENS APLICADA CORRECTAMENTE\${NC}"
+echo    ""
+echo    "  Parámetros aplicados:"
+echo    "    Longitud mínima  : ${p.minLength} caracteres"
+echo    "    Tipos requeridos : ${p.minTypes} (may, min, dígito, especial)"
+echo    "    Historial        : ${p.history} contraseñas anteriores"
+echo    "    Rotación máxima  : ${maxDays} días (${Math.round(maxDays/365)} año/s)"
+echo    "    Bloqueo tras     : ${p.maxAttempts} intentos (desbloqueo: ${p.lockoutDuration === 0 ? 'permanente' : p.lockoutDuration + ' min'})"
+echo    "    Pantalla inactiv.: ${p.screenSaveTimeout} min"
+echo    "    Aviso legal      : ${p.legalNoticeCaption ? 'CONFIGURADO' : 'No configurado'}"
+echo    "    Ultimo logon     : ${p.displayLastLogon ? 'MOSTRAR' : 'No mostrar'}"
+echo    "    Normativa        : CCN-STIC-807 ${p.section} · [${p.control}]"
+echo    ""
+echo    "  Para verificar bloqueos activos:"
+echo    "    sudo faillock --user <usuario>"
+echo    "  Para desbloquear:"
+echo    "    sudo faillock --user <usuario> --reset"
+echo    "  Para ver expiración de un usuario:"
+echo    "    sudo chage -l <usuario>"
+echo    "  ══════════════════════════════════════════════════════════════"
+echo ""
+`;
+}
+
+function generateReadme(p, os) {
+  const isWin = os === 'windows';
+  const maxDays = Math.round(p.rotationDays);
+  return `${isWin ? 'LÉEME — Política de Contraseñas ENS para Windows (standalone)' : 'LÉEME — Política de Contraseñas ENS para Linux (standalone)'}
+${'═'.repeat(70)}
+Generado por: PassPolicy ENS v3
+Normativa:    CCN-STIC-807 ${p.section}
+Perfil:       Nivel ${p.label} · Usuario ${p.userLabel} · [${p.control}]
+Fecha:        ${new Date().toLocaleString('es-ES')}
+${'═'.repeat(70)}
+
+PARÁMETROS DE LA POLÍTICA
+─────────────────────────
+  Longitud mínima         : ${p.minLength} caracteres
+  Tipos de caracteres     : ${p.minTypes} (mayúsculas, minúsculas, dígitos${p.minTypes >= 4 ? ', símbolos' : ''})
+  Rotación máxima         : ${maxDays} días (${Math.round(maxDays/365)} año/s)
+  Historial               : ${p.history} contraseñas anteriores
+  Bloqueo tras intentos   : ${p.maxAttempts} intentos fallidos
+  Duración del bloqueo    : ${p.lockoutDuration === 0 ? 'permanente (requiere admin)' : p.lockoutDuration + ' minutos'}
+  Inactividad pantalla    : ${p.screenSaveTimeout} minutos
+  Último inicio de sesión : ${p.displayLastLogon ? 'Mostrar' : 'No mostrar'}
+  Aviso legal             : ${p.legalNoticeCaption ? 'Configurado: "' + p.legalNoticeCaption + '"' : 'No configurado'}
+  Vigencia mínima         : 1 día
+  Aviso de expiración     : 14 días antes
+
+${isWin ? `ARCHIVOS INCLUIDOS
+──────────────────
+  password_policy_ENS.inf   Plantilla de seguridad Windows (.inf)
+  apply_windows.bat          Script de aplicación (recomendado)
+  apply_windows.ps1          Alternativa en PowerShell
+  LEEME.txt                  Este archivo
+
+INSTRUCCIONES WINDOWS
+──────────────────────
+OPCIÓN A — Script .bat (más sencillo):
+  1. Extraer todos los archivos en la misma carpeta.
+  2. Clic derecho sobre apply_windows.bat → "Ejecutar como administrador".
+  3. El script verifica, aplica y muestra confirmación.
+
+OPCIÓN B — PowerShell:
+  1. Abrir PowerShell como Administrador.
+  2. Si es necesario: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+  3. Navegar a la carpeta y ejecutar:
+       .\\apply_windows.ps1
+  4. El script aplica, verifica y muestra los valores confirmados.
+
+OPCIÓN C — Manual con secedit:
+  1. Abrir cmd como Administrador.
+  2. Ejecutar:
+       secedit /configure /db "%TEMP%\\ens.sdb" /cfg "password_policy_ENS.inf" /areas SECURITYPOLICY
+  3. Para verificar:
+       secedit /export /cfg "%TEMP%\\verificacion.inf" /areas SECURITYPOLICY
+
+VERIFICACIÓN
+────────────
+  - Abrir secpol.msc → Directivas de cuenta → Directiva de contraseñas
+  - O revisar el archivo de verificación exportado por el script
+
+REVERSIÓN
+──────────
+  - Usar secpol.msc para modificar manualmente.
+  - O aplicar una plantilla .inf con los valores originales del sistema.` : `ARCHIVOS INCLUIDOS
+──────────────────
+  pwquality.conf      Configuración de complejidad (→ /etc/security/)
+  common-password     Módulo PAM de contraseñas (→ /etc/pam.d/)
+  common-auth         Módulo PAM de autenticación y bloqueo (→ /etc/pam.d/)
+  login.defs.patch    Parámetros de expiración (→ /etc/login.defs)
+  apply_linux.sh      Script de aplicación automática (recomendado)
+  LEEME.txt           Este archivo
+
+INSTRUCCIONES LINUX
+────────────────────
+OPCIÓN A — Script automático (recomendado):
+  1. chmod +x apply_linux.sh
+  2. sudo ./apply_linux.sh
+  El script detecta la distribución, instala dependencias, hace backups
+  y aplica todos los archivos automáticamente.
+
+OPCIÓN B — Aplicación manual:
+  1. Instalar dependencias:
+       Debian/Ubuntu: sudo apt-get install libpam-pwquality
+       RHEL/CentOS:   sudo dnf install libpwquality
+  2. Backup:
+       sudo cp /etc/pam.d/common-auth /etc/pam.d/common-auth.bak
+       sudo cp /etc/pam.d/common-password /etc/pam.d/common-password.bak
+  3. Copiar archivos:
+       sudo cp pwquality.conf /etc/security/pwquality.conf
+       sudo cp common-password /etc/pam.d/common-password
+       sudo cp common-auth /etc/pam.d/common-auth
+  4. Fusionar login.defs.patch en /etc/login.defs (ver comentarios en el archivo)
+
+VERIFICACIÓN
+─────────────
+  Comprobar expiración de un usuario:
+    sudo chage -l <usuario>
+  Ver bloqueos activos:
+    sudo faillock --user <usuario>
+  Probar política (simulación de cambio):
+    sudo passwd <usuario>
+
+REVERSIÓN
+──────────
+  Los backups se guardan automáticamente en /etc/pam.d/bak_passpolicy_ens_*/
+    sudo cp /etc/pam.d/bak_<timestamp>/common-auth.bak /etc/pam.d/common-auth
+    sudo cp /etc/pam.d/bak_<timestamp>/common-password.bak /etc/pam.d/common-password`}
+
+BASE NORMATIVA
+──────────────
+  RD 311/2022 — Esquema Nacional de Seguridad
+  CCN-STIC-807 (Mayo 2022) — Criptología de empleo en el ENS
+    ${p.section} — ${p.userLabel === 'Externo' ? 'Mecanismos de autenticación usuarios externos [op.acc.5]' : 'Mecanismos de autenticación usuarios internos [op.acc.6]'}
+  CCN-STIC-808 — Fila 78 — Evidencias de política de contraseñas
+  CCN-STIC-140 REQ.21c — Bloqueo tras intentos fallidos
+
+${'═'.repeat(70)}
+Generado por PassPolicy ENS v3 · Procesamiento 100% local · Sin servidores
+${'═'.repeat(70)}
+`;
+}
+
+// ── Función principal de exportación ─────────────────
+
+function downloadZip(os) {
+  const p = { ...policy };  // usar política activa (puede incluir valores personalizados)
+  const zip = ZipBuilder.create();
+  const folder = `passpolicy_ENS_${p.label}_${p.userLabel === 'Externo' ? 'ext' : 'int'}_${os}/`;
+
+  if (os === 'windows') {
+    zip.add(folder + 'LEEME.txt',                    generateReadme(p, 'windows'));
+    zip.add(folder + 'password_policy_ENS.inf',      generateWindowsINF(p));
+    zip.add(folder + 'registry_policy_ENS.reg',      generateWindowsREG(p));
+    zip.add(folder + 'apply_windows.bat',            generateWindowsBAT(p));
+    zip.add(folder + 'apply_windows.ps1',            generateWindowsPS1(p));
+  } else {
+    zip.add(folder + 'LEEME.txt',                    generateReadme(p, 'linux'));
+    zip.add(folder + 'pwquality.conf',               generateLinuxPwquality(p));
+    zip.add(folder + 'common-password',              generateLinuxPAMPassword(p));
+    zip.add(folder + 'common-auth',                  generateLinuxPAMAuth(p));
+    zip.add(folder + 'login.defs.patch',             generateLinuxLoginDefs(p));
+    zip.add(folder + 'apply_linux.sh',               generateLinuxScript(p));
+  }
+
+  const bytes    = zip.build();
+  const blob     = new Blob([bytes], { type: 'application/zip' });
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  const stamp    = new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+  a.href         = url;
+  a.download     = `passpolicy_ENS_${p.label}_${p.userLabel === 'Externo' ? 'ext' : 'int'}_${os}_${stamp}.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+  addLog('ok', `⬇ ZIP ${os.toUpperCase()} descargado · ${p.label}·${p.userLabel} · ${stamp}`);
+}
+
+function previewContent(type) {
+  const p = { ...policy };  // usar política activa (incluye valores personalizados)
+  let content = '', title = '';
+  switch(type) {
+    case 'inf':      content = generateWindowsINF(p);      title = 'password_policy_ENS.inf'; break;
+    case 'bat':      content = generateWindowsBAT(p);      title = 'apply_windows.bat';       break;
+    case 'ps1':      content = generateWindowsPS1(p);      title = 'apply_windows.ps1';       break;
+    case 'pwq':      content = generateLinuxPwquality(p);  title = 'pwquality.conf';          break;
+    case 'pampwd':   content = generateLinuxPAMPassword(p);title = 'common-password';         break;
+    case 'pamauth':  content = generateLinuxPAMAuth(p);    title = 'common-auth';             break;
+    case 'ldefs':    content = generateLinuxLoginDefs(p);  title = 'login.defs.patch';        break;
+    case 'sh':       content = generateLinuxScript(p);     title = 'apply_linux.sh';          break;
+  }
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewContent').textContent = content;
+  document.getElementById('previewModal').classList.add('open');
+}
+</script>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-overlay" id="previewModal" onclick="if(event.target===this)document.getElementById('previewModal').classList.remove('open')">
+  <div class="modal" style="max-width:860px;">
+    <div class="modal-header">
+      <span class="modal-title" id="previewTitle">Vista previa</span>
+      <button class="modal-close" onclick="document.getElementById('previewModal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <pre id="previewContent" style="background:var(--plum-darker);color:var(--blush);font-family:'IBM Plex Mono',monospace;font-size:0.72rem;line-height:1.6;padding:20px 24px;overflow:auto;max-height:70vh;margin:0;"></pre>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
