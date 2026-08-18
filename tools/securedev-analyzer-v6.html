@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureDev Analyzer v5 - CCN-CERT BP/28 - OWASP 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#814e83;--plum-deep:#60345e;--plum-darker:#4a2648;
+  --gold:#ffe855;--gold-mid:#fcc123;--gold-dark:#b18a20;
+  --magenta:#b33f76;--rose:#ca7191;--blush:#dca0b5;
+  --green:#1a7a4a;--green-light:#22a860;
+  --red:#b83232;--orange:#c05a10;
+  --blue:#1a4d8a;--purple:#4a2680;
+  --bg:#f9f5fa;--surface:#fff;--surface2:#f3edf5;--surface3:#ecddf0;
+  --border:rgba(96,52,94,.13);--border-med:rgba(96,52,94,.22);
+  --text:#2e1430;--text-mid:#523658;--text-muted:#7a5080;--text-dim:#aa88b0;
+  --r4:4px;--r6:6px;--r8:8px;
+  --shadow:0 1px 4px rgba(96,52,94,.09),0 0 0 1px rgba(96,52,94,.07);
+  --shadow-md:0 4px 20px rgba(96,52,94,.12),0 0 0 1px rgba(96,52,94,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;line-height:1.6;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(179,63,118,.055) 0%,transparent 55%),radial-gradient(ellipse at 85% 5%,rgba(255,232,85,.04) 0%,transparent 45%),radial-gradient(ellipse at 50% 100%,rgba(129,78,131,.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:2px solid var(--plum-deep);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:54px;box-shadow:0 2px 8px rgba(96,52,94,.08)}
+.brand{display:flex;align-items:center;gap:12px}
+.bmark{width:32px;height:32px;background:linear-gradient(135deg,var(--plum-deep),var(--plum));border-radius:var(--r4);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;color:var(--gold);flex-shrink:0}
+.bname{font-family:'IBM Plex Serif',serif;font-size:1.05rem;font-weight:600;color:var(--plum-deep);letter-spacing:-.3px}
+.brand-sep{width:1px;height:22px;background:var(--border-med);margin:0 4px}
+.bsub{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--magenta);font-weight:500;letter-spacing:.5px}
+.badge{display:flex;align-items:center;gap:6px;background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.3);border-radius:3px;padding:4px 10px;font-size:.65rem;color:var(--green);font-family:'IBM Plex Mono',monospace;font-weight:500;letter-spacing:.5px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green-light);flex-shrink:0}
+
+/* APP */
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:32px 28px 80px}
+
+/* PAGE HEADER */
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--magenta);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:18px;height:2px;background:var(--magenta)}
+.page-title{font-family:'IBM Plex Serif',serif;font-size:1.8rem;font-weight:600;color:var(--plum-deep);letter-spacing:-.5px;line-height:1.2;margin-bottom:8px}
+.page-title span{color:var(--magenta)}
+.page-desc{font-size:.82rem;color:var(--text-muted);max-width:560px;line-height:1.65}
+.norm-box{background:rgba(129,78,131,.06);border:1px solid rgba(129,78,131,.18);border-left:3px solid var(--plum);border-radius:var(--r4);padding:10px 14px;font-size:.72rem;color:var(--plum);font-family:'IBM Plex Mono',monospace;line-height:1.7;max-width:240px;flex-shrink:0}
+.norm-box strong{display:block;margin-bottom:3px;font-size:.7rem;color:var(--plum-deep)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r6);padding:13px 15px;box-shadow:var(--shadow)}
+.sc-lbl{font-family:'IBM Plex Mono',monospace;font-size:.59rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
+.sc-val{font-family:'IBM Plex Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--plum-deep);line-height:1;margin-bottom:2px}
+.sc-sub{font-size:.59rem;color:var(--text-dim);margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:500;letter-spacing:.5px;padding:10px 20px;cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:var(--r4) var(--r4) 0 0;margin-bottom:-2px;color:var(--text-muted);background:transparent;transition:all .15s;display:flex;align-items:center;gap:8px}
+.tab:hover{background:var(--surface2);color:var(--plum)}
+.tab.active{background:var(--surface);border-color:var(--border);border-bottom-color:var(--surface);color:var(--plum-deep);font-weight:600}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r6);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+.ph{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.pt{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);font-weight:500;display:flex;align-items:center;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--plum);flex-shrink:0}
+.dot.g{background:var(--green-light)}.dot.a{background:var(--gold-mid)}.dot.r{background:var(--magenta)}.dot.c{background:var(--plum)}.dot.b{background:var(--blue)}
+.pb{padding:16px}
+
+/* FORMS */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:.72rem;font-weight:600;color:var(--text-mid);margin-bottom:5px;letter-spacing:.2px}
+.ntag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--plum);background:rgba(129,78,131,.08);border:1px solid rgba(129,78,131,.2);padding:1px 5px;border-radius:3px;margin-left:5px}
+.otag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--gold-dark);background:rgba(177,138,32,.08);border:1px solid rgba(177,138,32,.22);padding:1px 5px;border-radius:3px;margin-left:4px}
+select{width:100%;background:var(--surface);border:1px solid var(--border-med);border-radius:var(--r6);padding:8px 10px;font-size:.82rem;font-family:'IBM Plex Sans',sans-serif;color:var(--text);cursor:pointer;transition:border-color .15s}
+select:focus{outline:none;border-color:var(--plum);box-shadow:0 0 0 3px rgba(129,78,131,.1)}
+textarea{width:100%;background:var(--surface);border:1px solid var(--border-med);border-radius:var(--r6);padding:10px 12px;font-size:.78rem;font-family:'IBM Plex Mono',monospace;color:var(--text);resize:vertical;min-height:260px;line-height:1.55;transition:border-color .15s}
+textarea:focus{outline:none;border-color:var(--plum);box-shadow:0 0 0 3px rgba(129,78,131,.1)}
+textarea::placeholder{color:var(--text-dim)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r6);font-size:.78rem;font-weight:600;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--plum-deep);color:#fff;box-shadow:0 1px 4px rgba(96,52,94,.25)}
+.btn-p:hover{background:var(--plum-darker)}
+.btn-p:disabled{opacity:.45;cursor:not-allowed}
+.btn-s{background:transparent;border:1px solid var(--border-med);color:var(--text-mid)}
+.btn-s:hover{border-color:var(--plum);color:var(--plum);background:var(--surface2)}
+.btn-g{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:5px 10px;font-size:.7rem}
+.btn-g:hover{border-color:var(--border-med);color:var(--text);background:var(--surface2)}
+.brow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* SPINNER */
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* FINDINGS */
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.flist{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r6);overflow:hidden;animation:fu .25s ease both;box-shadow:var(--shadow)}
+.fc.sc-critical{border-left:3px solid var(--red)}.fc.sc-high{border-left:3px solid var(--orange)}
+.fc.sc-medium{border-left:3px solid var(--gold-dark)}.fc.sc-low{border-left:3px solid var(--blue)}
+.fchd{padding:9px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;background:var(--surface)}
+.fchd:hover{background:var(--surface2)}
+.sbadge{font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0}
+.sbadge.critical{background:rgba(184,50,50,.1);color:var(--red);border:1px solid rgba(184,50,50,.25)}
+.sbadge.high{background:rgba(192,90,16,.1);color:var(--orange);border:1px solid rgba(192,90,16,.25)}
+.sbadge.medium{background:rgba(177,138,32,.1);color:var(--gold-dark);border:1px solid rgba(177,138,32,.25)}
+.sbadge.low{background:rgba(26,77,138,.1);color:var(--blue);border:1px solid rgba(26,77,138,.25)}
+.ftitle{font-size:.8rem;font-weight:600;color:var(--text);flex:1}
+.ftags{display:flex;gap:4px;flex-wrap:wrap}
+.ft{font-family:'IBM Plex Mono',monospace;font-size:.56rem;padding:1px 5px;border-radius:3px}
+.ft-b{background:rgba(129,78,131,.1);color:var(--plum-deep);border:1px solid rgba(129,78,131,.2)}
+.ft-o{background:rgba(177,138,32,.1);color:var(--gold-dark);border:1px solid rgba(177,138,32,.2)}
+.ft-e{background:rgba(26,77,138,.1);color:var(--blue);border:1px solid rgba(26,77,138,.2)}
+.chv{color:var(--text-dim);font-size:.7rem;transition:transform .2s;flex-shrink:0}
+.fc.open .chv{transform:rotate(90deg)}
+.fcbody{display:none;padding:0 14px 14px;border-top:1px solid var(--border);background:var(--surface)}
+.fc.open .fcbody{display:block}
+.fcdesc{font-size:.8rem;color:var(--text-muted);line-height:1.6;margin-top:10px}
+.st{font-size:.62rem;font-family:'IBM Plex Mono',monospace;color:var(--plum);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 5px}
+.fcfix{background:rgba(26,122,74,.05);border:1px solid rgba(26,122,74,.2);border-left:3px solid var(--green-light);border-radius:var(--r4);padding:9px 12px;font-size:.8rem;color:var(--text-mid);line-height:1.6}
+.fcref{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text-dim);line-height:1.8;margin-top:7px}
+.fcref a{color:var(--plum);text-decoration:none}.fcref a:hover{text-decoration:underline;color:var(--plum-deep)}
+
+/* SCORE */
+.ssec{display:flex;align-items:center;gap:24px;margin-bottom:18px}
+.rw{position:relative;width:96px;height:96px;flex-shrink:0}
+.rw svg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--surface3);stroke-width:8}
+.rf{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s ease,stroke .5s}
+.rlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rv{font-family:'IBM Plex Mono',monospace;font-size:1.4rem;font-weight:600;line-height:1;color:var(--plum-deep)}
+.rt{font-size:.58rem;color:var(--text-dim);text-transform:uppercase}
+.sdet{flex:1}
+.sbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sbrl{font-size:.68rem;color:var(--text-muted);width:130px;flex-shrink:0}
+.sbrtr{flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.sbrfi{height:100%;border-radius:2px;transition:width .6s ease}
+.sbrp{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text-dim);width:32px;text-align:right}
+
+/* CHECKLIST */
+.cg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.ci{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r4);font-size:.75rem;color:var(--text-muted)}
+.ci.ok{border-color:rgba(26,122,74,.25);background:rgba(26,122,74,.03)}
+.ci.fail{border-color:rgba(184,50,50,.25);background:rgba(184,50,50,.03)}
+.ci.skip{opacity:.45}
+
+/* OWASP GRID */
+.og{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.oc{padding:7px 5px;border-radius:var(--r4);text-align:center;border:1px solid var(--border);background:var(--surface);font-family:'IBM Plex Mono',monospace;transition:border-color .15s}
+.oi{font-size:.57rem;color:var(--text-dim);margin-bottom:2px}
+.on{font-size:.6rem;color:var(--text-muted);line-height:1.3}
+.oc.det{background:rgba(184,50,50,.05);border-color:rgba(184,50,50,.3)}
+.oc.det .oi{color:var(--red);font-weight:600}.oc.det .on{color:var(--text)}
+.oc.clr{background:rgba(26,122,74,.05);border-color:rgba(26,122,74,.25)}
+.oc.clr .oi{color:var(--green)}
+
+/* LOG */
+.logw{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--text-muted);max-height:170px;overflow-y:auto;padding:10px 12px;line-height:1.8}
+.le{display:flex;gap:9px}
+.lok{color:var(--green)}.lwarn{color:var(--gold-dark)}.lerr{color:var(--red)}.linfo{color:var(--plum)}
+.lt{color:var(--text-dim);flex-shrink:0}
+
+/* PROGRESS */
+.prgw{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:11px 14px;margin:10px 0}
+.prgl{font-size:.7rem;color:var(--text-muted);margin-bottom:7px;font-family:'IBM Plex Mono',monospace}
+.prgtr{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.prgfi{height:100%;background:linear-gradient(90deg,var(--plum),var(--magenta));border-radius:2px;width:0%;transition:width .35s ease}
+
+/* MODAL */
+.mov{position:fixed;inset:0;background:rgba(74,38,72,.55);backdrop-filter:blur(3px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.mov.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border-med);border-radius:var(--r8);width:90vw;max-width:760px;max-height:84vh;display:flex;flex-direction:column;box-shadow:var(--shadow-md)}
+.mhd{background:var(--plum-deep);padding:14px 18px;border-radius:var(--r8) var(--r8) 0 0;display:flex;align-items:center;justify-content:space-between}
+.mt{font-family:'IBM Plex Serif',serif;font-size:.9rem;color:#fff}
+.mcl{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:var(--r4);width:26px;height:26px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.mcl:hover{background:rgba(255,255,255,.25)}
+.mbd{padding:18px;overflow-y:auto;flex:1}
+
+/* INFO / WARN BOXES */
+.ib{background:rgba(129,78,131,.06);border:1px solid rgba(129,78,131,.18);border-left:3px solid var(--plum);border-radius:var(--r4);padding:11px 13px;font-size:.78rem;color:var(--text-muted);line-height:1.55;margin-bottom:12px}
+.ib strong{color:var(--plum-deep)}
+.wb{background:rgba(177,138,32,.07);border:1px solid rgba(177,138,32,.25);border-left:3px solid var(--gold-dark);border-radius:var(--r4);padding:9px 13px;font-size:.7rem;color:var(--gold-dark);line-height:1.55}
+.wb strong{color:var(--gold-dark)}
+
+/* EMPTY STATE */
+.es{text-align:center;padding:40px 20px;color:var(--text-dim)}
+.ei{font-size:2.2rem;margin-bottom:10px;opacity:.5}
+.et{font-size:.86rem;font-weight:600;color:var(--text-muted);margin-bottom:5px}
+.ed{font-size:.76rem;line-height:1.55;color:var(--text-dim)}
+
+/* CHECKLIST stat label fix */
+.ckstat{font-family:monospace;font-size:.62rem;color:var(--text-dim);margin-left:8px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(96,52,94,.15);border-radius:3px}
+
+@media(max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}
+  .og{grid-template-columns:repeat(2,1fr)}.cg{grid-template-columns:1fr}
+  .app{padding:16px 12px 60px}.page-head{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <div class="bmark">SDA</div>
+    <span class="bname">SecureDev Analyzer</span>
+    <span class="bsub">CCN-CERT BP/28 &middot; OWASP Top10:2025 &middot; ENS</span>
+  </div>
+  <div class="badge">LOCAL &middot; SIN SERVIDOR</div>
+</div>
+<div class="app">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Herramienta de analisis &middot; v4.0</div>
+      <h1 class="page-title">Analisis de <span>Codigo Seguro</span></h1>
+      <p class="page-desc">Detecta vulnerabilidades segun CCN-CERT BP/28, OWASP Top 10:2025 y medidas ENS. Analisis estatico local &mdash; sin envio de datos.</p>
+    </div>
+    <div class="norm-box">
+      <strong>BASE NORMATIVA</strong>
+      CCN-CERT BP/28 (Ene 2023)<br>
+      OWASP Top 10:2025 A01&ndash;A10<br>
+      RD 311/2022 &mdash; ENS<br>
+      op.acc &middot; mp.sw &middot; mp.com
+    </div>
+  </div>
+  <div class="stats">
+    <div class="sc"><div class="sc-lbl">Puntuacion</div><div class="sc-val" id="vScore" style="color:var(--text-dim)">--</div><div class="sc-sub">sobre 100</div></div>
+    <div class="sc"><div class="sc-lbl">Hallazgos</div><div class="sc-val" id="vTotal" style="color:var(--text-dim)">--</div><div class="sc-sub">detectados</div></div>
+    <div class="sc"><div class="sc-lbl">Critico/Alto</div><div class="sc-val" id="vCrit" style="color:var(--red)">--</div><div class="sc-sub">accion inmediata</div></div>
+    <div class="sc"><div class="sc-lbl">OWASP 2025</div><div class="sc-val" id="vOwasp" style="color:var(--orange)">--</div><div class="sc-sub">categorias</div></div>
+    <div class="sc"><div class="sc-lbl">ENS</div><div class="sc-val" id="vEns" style="color:var(--blue)">--</div><div class="sc-sub">controles</div></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="analyze">Analizar</button>
+    <button class="tab" data-tab="results" id="tResults">Resultados</button>
+    <button class="tab" data-tab="owasp">Mapa OWASP</button>
+    <button class="tab" data-tab="checklist">Checklist BP/28</button>
+    <button class="tab" data-tab="log">Registro</button>
+  </div>
+  <div class="tab-panel active" id="panel-analyze">
+    <div class="two">
+      <div>
+        <div class="panel">
+          <div class="ph"><div class="pt"><div class="dot c"></div>Configuracion</div></div>
+          <div class="pb">
+            <div class="fg"><label class="fl">Lenguaje <span class="ntag">ARQ-08</span></label>
+              <select id="selLang">
+                <option value="auto">Deteccion automatica</option>
+                <option value="java">Java</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript / Node.js</option>
+                <option value="php">PHP</option>
+                <option value="csharp">C# / .NET</option>
+                <option value="sql">SQL</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Contexto <span class="otag">A06</span></label>
+              <select id="selContext">
+                <option value="webapp">Aplicacion web</option>
+                <option value="api">API / Microservicio</option>
+                <option value="ens">Administracion Publica (ENS)</option>
+                <option value="internal">Sistema interno</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Nivel de analisis</label>
+              <select id="selDepth">
+                <option value="full">Completo -- BP/28 + OWASP + ENS</option>
+                <option value="owasp">Solo OWASP Top 10:2025</option>
+                <option value="critical">Solo Critico y Alto</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ph"><div class="pt"><div class="dot b"></div>Ejemplos de codigo</div></div>
+          <div class="pb">
+            <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:9px">Carga un ejemplo y pulsa Analizar:</p>
+            <div style="display:flex;flex-wrap:wrap;gap:5px" id="exBtns"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="ph">
+            <div class="pt"><div class="dot a"></div>Codigo fuente a analizar</div>
+            <span id="charCount" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--text-dim)">0 chars</span>
+          </div>
+          <div class="pb">
+            <textarea id="codeInput" placeholder="Pega aqui el codigo a auditar...&#10;&#10;Detectara automaticamente:&#10;- SQL Injection (VAL-06, A05)&#10;- XSS (VAL-07, A05)&#10;- Credenciales hardcodeadas (AUT-03, A07)&#10;- Cripto debil: MD5/SHA-1/DES (CRT-05, A04)&#10;- Cookies sin HttpOnly/Secure (SES-07, A07)&#10;- Endpoints sin autorizacion (ATZ-01, A01)&#10;- Upload inseguro (FIL-03, A01)&#10;- Debug/stack trace (ERR-01, A02)&#10;- HTTP sin TLS (COM-01, A04)&#10;- Deserializacion insegura (VAL-09, A08)&#10;- Sin log de auditoria (LOG-03, A09)&#10;- Sin MFA en ops criticas (AUT-05, A07)"></textarea>
+            <div class="brow">
+              <button class="btn btn-p" id="btnAnalyze">&#128269; Analizar codigo</button>
+              <button class="btn btn-s" id="btnClear">Limpiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="prgWrap" style="display:none">
+      <div class="prgw">
+        <div class="prgl" id="prgl">Iniciando...</div>
+        <div class="prgtr"><div class="prgfi" id="prgfi"></div></div>
+      </div>
+    </div>
+    <div class="wb" style="margin-top:14px">
+      <strong>Aviso:</strong> Analisis estatico orientativo basado en patrones.
+      No reemplaza auditoria profesional ni herramientas SAST/DAST.
+      Todo el procesamiento ocurre localmente en tu navegador.
+    </div>
+  </div>
+  <div class="tab-panel" id="panel-results">
+    <div id="resEmpty" class="panel"><div class="pb"><div class="es">
+      <div class="ei">&#128269;</div>
+      <div class="et">Sin analisis ejecutado</div>
+      <div class="ed">Pega codigo en la pestana "Analizar" y pulsa "Analizar codigo".</div>
+    </div></div></div>
+    <div id="staleBadge" class="stale-badge"><span style="font-size:1rem">&#9888;</span><span><strong>Resultados desactualizados</strong> &mdash; El codigo ha cambiado desde el ultimo analisis. Pulsa "Analizar codigo" para actualizar.</span></div>
+    <div id="resContent" style="display:none">
+      <div class="panel">
+        <div class="ph">
+          <div class="pt"><div class="dot" id="scoreDot"></div>Puntuacion de seguridad</div>
+          <button class="btn btn-g" id="btnExport">Exportar informe</button>
+        </div>
+        <div class="pb">
+          <div class="ssec">
+            <div class="rw">
+              <svg width="96" height="96" viewBox="0 0 96 96">
+                <circle class="rbg" cx="48" cy="48" r="36"/>
+                <circle class="rf" id="ringF" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2" stroke="var(--plum)"/>
+              </svg>
+              <div class="rlbl"><span class="rv" id="ringV">--</span><span class="rt">/ 100</span></div>
+              <div id="scoreQLWrap" style="margin-top:10px;text-align:center"><span id="scoreQL" style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;letter-spacing:1px;padding:3px 9px;border-radius:3px;display:inline-block">--</span></div>
+            </div>
+            <div class="sdet" id="scoreBars"></div>
+            <div id="scoreRaw" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--text-dim);margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph">
+          <div class="pt"><div class="dot r"></div>Hallazgos detectados</div>
+          <div style="display:flex;gap:5px" id="filterBtns"></div>
+        </div>
+        <div class="pb"><div class="flist" id="findingsList"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-panel" id="panel-owasp">
+    <div class="panel">
+      <div class="ph"><div class="pt"><div class="dot a"></div>OWASP Top 10:2025 - Estado</div></div>
+      <div class="pb">
+        <div class="ib">
+          <strong>OWASP Top 10:2025</strong> &mdash;
+          <span style="color:var(--red)">Rojo</span>: hallazgos detectados.
+          <span style="color:var(--green)">Verde</span>: sin hallazgos.
+        </div>
+        <div class="og" id="owaspGrid"></div>
+        <div style="margin-top:18px">
+          <div class="pt" style="margin-bottom:8px"><div class="dot c"></div>&nbsp;Categorias con hallazgos</div>
+          <div class="flist" id="owaspDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-panel" id="panel-checklist">
+    <div class="panel">
+      <div class="ph"><div class="pt"><div class="dot c"></div>Checklist CCN-CERT BP/28</div></div>
+      <div class="pb">
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px">Ejecuta un analisis para obtener el estado de los controles.</p>
+        <div id="checklistContent"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-panel" id="panel-log">
+    <div class="panel">
+      <div class="ph">
+        <div class="pt"><div class="dot g"></div>Registro de actividad</div>
+        <button class="btn btn-g" id="btnClearLog">Limpiar</button>
+      </div>
+      <div class="pb"><div class="logw" id="logWrap"></div></div>
+    </div>
+  </div>
+</div>
+<div class="mov" id="modalReport">
+  <div class="modal">
+    <div class="mhd">
+      <span class="mt">Informe - SecureDev Analyzer</span>
+      <button class="mcl" id="btnModalClose">&times;</button>
+    </div>
+    <div class="mbd">
+      <pre id="reportTxt" style="background:var(--surface2);color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:.7rem;line-height:1.65;padding:14px;border-radius:6px;overflow:auto;max-height:58vh;border:1px solid var(--border)"></pre>
+      <div class="brow" style="margin-top:10px">
+        <button class="btn btn-p" id="btnDownload">Descargar .txt</button>
+        <button class="btn btn-s" id="btnCopyRep">Copiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var EX_B64={
+  sqli:"Ly8gU1FMIEluamVjdGlvbiAtLSBKYXZhCnB1YmxpYyBVc2VyIGZpbmRVc2VyKFN0cmluZyB1c2VybmFtZSkgdGhyb3dzIFNRTEV4Y2VwdGlvbiB7CiAgICAvLyBWVUxORVJBQkxFOiBjb25jYXRlbmFjaW9uIGRpcmVjdGEgZGUgcGFyYW1ldHJvcyBlbiBTUUwKICAgIFN0cmluZyBxdWVyeSA9ICJTRUxFQ1QgKiBGUk9NIHVzZXJzIFdIRVJFIHVzZXJuYW1lID0gJyIgKyB1c2VybmFtZSArICInIjsKICAgIFN0YXRlbWVudCBzdG10ID0gY29ubmVjdGlvbi5jcmVhdGVTdGF0ZW1lbnQoKTsKICAgIFJlc3VsdFNldCBycyA9IHN0bXQuZXhlY3V0ZVF1ZXJ5KHF1ZXJ5KTsKICAgIGlmIChycy5uZXh0KCkpIHJldHVybiBuZXcgVXNlcihycy5nZXRTdHJpbmcoImlkIikpOwogICAgcmV0dXJuIG51bGw7Cn0KCnB1YmxpYyBib29sZWFuIGxvZ2luKFN0cmluZyB1c2VyLCBTdHJpbmcgcGFzc3dvcmQpIHsKICAgIC8vIEF0YWNhbnRlIGVudmlhOiB1c2VyID0gYWRtaW4nIE9SICcxJz0nMQogICAgU3RyaW5nIHNxbCA9ICJTRUxFQ1QgKiBGUk9NIHVzZXJzIFdIRVJFIHVzZXI9JyIgKyB1c2VyCiAgICAgICAgICAgICAgICsgIicgQU5EIHBhc3M9JyIgKyBwYXNzd29yZCArICInIjsKICAgIHJldHVybiBleGVjdXRlUXVlcnkoc3FsKS5uZXh0KCk7Cn0=",
+  auth:"IyBBdXRlbnRpY2FjaW9uIGRlYmlsIC0tIFB5dGhvbgppbXBvcnQgaGFzaGxpYgoKU0VDUkVUX0tFWSA9ICJteXBhc3N3b3JkMTIzIiAgICAjIFZVTE5FUkFCTEU6IGNyZWRlbmNpYWwgaGFyZGNvZGVhZGEKREJfUEFTU1dPUkQgPSAiYWRtaW4xMjMiICAgICAgICAgIyBWVUxORVJBQkxFOiBjb250cmFzZW5hIGVuIHRleHRvIHBsYW5vCgpkZWYgY2hlY2tfdXNlcih1c2VybmFtZSwgcGFzc3dvcmQpOgogICAgIyBWVUxORVJBQkxFOiBjb21wYXJhY2lvbiBkaXJlY3RhIGVuIHRleHRvIHBsYW5vCiAgICBpZiBwYXNzd29yZCA9PSAic3VwZXJzZWNyZXQiOgogICAgICAgIHJldHVybiBUcnVlCiAgICAjIFZVTE5FUkFCTEU6IE1ENSBlcyB1biBhbGdvcml0bW8gcm90bwogICAgaGFzaGVkID0gaGFzaGxpYi5tZDUocGFzc3dvcmQuZW5jb2RlKCkpLmhleGRpZ2VzdCgpCiAgICBzdG9yZWQgPSBnZXRfZnJvbV9kYih1c2VybmFtZSkKICAgIHJldHVybiBoYXNoZWQgPT0gc3RvcmVkCgpkZWYgbG9naW5fdmlldyhyZXF1ZXN0KToKICAgIHVzZXIgPSByZXF1ZXN0LlBPU1QuZ2V0KCJ1c2VyIikKICAgIHB3ZCAgPSByZXF1ZXN0LlBPU1QuZ2V0KCJwYXNzd29yZCIpCiAgICBpZiBjaGVja191c2VyKHVzZXIsIHB3ZCk6CiAgICAgICAgIyBTaW4gcmVnaXN0cm8gZGUgYWNjZXNvIGV4aXRvc28gKExPRy0wMykKICAgICAgICByZXR1cm4gcmVkaXJlY3QoIi9kYXNoYm9hcmQiKQogICAgIyBTaW4gYmxvcXVlbyBwb3IgaW50ZW50b3MgZmFsbGlkb3MgKEFVVC0wNikKICAgIHJldHVybiByZW5kZXIocmVxdWVzdCwgImxvZ2luLmh0bWwiKQ==",
+  xss:"Ly8gWFNTIFJlZmxlamFkbyAtLSBFeHByZXNzLmpzCmNvbnN0IGV4cHJlc3MgPSByZXF1aXJlKCJleHByZXNzIik7CmNvbnN0IGFwcCA9IGV4cHJlc3MoKTsKCmFwcC5nZXQoIi9zZWFyY2giLCAocmVxLCByZXMpID0+IHsKICAgIGNvbnN0IHF1ZXJ5ID0gcmVxLnF1ZXJ5LnE7ICAvLyBWVUxORVJBQkxFOiBzaW4gc2FuaXRpemFyCiAgICAvLyBWVUxORVJBQkxFOiBpbnNlcmNpb24gZGlyZWN0YSBlbiBIVE1MIHNpbiBlc2NhcGFyCiAgICByZXMuc2VuZCgiPGh0bWw+PGJvZHk+PGgxPlJlc3VsdGFkb3M6ICIgKyBxdWVyeSArICI8L2gxPjwvYm9keT48L2h0bWw+Iik7CiAgICAvLyBBdGFjYW50ZSBlbnZpYTogP3E9PGltZyBzcmM9eCBvbmVycm9yPWNvZGlnb19tYWxpY2lvc28+Cn0pOwoKYXBwLmdldCgiL3Byb2ZpbGUiLCAocmVxLCByZXMpID0+IHsKICAgIGNvbnN0IG5hbWUgPSByZXEucXVlcnkubmFtZTsKICAgIC8vIFZVTE5FUkFCTEU6IGlubmVySFRNTCBjb24gZGF0b3MgZGVsIHVzdWFyaW8KICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJyIikuaW5uZXJIVE1MID0gbmFtZTsKfSk7",
+  crypto:"Ly8gQ3JpcHRvZ3JhZmlhIGRlYmlsIC0tIEphdmEKaW1wb3J0IGphdmEuc2VjdXJpdHkuTWVzc2FnZURpZ2VzdDsKaW1wb3J0IGphdmF4LmNyeXB0by5DaXBoZXI7CmltcG9ydCBqYXZheC5jcnlwdG8uc3BlYy5ERVNLZXlTcGVjOwoKcHVibGljIGNsYXNzIENyeXB0b1V0aWwgewogICAgLy8gVlVMTkVSQUJMRTogTUQ1IGNvbiBjb2xpc2lvbmVzIGNvbm9jaWRhcyBkZXNkZSAxOTk2CiAgICBwdWJsaWMgU3RyaW5nIGhhc2hQYXNzd29yZChTdHJpbmcgcGFzc3dvcmQpIHRocm93cyBFeGNlcHRpb24gewogICAgICAgIE1lc3NhZ2VEaWdlc3QgbWQgPSBNZXNzYWdlRGlnZXN0LmdldEluc3RhbmNlKCJNRDUiKTsKICAgICAgICByZXR1cm4gYnl0ZXNUb0hleChtZC5kaWdlc3QocGFzc3dvcmQuZ2V0Qnl0ZXMoKSkpOwogICAgfQoKICAgIC8vIFZVTE5FUkFCTEU6IFNIQS0xIGNvbXByb21ldGlkbyAoU0hBdHRlcmVkIGF0dGFjayAyMDE3KQogICAgcHVibGljIFN0cmluZyBjaGVja3N1bShTdHJpbmcgZGF0YSkgdGhyb3dzIEV4Y2VwdGlvbiB7CiAgICAgICAgTWVzc2FnZURpZ2VzdCBzaGExID0gTWVzc2FnZURpZ2VzdC5nZXRJbnN0YW5jZSgiU0hBLTEiKTsKICAgICAgICByZXR1cm4gYnl0ZXNUb0hleChzaGExLmRpZ2VzdChkYXRhLmdldEJ5dGVzKCkpKTsKICAgIH0KCiAgICAvLyBWVUxORVJBQkxFOiBERVMgcm90byBkZXNkZSBsb3MgOTAgKHNvbG8gNTYgYml0cyBkZSBjbGF2ZSkKICAgIHB1YmxpYyBieXRlW10gZW5jcnlwdERFUyhTdHJpbmcgZGF0YSwgYnl0ZVtdIGtleSkgdGhyb3dzIEV4Y2VwdGlvbiB7CiAgICAgICAgREVTS2V5U3BlYyBzcGVjID0gbmV3IERFU0tleVNwZWMoa2V5KTsKICAgICAgICBDaXBoZXIgY2lwaGVyID0gQ2lwaGVyLmdldEluc3RhbmNlKCJERVMiKTsKICAgICAgICBjaXBoZXIuaW5pdChDaXBoZXIuRU5DUllQVF9NT0RFLCBmYWN0b3J5LmdlbmVyYXRlU2VjcmV0KHNwZWMpKTsKICAgICAgICByZXR1cm4gY2lwaGVyLmRvRmluYWwoZGF0YS5nZXRCeXRlcygpKTsKICAgIH0KfQ==",
+  session:"IyBTZXNpb24gaW5zZWd1cmEgLS0gRGphbmdvIHNldHRpbmdzLnB5CgpERUJVRyA9IFRydWUgICAgICAgICAgICAgICAgICAgICAgICAgICMgVlVMTkVSQUJMRTogZGVidWcgZW4gcHJvZHVjY2lvbiAoQVJRLTA5KQpTRUNSRVRfS0VZID0gImRldi1pbnNlY3VyZS1rZXktMTIzIiAgICMgVlVMTkVSQUJMRTogY2xhdmUgaGFyZGNvZGVhZGEgKEFVVC0wMykKClNFU1NJT05fQ09PS0lFX1NFQ1VSRSAgID0gRmFsc2UgICAjIFZVTE5FUkFCTEU6IGNvb2tpZSB2aWFqYSBwb3IgSFRUUCAoU0VTLTA3KQpTRVNTSU9OX0NPT0tJRV9IVFRQT05MWSA9IEZhbHNlICAgIyBWVUxORVJBQkxFOiBhY2Nlc2libGUgZGVzZGUgSlMgKFNFUy0wNykKCiMgdmlld3MucHkKZGVmIHByb2ZpbGVfdmlldyhyZXF1ZXN0KToKICAgICMgVlVMTkVSQUJMRTogYWNjZXNvIGRpcmVjdG8gcG9yIElEIHNpbiB2ZXJpZmljYXIgYXV0aCAoQVRaLTAzKQogICAgdXNlcl9pZCA9IHJlcXVlc3QuR0VULmdldCgidXNlcl9pZCIpCiAgICB1c2VyID0gVXNlci5vYmplY3RzLmdldChpZD11c2VyX2lkKQogICAgcmV0dXJuIHJlbmRlcihyZXF1ZXN0LCAicHJvZmlsZS5odG1sIiwgeyJ1c2VyIjogdXNlcn0pCgpkZWYgY2hhbmdlX3Bhc3N3b3JkKHJlcXVlc3QpOgogICAgIyBWVUxORVJBQkxFOiBzaW4gZG9ibGUgZmFjdG9yIHBhcmEgb3BlcmFjaW9uIGNyaXRpY2EgKEFVVC0wNSkKICAgIG5ld19wYXNzd29yZCA9IHJlcXVlc3QuUE9TVC5nZXQoInBhc3N3b3JkIikKICAgIHJlcXVlc3QudXNlci5wYXNzd29yZCA9IG5ld19wYXNzd29yZCAgIyBWVUxORVJBQkxFOiB0ZXh0byBwbGFubyAoQVVULTAxKQogICAgcmVxdWVzdC51c2VyLnNhdmUoKQ==",
+  upload:"IyBVcGxvYWQgaW5zZWd1cm8gLS0gRmxhc2sKZnJvbSBmbGFzayBpbXBvcnQgRmxhc2ssIHJlcXVlc3QKaW1wb3J0IG9zCgphcHAgPSBGbGFzayhfX25hbWVfXykKYXBwLmRlYnVnID0gVHJ1ZSAgICMgVlVMTkVSQUJMRTogZGVidWcgYWN0aXZvIChFUlItMDAxKQoKZGVmIHVwbG9hZF9maWxlKCk6CiAgICBpZiAiZmlsZSIgbm90IGluIHJlcXVlc3QuZmlsZXM6CiAgICAgICAgcmV0dXJuICJObyBmaWxlIgogICAgZmlsZSA9IHJlcXVlc3QuZmlsZXNbImZpbGUiXQogICAgIyBWVUxORVJBQkxFOiBzaW4gdmFsaWRhciB0aXBvIE1JTUUgKEZJTC0wMykKICAgICMgVlVMTkVSQUJMRTogc2luIGxpbWl0ZSBkZSB0YW1hbm8gKEZJTC0wNCkKICAgICMgVlVMTkVSQUJMRTogbm9tYnJlIG9yaWdpbmFsIGRlbCB1c3VhcmlvIC0+IHBhdGggdHJhdmVyc2FsIChGSUwtMDIpCiAgICBmaWxlbmFtZSA9IGZpbGUuZmlsZW5hbWUKICAgIGZpbGUuc2F2ZShvcy5wYXRoLmpvaW4oIi92YXIvd3d3L3VwbG9hZHMiLCBmaWxlbmFtZSkpCiAgICByZXR1cm4gIlN1YmlkbzogaHR0cDovL2V4YW1wbGUuY29tL3VwbG9hZHMvIiArIGZpbGVuYW1l",
+  clean:"Ly8gQ29kaWdvIFNFR1VSTyAtLSBKYXZhIFNwcmluZyBCb290CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLnNlY3VyaXR5LmFjY2Vzcy5wcmVwb3N0LlByZUF1dGhvcml6ZTsKaW1wb3J0IG9yZy5zcHJpbmdmcmFtZXdvcmsuc2VjdXJpdHkuY3J5cHRvLmJjcnlwdC5CQ3J5cHRQYXNzd29yZEVuY29kZXI7CmltcG9ydCBqYXZhLnV0aWwubG9nZ2luZy5Mb2dnZXI7CgpAUmVzdENvbnRyb2xsZXIKQFJlcXVlc3RNYXBwaW5nKCIvYXBpL3VzZXJzIikKcHVibGljIGNsYXNzIFVzZXJDb250cm9sbGVyIHsKICAgIHByaXZhdGUgc3RhdGljIGZpbmFsIExvZ2dlciBsb2cgPSBMb2dnZXIuZ2V0TG9nZ2VyKFVzZXJDb250cm9sbGVyLmNsYXNzLmdldE5hbWUoKSk7CiAgICAvLyBPSzogQkNyeXB0IGNvbiBmYWN0b3IgZGUgY29zdGUgYWx0byAoQ1JULTAxKQogICAgcHJpdmF0ZSBmaW5hbCBCQ3J5cHRQYXNzd29yZEVuY29kZXIgZW5jID0gbmV3IEJDcnlwdFBhc3N3b3JkRW5jb2RlcigxMik7CgogICAgLy8gT0s6IGF1dG9yaXphY2lvbiBwb3Igcm9sIGFudGVzIGRlIHByb2Nlc2FyIChBVFotMDEpCiAgICBAUHJlQXV0aG9yaXplKCJoYXNSb2xlKCdST0xFX1VTRVInKSIpCiAgICBAR2V0TWFwcGluZygiL3tpZH0iKQogICAgcHVibGljIFJlc3BvbnNlRW50aXR5PFVzZXJEdG8+IGdldFVzZXIoQFBhdGhWYXJpYWJsZSBMb25nIGlkLCBQcmluY2lwYWwgcCkgewogICAgICAgIFVzZXIgdSA9IHVzZXJTZXJ2aWNlLmZpbmRCeUlkKGlkKTsKICAgICAgICAvLyBPSzogdXN1YXJpbyBzb2xvIGFjY2VkZSBhIHN1cyBwcm9waW9zIGRhdG9zIChBVFotMDMpCiAgICAgICAgaWYgKCF1LmdldFVzZXJuYW1lKCkuZXF1YWxzKHAuZ2V0TmFtZSgpKSkgewogICAgICAgICAgICBsb2cud2FybmluZygiREVORUdBRE86ICIgKyBwLmdldE5hbWUoKSArICIgLT4gaWQ9IiArIGlkKTsKICAgICAgICAgICAgcmV0dXJuIFJlc3BvbnNlRW50aXR5LnN0YXR1cyg0MDMpLmJ1aWxkKCk7CiAgICAgICAgfQogICAgICAgIGxvZy5pbmZvKCJBQ0NFU086ICIgKyBwLmdldE5hbWUoKSk7IC8vIE9LOiBhdWRpdG9yaWEgKExPRy0wMykKICAgICAgICByZXR1cm4gUmVzcG9uc2VFbnRpdHkub2sodG9EdG8odSkpOwogICAgfQoKICAgIEBQb3N0TWFwcGluZygiL3JlZ2lzdGVyIikKICAgIHB1YmxpYyBSZXNwb25zZUVudGl0eTw/PiByZWdpc3RlcihAVmFsaWQgQFJlcXVlc3RCb2R5IFJlZ2lzdGVyUmVxdWVzdCByZXEpIHsKICAgICAgICB0cnkgewogICAgICAgICAgICBTdHJpbmcgaGFzaGVkID0gZW5jLmVuY29kZShyZXEuZ2V0UGFzc3dvcmQoKSk7IC8vIE9LOiBCQ3J5cHQgKENSVC0wMSkKICAgICAgICAgICAgdXNlclNlcnZpY2UuY3JlYXRlKHJlcS5nZXRVc2VybmFtZSgpLCBoYXNoZWQpOwogICAgICAgICAgICBsb2cuaW5mbygiUkVHSVNUUk8gT0s6ICIgKyByZXEuZ2V0VXNlcm5hbWUoKSk7IC8vIE9LOiBsb2cgKExPRy0wMykKICAgICAgICAgICAgcmV0dXJuIFJlc3BvbnNlRW50aXR5Lm9rKCkuYnVpbGQoKTsKICAgICAgICB9IGNhdGNoIChFeGNlcHRpb24gZSkgewogICAgICAgICAgICBsb2cuc2V2ZXJlKCJFcnJvcjogIiArIGUuZ2V0TWVzc2FnZSgpKTsKICAgICAgICAgICAgcmV0dXJuIFJlc3BvbnNlRW50aXR5LnN0YXR1cyg1MDApLmJvZHkoIkVycm9yIGludGVybm8iKTsgLy8gT0s6IG1zZyBnZW5lcmljbyAoRVJSLTAxKQogICAgICAgIH0KICAgIH0KfQ==",
+};
+var EX_LABELS={"sqli": "SQL Injection", "auth": "Auth debil", "xss": "XSS reflejado", "crypto": "Cripto debil", "session": "Sesion insegura", "upload": "Upload inseguro", "clean": "Codigo seguro OK"};
+
+function b64dec(s){
+  try{ return decodeURIComponent(escape(atob(s))); }
+  catch(e){ return atob(s); }
+}
+var EX={};
+Object.keys(EX_B64).forEach(function(k){ EX[k]=b64dec(EX_B64[k]); });
+
+
+(function(){
+'use strict';
+
+var OWASP=[
+  {id:'A01',name:'Broken Access Control',   desc:'Usuarios no autorizados actuan fuera de sus permisos.'},
+  {id:'A02',name:'Security Misconfiguration',desc:'Configuraciones inseguras, debug activo, info expuesta.'},
+  {id:'A03',name:'Supply Chain Failures',   desc:'Dependencias vulnerables, componentes sin actualizar.'},
+  {id:'A04',name:'Cryptographic Failures',  desc:'Algoritmos debiles, claves mal gestionadas, datos en claro.'},
+  {id:'A05',name:'Injection',               desc:'SQL, XSS, LDAP. Datos sin validar modifican consultas.'},
+  {id:'A06',name:'Insecure Design',         desc:'Sin controles de seguridad en el diseno de la aplicacion.'},
+  {id:'A07',name:'Authentication Failures', desc:'Contrasenas debiles, sesiones mal gestionadas, sin MFA.'},
+  {id:'A08',name:'Data Integrity Failures', desc:'Serializacion insegura, actualizaciones sin firma.'},
+  {id:'A09',name:'Logging & Alerting',      desc:'Sin logs de seguridad o logs con informacion sensible.'},
+  {id:'A10',name:'Exceptional Conditions',  desc:'Errores no controlados que exponen informacion interna.'}
+];
+
+var BP28=[
+  {id:'ARQ',label:'Arquitectura',  cc:['ARQ-01','ARQ-02','ARQ-03','ARQ-04','ARQ-05','ARQ-06','ARQ-07','ARQ-08','ARQ-09','ARQ-10']},
+  {id:'AUT',label:'Autenticacion', cc:['AUT-01','AUT-02','AUT-03','AUT-04','AUT-05','AUT-06','AUT-07','AUT-08','AUT-09','AUT-10','AUT-11','AUT-12']},
+  {id:'ATZ',label:'Autorizacion',  cc:['ATZ-01','ATZ-02','ATZ-03','ATZ-04','ATZ-05','ATZ-06','ATZ-07','ATZ-08','ATZ-09']},
+  {id:'SES',label:'Sesiones',      cc:['SES-01','SES-02','SES-03','SES-04','SES-05','SES-06','SES-07','SES-08','SES-09']},
+  {id:'VAL',label:'Validacion',    cc:['VAL-01','VAL-02','VAL-03','VAL-04','VAL-05','VAL-06','VAL-07','VAL-08','VAL-09']},
+  {id:'ERR',label:'Errores',       cc:['ERR-01','ERR-02','ERR-03','ERR-04','ERR-05']},
+  {id:'LOG',label:'Registro',      cc:['LOG-01','LOG-02','LOG-03','LOG-04','LOG-05']},
+  {id:'CRT',label:'Criptografia',  cc:['CRT-01','CRT-02','CRT-03','CRT-04','CRT-05']},
+  {id:'FIL',label:'Archivos',      cc:['FIL-01','FIL-02','FIL-03','FIL-04','FIL-05','FIL-06','FIL-07','FIL-08','FIL-09','FIL-10']},
+  {id:'COM',label:'Comunicaciones',cc:['COM-01','COM-02','COM-03']},
+  {id:'DAT',label:'Datos',         cc:['DAT-01','DAT-02','DAT-03','DAT-04','DAT-05']}
+];
+
+var RULES=[
+  {id:'SQLI-001',title:'Inyeccion SQL',sev:'critical',owasp:['A05'],bp28:['VAL-06','VAL-01'],ens:['op.pl.2.r3.1'],
+   detect:function(c){return /['"]\s*\+\s*[\w.]+\s*\+\s*['"]/.test(c)||/cursor\.execute\s*\(\s*[f"']/.test(c)||/statement\.execute\s*\(/.test(c)||/query\s*=.*["']\s*\+/.test(c);},
+   desc:'Concatenacion directa de input de usuario en SQL. Permite extraer, modificar o eliminar datos.',
+   fix:'Usar PreparedStatement en Java, cursor.execute con placeholders en Python. Nunca concatenar inputs en SQL.'},
+  {id:'AUTH-001',title:'Contrasena en texto plano o comparacion directa',sev:'critical',owasp:['A07','A04'],bp28:['AUT-01','CRT-01'],ens:['op.acc.5.r3.2'],
+   detect:function(c){return /password\s*==\s*["'`]/.test(c)||/passwd\s*==\s*["'`]/.test(c)||/\.equals\s*\(\s*password/.test(c)||/strcmp\s*\(\s*(password|passwd)/.test(c);},
+   desc:'Contrasenas comparadas en texto plano. Si la BD es comprometida, todas quedan expuestas.',
+   fix:'BCrypt, Argon2 o PBKDF2 con salt. Comparar hashes en tiempo constante. Nunca comparar contrasenas directas.'},
+  {id:'AUTH-002',title:'Credenciales hardcodeadas en el codigo',sev:'critical',owasp:['A07','A04'],bp28:['AUT-03','CRT-03','ARQ-02'],ens:['op.acc.5.r3.2','mp.si.2.1'],
+   detect:function(c){return /password\s*=\s*["'`][^"'`\s]{4,}["'`]/i.test(c)||/api[_-]?key\s*=\s*["'`][A-Za-z0-9_\-]{10,}["'`]/i.test(c)||/secret\s*=\s*["'`][^"'`\s]{6,}["'`]/i.test(c)||/DB_PASSWORD\s*=\s*["'`][^"'`\s]+["'`]/i.test(c)||/SECRET_KEY\s*=\s*["'`][^"'`\s]{6,}["'`]/.test(c);},
+   desc:'Credenciales incrustadas en codigo fuente. Cualquier persona con acceso al repo puede extraerlas.',
+   fix:'Variables de entorno o vault de secretos. Archivo .env en .gitignore. Nunca en el codigo fuente.'},
+  {id:'XSS-001',title:'Cross-Site Scripting - salida sin escapar',sev:'high',owasp:['A05'],bp28:['VAL-07','VAL-01','VAL-04'],ens:['op.pl.2.r3.1'],
+   detect:function(c){return /innerHTML\s*=\s*(?!["'`]<)/.test(c)||/document\.write\s*\(/.test(c)||/echo\s+\$_(GET|POST|REQUEST|COOKIE)/i.test(c)||/print\s*\(\s*request\.(args|form|values)/i.test(c)||/render_template_string\s*\(/i.test(c);},
+   desc:'Datos del usuario en HTML sin escapar. Un atacante inyecta scripts que se ejecutan en el navegador de otras victimas.',
+   fix:'html.escape() en Python, htmlspecialchars() en PHP. Plantillas con auto-escape. Implementar CSP.'},
+  {id:'CRYPTO-001',title:'Algoritmo criptografico debil (MD5, SHA-1 o DES)',sev:'high',owasp:['A04'],bp28:['CRT-05','CRT-01'],ens:['mp.si.2.1','op.exp.10'],
+   detect:function(c){return /MessageDigest\.getInstance\s*\(\s*["'`]MD5["'`]/i.test(c)||/MessageDigest\.getInstance\s*\(\s*["'`]SHA-1["'`]/i.test(c)||/hashlib\.md5/i.test(c)||/hashlib\.sha1/i.test(c)||/Cipher\.getInstance\s*\(\s*["'`]DES/i.test(c)||/new\s+DESKeySpec/i.test(c);},
+   desc:'Algoritmos obsoletos con vulnerabilidades de colision. No garantizan confidencialidad ni integridad.',
+   fix:'SHA-256/SHA-512 para integridad. BCrypt o Argon2 para contrasenas. AES-256 GCM para cifrado simetrico.'},
+  {id:'SESSION-001',title:'Cookies sin flags HttpOnly o Secure',sev:'high',owasp:['A07'],bp28:['SES-07','SES-01','AUT-11'],ens:['op.acc.6.r5.1'],
+   detect:function(c){return /setHttpOnly\s*\(\s*false\s*\)/i.test(c)||/setSecure\s*\(\s*false\s*\)/i.test(c)||/SESSION_COOKIE_SECURE\s*=\s*False/.test(c)||/SESSION_COOKIE_HTTPONLY\s*=\s*False/.test(c)||/httponly\s*=\s*false/i.test(c);},
+   desc:'Sin HttpOnly las cookies son accesibles desde JS (riesgo XSS). Sin Secure viajan por HTTP sin cifrar.',
+   fix:'Siempre HttpOnly=true y Secure=true. SameSite=Strict. Django: SESSION_COOKIE_SECURE=True.'},
+  {id:'ACCESS-001',title:'Endpoint HTTP sin control de autorizacion',sev:'high',owasp:['A01'],bp28:['ATZ-01','ATZ-05','ATZ-03'],ens:['op.acc.4.1','mp.sw.1.r1.1'],
+   detect:function(c){var ep=/@GetMapping|@PostMapping|@PutMapping|@DeleteMapping|\[HttpGet\]|\[HttpPost\]|\[HttpPut\]|\[HttpDelete\]/.test(c)||/app\.(get|post|put|delete)\s*\(['"]/.test(c)||/router\.(get|post|put|delete)\s*\(['"]/.test(c)||/@app\.(get|post|put|delete)\s*\(['"]/.test(c);var au=/@PreAuthorize|@Secured|@RolesAllowed|login_required|Authorize|IsAuthenticated|hasRole|checkPermission|permission_classes/.test(c);return ep&&!au;},
+   desc:'Endpoints HTTP sin controles de autorizacion. Podrian ser accesibles a usuarios sin autenticar.',
+   fix:'@PreAuthorize en Spring, @login_required en Django/Flask, middleware de auth en Express.'},
+  {id:'FILE-001',title:'Upload de archivos sin validacion MIME o tamano',sev:'high',owasp:['A01','A05'],bp28:['FIL-03','FIL-04','FIL-01'],ens:['op.exp.6.3'],
+   detect:function(c){var up=/request\.files|getOriginalFilename|transferTo|file\.filename|file\.save/.test(c);var mi=/mimetype|content.type|MIME|ALLOWED_EXTENSIONS|getContentType/i.test(c);var sz=/MAX_FILE_SIZE|maxSize|file\.size|getSize|MAX_SIZE/i.test(c);return up&&(!mi||!sz);},
+   desc:'Upload sin validar tipo MIME ni tamano. Permite subir ejecutables maliciosos o causar DoS.',
+   fix:'Validar MIME (no solo extension), limitar tamano, almacenar fuera de la raiz web, nombres aleatorios.'},
+  {id:'ERROR-001',title:'Stack trace expuesto o modo debug activo',sev:'medium',owasp:['A10','A02'],bp28:['ERR-01','ERR-02','ARQ-09'],ens:['op.exp.4.1'],
+   detect:function(c){return /printStackTrace\s*\(\s*\)/i.test(c)||/DEBUG\s*=\s*True/.test(c)||/app\.debug\s*=\s*True/i.test(c)||/app\.run\s*\(.*debug\s*=\s*True/i.test(c);},
+   desc:'Stack traces o DEBUG=True exponen la estructura interna, facilitando ataques dirigidos.',
+   fix:'Mensajes genericos al usuario. Detalle solo en logs internos. DEBUG=False siempre en produccion.'},
+  {id:'LOG-001',title:'Autenticacion sin registro de auditoria',sev:'medium',owasp:['A09'],bp28:['LOG-03','AUT-12','ATZ-09'],ens:['op.exp.5.1'],
+   detect:function(c){var au=/login|authenticate|signin|logout/i.test(c);var lg=/log\.|logger\.|logging\.|Logger\.|console\.log/i.test(c);return au&&!lg;},
+   desc:'Operaciones de autenticacion sin log. BP/28 LOG-03 y AUT-12 exigen registrar todos los intentos.',
+   fix:'Registrar: fecha/hora, usuario, IP, resultado. Nunca contrasenas en logs. Registro independiente.'},
+  {id:'COMM-001',title:'Comunicacion HTTP sin TLS',sev:'medium',owasp:['A04'],bp28:['COM-01','COM-02','COM-03'],ens:['mp.com.2.r5.1'],
+   detect:function(c){return /url\s*=\s*["'`]http:\/\/(?!localhost|127\.0\.0\.1)/i.test(c)||/requests\.get\s*\(\s*["'`]http:\/\//i.test(c)||/fetch\s*\(\s*["'`]http:\/\//i.test(c)||/http\.get\s*\(\s*["'`]http:\/\//i.test(c);},
+   desc:'Conexiones HTTP sin cifrar. Susceptibles a ataques Man-in-the-Middle.',
+   fix:'Siempre HTTPS y TLS 1.2+. Cabeceras HSTS. Nunca enviar datos sensibles por HTTP plano.'},
+  {id:'SERIAL-001',title:'Deserializacion de datos no confiables',sev:'high',owasp:['A08'],bp28:['VAL-09'],ens:['op.pl.2.r3.1'],
+   detect:function(c){return /pickle\.loads\s*\(/i.test(c)||/ObjectInputStream/.test(c)||(/yaml\.load\s*\(/.test(c)&&!/yaml\.safe_load/.test(c))||/unserialize\s*\(\s*\$_(GET|POST|REQUEST)/i.test(c);},
+   desc:'Deserializacion insegura puede permitir ejecucion remota de codigo (RCE) o DoS.',
+   fix:'Evitar deserializar datos externos. yaml.safe_load() en Python. Validar y firmar antes de deserializar.'},
+  {id:'AUTH-003',title:'Operaciones criticas sin MFA',sev:'low',owasp:['A07'],bp28:['AUT-05'],ens:['op.acc.5.r6.1'],
+   detect:function(c){var cr=/changePassword|resetPassword|deleteAccount|processPayment|transferFunds/i.test(c);var mf=/mfa|totp|otp|two.?factor|2fa|authenticator/i.test(c);return cr&&!mf;},
+   desc:'Operaciones criticas sin doble factor. BP/28 AUT-05 y ENS exigen MFA para operaciones sensibles.',
+   fix:'Implementar TOTP (pyotp, Google Authenticator) antes de cambio de contrasena, pagos u operaciones criticas.'},
+  {id:'CMDI-001',title:'Inyeccion de comandos del sistema operativo',sev:'critical',owasp:['A05'],bp28:['VAL-05','VAL-01'],ens:['op.pl.2.r3.1','mp.s.2.3'],
+   detect:function(c){
+     var hasSysCall=/os\.system\s*\(|subprocess\.(call|run|Popen)\s*\(|Runtime\.exec\s*\(|shell_exec\s*\(|exec\s*\(|passthru\s*\(|popen\s*\(/.test(c);
+     var hasUserInput=/\+\s*(request|req\.|params|argv|user_input|sys\.argv|getParam)|shell\s*=\s*True/.test(c);
+     return hasSysCall&&hasUserInput;
+   },
+   desc:'Llamadas al sistema operativo con input de usuario sin sanitizar. Permite ejecutar comandos arbitrarios en el servidor (RCE).',
+   fix:'Evitar llamadas al SO con datos de usuario. Si imprescindible: usar listas de argumentos (no shell=True), validar contra lista blanca estricta, escapar con shlex.quote() en Python.'},
+  {id:'CSRF-001',title:'Formularios POST sin proteccion CSRF',sev:'high',owasp:['A01'],bp28:['ATZ-08','ATZ-05'],ens:['op.acc.4.1'],
+   detect:function(c){
+     var hasPost=/methods\s*=\s*\[.*POST|app\.post\s*\(|router\.post\s*\(|@PostMapping|\[HttpPost\]|method\s*=\s*["\'`]POST/.test(c);
+     var hasCsrf=/csrf|CsrfViewMiddleware|csrf_token|antiforgery|ValidateAntiForgeryToken|csrf_exempt|csrfmiddlewaretoken/i.test(c);
+     return hasPost&&!hasCsrf;
+   },
+   desc:'Endpoints POST sin mecanismo de proteccion CSRF. Un atacante puede forzar acciones en nombre de usuarios autenticados desde otros sitios.',
+   fix:'Activar CsrfViewMiddleware en Django, WTForms en Flask, tokens CSRF en Spring. Verificar cabecera Origin/Referer. Usar tokens anti-CSRF (ATZ-08).'},
+  {id:'PATH-001',title:'Path traversal - acceso a archivos con input de usuario',sev:'high',owasp:['A01'],bp28:['FIL-02','FIL-06','VAL-01'],ens:['op.exp.6.3'],
+   detect:function(c){
+     var hasConcatPath=/open\s*\(.*\+|new\s+File\s*\(.*\+|readFile\s*\(.*\+|os\.path\.join\s*\(.*\+/.test(c);
+     var hasUserInput=/request\.(params|query|body|GET|POST)|req\.(params|query|body)|argv|user_input|getParam|filename/.test(c);
+     var hasProtection=/canonical|realpath|normpath|resolve|sanitize|basedir|startsWith|indexOf\.\.\./.test(c);
+     return hasConcatPath&&hasUserInput&&!hasProtection;
+   },
+   desc:'Rutas de archivo construidas con input de usuario sin validacion. Un atacante puede acceder a ficheros fuera del directorio previsto (../../etc/passwd).',
+   fix:'Canonicalizar rutas con os.path.realpath() en Python, Paths.get().normalize() en Java. Verificar que la ruta resultante empieza por el directorio base permitido (FIL-02, FIL-06).'},
+  {id:'DAT-001',title:'Datos sensibles sin cifrar en modelos o esquemas',sev:'medium',owasp:['A04'],bp28:['DAT-03','CRT-01','DAT-02'],ens:['mp.si.2.1','mp.info.1.1'],
+   detect:function(c){
+     var hasSensitiveField=/(credit_card|numero_tarjeta|card_number|ssn|nif|dni|num_cuenta|iban|social_security)\s*[=:]|Column\(String.*credit|CharField.*ssn/i.test(c);
+     var hasEncryption=/encrypted|@Encrypted|EncryptedField|AES|cipher|encrypt|fernet/i.test(c);
+     return hasSensitiveField&&!hasEncryption;
+   },
+   desc:'Campos con datos sensibles (tarjetas, DNI, IBAN) sin cifrado a nivel de aplicacion. Si la BD es comprometida, los datos quedan expuestos directamente. Cubre la categoria DAT del BP/28.',
+   fix:'Cifrar campos sensibles a nivel de aplicacion (AES-256) ademas del cifrado de BD. Usar EncryptedField en Django, @Convert en JPA, o librerias como Fernet (Python). Revisar DAT-03 del BP/28.'},
+];
+
+var G={analysis:null};
+function qs(id){return document.getElementById(id);}
+
+function addLog(type,msg){
+  var w=qs('logWrap');if(!w)return;
+  var now=new Date().toTimeString().slice(0,8);
+  var d=document.createElement('div');d.className='le';
+  var ic=document.createElement('span');ic.className='l'+type;
+  ic.textContent={ok:'[OK]',warn:'[!!]',err:'[XX]',info:'[>>]'}[type]||'[>>]';
+  var ti=document.createElement('span');ti.className='lt';ti.textContent=now;
+  var ms=document.createElement('span');ms.textContent=' '+msg;
+  d.appendChild(ic);d.appendChild(ti);d.appendChild(ms);
+  w.appendChild(d);w.scrollTop=w.scrollHeight;
+}
+
+function sevLabel(s){return{critical:'CRITICO',high:'ALTO',medium:'MEDIO',low:'BAJO',info:'INFO'}[s]||s.toUpperCase();}
+
+function updateCharCount(){
+  var ta=qs('codeInput'),el=qs('charCount');
+  if(ta&&el){
+    var lines=ta.value?ta.value.split('\n').length:0;
+    el.textContent=ta.value.length.toLocaleString('es')+' chars · '+lines+' lineas';
+  }
+}
+
+function setProgress(pct,lbl){
+  var f=qs('prgfi'),l=qs('prgl');
+  if(f)f.style.width=pct+'%';if(l)l.textContent=lbl;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('#tabs .tab').forEach(function(t){t.classList.remove('active');});
+  var p=qs('panel-'+name);if(p)p.classList.add('active');
+  document.querySelectorAll('#tabs .tab').forEach(function(t){if(t.getAttribute('data-tab')===name)t.classList.add('active');});
+}
+
+function buildExButtons(){
+  var c=qs('exBtns');if(!c)return;
+  Object.keys(EX_LABELS).forEach(function(key){
+    var b=document.createElement('button');b.className='btn btn-g';
+    b.textContent=EX_LABELS[key];
+    b.addEventListener('click',function(){
+      var ta=qs('codeInput');
+      if(ta){ta.value=EX[key]||'';updateCharCount();}
+      addLog('info','Ejemplo cargado: '+key);
+    });
+    c.appendChild(b);
+  });
+}
+
+function checkStale(){
+  if(!G.analysis)return;
+  var ta=qs('codeInput'),sb=qs('staleBadge');
+  if(!ta||!sb)return;
+  var changed=ta.value.trim()!==G.analysis.lastCode;
+  sb.classList.toggle('visible',changed);
+}
+function markStale(){
+  var sb=qs('staleBadge');if(sb)sb.classList.remove('visible');
+}
+function clearAll(){
+  var ta=qs('codeInput');if(ta)ta.value='';updateCharCount();
+  ['vScore','vTotal','vCrit','vOwasp','vEns'].forEach(function(id){
+    var el=qs(id);if(el){el.textContent='--';el.style.color='var(--text-dim)';}
+  });
+  var rc=qs('resContent'),re=qs('resEmpty');
+  if(rc)rc.style.display='none';if(re)re.style.display='block';
+  addLog('info','Area limpiada');
+}
+
+function runDetection(code,depth){
+  var rules=RULES.slice();
+  if(depth==='owasp')rules=rules.filter(function(r){return r.owasp.length>0;});
+  if(depth==='critical')rules=rules.filter(function(r){return r.sev==='critical'||r.sev==='high';});
+  var findings=[];
+  rules.forEach(function(r){try{if(r.detect(code))findings.push(r);}catch(e){}});
+  var ord={critical:0,high:1,medium:2,low:3,info:4};
+  findings.sort(function(a,b){return ord[a.sev]-ord[b.sev];});
+  return findings;
+}
+
+function computeScore(findings){
+  var W={critical:25,high:15,medium:8,low:3,info:1};
+  var rawPen=0,byC={};
+  findings.forEach(function(f){
+    rawPen+=W[f.sev]||0;
+    f.bp28.forEach(function(ctrl){var p=ctrl.split('-')[0];byC[p]=(byC[p]||0)+(W[f.sev]||0);});
+  });
+  var score;
+  if(rawPen===0){score=100;}
+  else if(rawPen<=10){score=Math.round(90-(rawPen*2));}
+  else if(rawPen<=30){score=Math.round(70-((rawPen-10)*1.5));}
+  else if(rawPen<=60){score=Math.round(40-((rawPen-30)*0.8));}
+  else{score=Math.max(5,Math.round(16-((rawPen-60)*0.2)));}
+  score=Math.max(0,Math.min(100,score));
+  var ql,qlCol;
+  if(score>=90){ql='SEGURO';qlCol='var(--green)';}
+  else if(score>=75){ql='RIESGO BAJO';qlCol='var(--green-light)';}
+  else if(score>=55){ql='RIESGO MEDIO';qlCol='var(--gold-dark)';}
+  else if(score>=30){ql='RIESGO ALTO';qlCol='var(--orange)';}
+  else{ql='RIESGO CRITICO';qlCol='var(--red)';}
+  return{total:score,ql:ql,qlCol:qlCol,rawPen:rawPen,byC:byC};
+}
+
+function renderResults(findings,score){
+  var re=qs('resEmpty'),rc=qs('resContent');
+  if(re)re.style.display='none';if(rc)rc.style.display='block';
+  var col=score.qlCol||'var(--red)';
+  var ring=qs('ringF'),rv=qs('ringV'),sd=qs('scoreDot');
+  if(ring){setTimeout(function(){ring.style.strokeDashoffset=226.2-(score.total/100)*226.2;},80);ring.style.stroke=col;}
+  if(rv){rv.textContent=score.total;rv.style.color=col;}
+  if(sd)sd.className='dot '+(score.total>=75?'g':score.total>=55?'a':'r');
+  var qlEl=qs('scoreQL');
+  if(qlEl){qlEl.textContent=score.ql;qlEl.style.color=score.qlCol;qlEl.style.background=score.qlCol.replace(')',', .08)').replace('var(','rgba(').replace(')',', .08)');}
+  var rawEl=qs('scoreRaw');if(rawEl)rawEl.textContent='Penalizacion bruta: '+score.rawPen+' pts';
+  var cats=[{id:'AUT',l:'Autenticacion'},{id:'ATZ',l:'Autorizacion'},{id:'VAL',l:'Validacion'},{id:'CRT',l:'Criptografia'},{id:'SES',l:'Sesiones'},{id:'ERR',l:'Errores'},{id:'LOG',l:'Registro'},{id:'FIL',l:'Archivos'},{id:'COM',l:'Comunicaciones'},{id:'ARQ',l:'Arquitectura'}];
+  var h='';
+  cats.forEach(function(c){var pen=score.byC[c.id]||0;var w=Math.min(100,(pen/50)*100);var bc=pen===0?'var(--green)':pen<15?'var(--gold-dark)':'var(--red)';h+='<div class="sbar"><span class="sbrl">'+c.l+'</span><div class="sbrtr"><div class="sbrfi" style="width:'+w+'%;background:'+bc+'"></div></div><span class="sbrp">'+(pen>0?'-'+pen:'OK')+'</span></div>';});
+  var sb=qs('scoreBars');if(sb)sb.innerHTML=h;
+  var sevC={};findings.forEach(function(f){sevC[f.sev]=(sevC[f.sev]||0)+1;});
+  var fb=qs('filterBtns');
+  if(fb){
+    fb.innerHTML='';
+    ['critical','high','medium','low'].forEach(function(sev){
+      if(!sevC[sev])return;
+      var b=document.createElement('button');b.className='btn btn-g';b.style.cssText='font-size:.68rem;padding:4px 8px';
+      b.textContent=sevLabel(sev)+' '+sevC[sev];
+      b.addEventListener('click',function(){renderFindingsList(findings,sev);});
+      fb.appendChild(b);
+    });
+    var ba=document.createElement('button');ba.className='btn btn-g';ba.style.cssText='font-size:.68rem;padding:4px 8px';
+    ba.textContent='Todos';ba.addEventListener('click',function(){renderFindingsList(findings,'all');});fb.appendChild(ba);
+  }
+  renderFindingsList(findings,'all');
+}
+
+function renderFindingsList(findings,filter){
+  var list=qs('findingsList');if(!list)return;
+  var f2=filter==='all'?findings:findings.filter(function(f){return f.sev===filter;});
+  if(!f2.length){
+    list.innerHTML='<div class="es"><div class="ei">&#9989;</div><div class="et">Sin hallazgos'+(filter!=='all'?' en esta categoria':'')+'</div><div class="ed">No se detectaron patrones de vulnerabilidades conocidos.</div></div>';
+    return;
+  }
+  list.innerHTML='';
+  f2.forEach(function(f,i){
+    var card=document.createElement('div');card.className='fc sc-'+f.sev;card.style.animationDelay=(i*45)+'ms';
+    var tags=f.bp28.map(function(t){return'<span class="ft ft-b">BP/28&#183;'+t+'</span>';}).join('')+f.owasp.map(function(t){return'<span class="ft ft-o">OWASP&#183;'+t+'</span>';}).join('')+(f.ens&&f.ens.length?'<span class="ft ft-e">ENS</span>':'');
+    var refs=f.bp28.map(function(t){return'CCN-CERT BP/28 &#183; '+t;}).join('<br>')+f.owasp.map(function(t){return'<br><a href="https://owasp.org/Top10/2025/" target="_blank">OWASP 2025 &#183; '+t+'</a>';}).join('')+(f.ens?f.ens.map(function(t){return'<br>ENS &#183; '+t;}).join(''):'');
+    card.innerHTML='<div class="fchd"><span class="sbadge '+f.sev+'">'+sevLabel(f.sev)+'</span><span class="ftitle">'+f.title+'</span><div class="ftags">'+tags+'</div><span class="chv">&#9658;</span></div><div class="fcbody"><p class="fcdesc">'+f.desc+'</p><div class="st">Recomendacion - CCN-CERT BP/28</div><div class="fcfix">'+f.fix+'</div><div class="st">Referencias normativas</div><div class="fcref">'+refs+'</div></div>';
+    card.querySelector('.fchd').addEventListener('click',function(){card.classList.toggle('open');});
+    list.appendChild(card);
+  });
+}
+
+function renderOwaspMap(findings){
+  var det={};findings.forEach(function(f){f.owasp.forEach(function(id){det[id]=true;});});
+  var g=qs('owaspGrid');
+  var OWASP_SLUGS={'A01':'A01_2025-Broken_Access_Control','A02':'A02_2025-Security_Misconfiguration','A03':'A03_2025-Software_Supply_Chain_Failures','A04':'A04_2025-Cryptographic_Failures','A05':'A05_2025-Injection','A06':'A06_2025-Insecure_Design','A07':'A07_2025-Authentication_Failures','A08':'A08_2025-Software_or_Data_Integrity_Failures','A09':'A09_2025-Security_Logging_and_Alerting_Failures','A10':'A10_2025-Mishandling_of_Exceptional_Conditions'};
+  if(g){g.innerHTML='';OWASP.forEach(function(cat){var d=!!det[cat.id];var cell=document.createElement('div');cell.className='oc '+(d?'det':'clr');cell.title=cat.desc+' (clic para ver documentacion OWASP)';cell.style.cursor='pointer';cell.innerHTML='<div class="oi">'+cat.id+(d?' !':' OK')+'</div><div class="on">'+cat.name+'</div>';cell.addEventListener('click',function(){window.open('https://owasp.org/Top10/2025/'+OWASP_SLUGS[cat.id]+'/','_blank');});g.appendChild(cell);});}
+  var detail=qs('owaspDetail');if(!detail)return;detail.innerHTML='';
+  var dc=OWASP.filter(function(c){return det[c.id];});
+  if(!dc.length){detail.innerHTML='<div class="es" style="padding:16px"><div class="ei" style="font-size:1.4rem">&#9989;</div><div class="ed">Sin categorias OWASP detectadas. Ejecuta un analisis primero.</div></div>';return;}
+  dc.forEach(function(cat){
+    var cf=findings.filter(function(f){return f.owasp.indexOf(cat.id)!==-1;});
+    var card=document.createElement('div');card.className='fc sc-high';
+    card.innerHTML='<div class="fchd" style="cursor:default"><span class="sbadge high">'+cat.id+'</span><span class="ftitle">'+cat.name+'</span><span class="ft ft-o">OWASP 2025</span></div><div class="fcbody" style="display:block"><p class="fcdesc">'+cat.desc+'</p><div class="st">Hallazgos relacionados</div>'+cf.map(function(f){return'<div style="padding:3px 0;font-size:.76rem;color:var(--text-mid)">&#8226; '+f.title+'</div>';}).join('')+'<div class="fcref" style="margin-top:8px"><a href="https://owasp.org/Top10/2025/" target="_blank">&#8594; OWASP Top 10:2025 - '+cat.id+'</a></div></div>';
+    detail.appendChild(card);
+  });
+}
+
+function renderChecklist(findings){
+  var fc={};findings.forEach(function(f){f.bp28.forEach(function(c){fc[c]=true;});});
+  var content=qs('checklistContent');if(!content)return;content.innerHTML='';
+  BP28.forEach(function(cat){
+    var failed=cat.cc.filter(function(c){return fc[c];});var ok=cat.cc.filter(function(c){return!fc[c];});
+    var dc=failed.length===0?'g':failed.length<3?'a':'r';
+    var panel=document.createElement('div');panel.className='panel';panel.style.marginBottom='10px';
+    var grid='<div class="cg">';
+    cat.cc.forEach(function(ctrl){var fail=!!fc[ctrl];var st=G.analysis?(fail?'fail':'ok'):'skip';var icon=st==='ok'?'&#9989;':st==='fail'?'&#10060;':'&#9675;';grid+='<div class="ci '+st+'"><span>'+icon+'</span><span>'+ctrl+'</span></div>';});
+    grid+='</div>';
+    panel.innerHTML='<div class="ph"><div class="pt"><div class="dot '+dc+'"></div>'+cat.label+'<span class=\"ckstat\">'+ok.length+'/'+cat.cc.length+' OK</span></div></div><div class="pb">'+grid+'</div>';
+    content.appendChild(panel);
+  });
+}
+
+function updateStats(findings,score){
+  var ch=findings.filter(function(f){return f.sev==='critical'||f.sev==='high';}).length;
+  var os={};findings.forEach(function(f){f.owasp.forEach(function(id){os[id]=true;});});
+  var es={};findings.forEach(function(f){(f.ens||[]).forEach(function(e){es[e]=true;});});
+  function sv(id,val,col){var el=qs(id);if(el){el.textContent=val;el.style.color=col;}}
+  var sc=score.total;
+  sv('vScore',sc,sc>=80?'var(--green)':sc>=60?'var(--gold-dark)':'var(--red)');
+  sv('vTotal',findings.length,findings.length===0?'var(--green)':findings.length<4?'var(--gold-dark)':'var(--red)');
+  sv('vCrit',ch,ch>0?'var(--red)':'var(--green)');
+  sv('vOwasp',Object.keys(os).length,'var(--orange)');
+  sv('vEns',Object.keys(es).length,'var(--blue)');
+  var tr=qs('tResults');if(tr)tr.textContent='Resultados'+(findings.length>0?' ('+findings.length+')':'');
+}
+
+function analyzeCode(){
+  var ta=qs('codeInput'),btn=qs('btnAnalyze'),pw=qs('prgWrap');
+  if(!ta)return;
+  var code=ta.value.trim();
+  if(!code){addLog('warn','Sin codigo para analizar.');return;}
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Analizando...';
+  if(pw)pw.style.display='block';
+  var depth=qs('selDepth').value,lang=qs('selLang').value,ctx=qs('selContext').value;
+  addLog('info','Iniciando analisis - '+lang+' / '+ctx+' / '+depth);
+  var steps=[[180,15,'Detectando lenguaje y contexto...'],[220,33,'Aplicando reglas CCN-CERT BP/28...'],[260,58,'Verificando OWASP Top 10:2025...'],[200,76,'Evaluando medidas ENS...'],[160,92,'Calculando puntuacion...']];
+  var idx=0;
+  function runStep(){
+    if(idx>=steps.length){
+      var findings=runDetection(code,depth);
+      var score=computeScore(findings);
+      setProgress(100,'Analisis completado');
+      setTimeout(function(){
+        if(pw)pw.style.display='none';
+        G.analysis={findings:findings,score:score,lang:lang,ctx:ctx,ts:new Date(),lastCode:code};markStale();
+        renderResults(findings,score);renderOwaspMap(findings);renderChecklist(findings);updateStats(findings,score);
+        btn.disabled=false;btn.innerHTML='&#128269; Analizar codigo';
+        var lvl=findings.length===0?'ok':score.total>=60?'warn':'err';
+        addLog(lvl,'Completo: '+findings.length+' hallazgo(s) / Puntuacion: '+score.total+'/100');
+        switchTab('results');
+      },350);
+      return;
+    }
+    var s=steps[idx++];
+    setTimeout(function(){setProgress(s[1],s[2]);runStep();},s[0]);
+  }
+  runStep();
+}
+
+function exportReport(){
+  if(!G.analysis){addLog('warn','Sin analisis para exportar');return;}
+  var f=G.analysis.findings,s=G.analysis.score;
+  var L='='.repeat(64);
+  var lines=[L,'SECUREDEV ANALYZER - INFORME DE ANALISIS','CCN-CERT BP/28 | OWASP Top 10:2025 | ENS RD 311/2022',L,'Fecha:      '+G.analysis.ts.toLocaleString('es-ES'),'Lenguaje:   '+G.analysis.lang,'Puntuacion: '+s.total+'/100 -- '+s.ql,'Hallazgos:  '+f.length+'  (Critico/Alto: '+f.filter(function(x){return x.sev==='critical'||x.sev==='high';}).length+')','',L,'HALLAZGOS',L,''];
+  f.forEach(function(h,i){lines.push('['+(i+1)+'] '+sevLabel(h.sev)+' - '+h.title);lines.push('     BP28:  '+h.bp28.join(', '));lines.push('     OWASP: '+h.owasp.join(', '));lines.push('     ENS:   '+((h.ens||[]).join(', ')||'N/A'));lines.push('     DESC:  '+h.desc);lines.push('     FIX:   '+h.fix);lines.push('');});
+  lines.push(L);lines.push('SecureDev Analyzer v4.0 - Local - Sin servidores');lines.push(L);
+  qs('reportTxt').textContent=lines.join('\n');
+  qs('modalReport').classList.add('open');addLog('info','Informe generado');
+}
+
+function downloadReport(){
+  var c=qs('reportTxt').textContent;
+  var b=new Blob([c],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='securedev_'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  addLog('ok','Informe descargado');
+}
+
+function copyReport(){
+  var c=qs('reportTxt').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(c).then(function(){addLog('ok','Copiado al portapapeles');});
+  }else{
+    var ta=document.createElement('textarea');ta.value=c;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);addLog('ok','Copiado');
+  }
+}
+
+function init(){
+  document.querySelectorAll('#tabs .tab').forEach(function(btn){btn.addEventListener('click',function(){switchTab(btn.getAttribute('data-tab'));});});
+  var ta=qs('codeInput');if(ta){ta.addEventListener('input',updateCharCount);ta.addEventListener('input',checkStale);}
+  var ba=qs('btnAnalyze');if(ba)ba.addEventListener('click',analyzeCode);
+  var bc=qs('btnClear');if(bc)bc.addEventListener('click',clearAll);
+  var be=qs('btnExport');if(be)be.addEventListener('click',exportReport);
+  var bl=qs('btnClearLog');if(bl)bl.addEventListener('click',function(){var w=qs('logWrap');if(w)w.innerHTML='';addLog('info','Registro limpiado');});
+  var modal=qs('modalReport');
+  var bmc=qs('btnModalClose');if(bmc&&modal)bmc.addEventListener('click',function(){modal.classList.remove('open');});
+  if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('open');});
+  var bdl=qs('btnDownload');if(bdl)bdl.addEventListener('click',downloadReport);
+  var bcp=qs('btnCopyRep');if(bcp)bcp.addEventListener('click',copyReport);
+  buildExButtons();
+  renderOwaspMap([]);renderChecklist([]);
+  addLog('ok','SecureDev Analyzer v5.0 - CCN-CERT BP/28 - OWASP Top 10:2025 - ENS (+4 reglas nuevas, score mejorado)');
+}
+
+init();
+})();
+
+</script>
+</body>
+</html>
