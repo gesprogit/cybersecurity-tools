@@ -6,16 +6,16 @@
 <title>{{ info.nombre }} · Suite ENS</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,'Segoe UI',Roboto,sans-serif; background:#0b0f1a; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; }
-  .franja { background:#1e3a5f; text-align:center; padding:4px; font-size:11px; letter-spacing:3px; color:#93c5fd; font-family:'Courier New',monospace; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,sans-serif; background:#0a0e17; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; }
+  .franja { background:#12263f; text-align:center; padding:4px; font-size:11px; letter-spacing:3px; color:#7fb3e3; font-family:'Courier New',monospace; }
   .centro { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; }
-  .caja { background:#111827; border:1px solid #1f2937; border-radius:12px; padding:48px; text-align:center; max-width:480px; }
+  .caja { background:#0f1724; border:1px solid #1c2836; border-radius:12px; padding:48px; text-align:center; max-width:480px; }
   .icono { font-size:56px; margin-bottom:16px; }
-  h1 { color:#22d3ee; font-size:22px; margin-bottom:6px; }
-  .norma { font-size:12px; color:#64748b; font-family:'Courier New',monospace; margin-bottom:20px; }
-  p { color:#94a3b8; font-size:14px; line-height:1.6; margin-bottom:24px; }
-  .fase { display:inline-block; background:#1e3a5f; color:#93c5fd; padding:6px 16px; border-radius:20px; font-size:13px; margin-bottom:24px; }
-  a.volver { display:inline-block; color:#22d3ee; text-decoration:none; font-size:14px; }
+  h1 { color:#4cc9e8; font-size:22px; margin-bottom:6px; }
+  .norma { font-size:12px; color:#5c7089; font-family:'Courier New',monospace; margin-bottom:20px; }
+  .badge { display:inline-block; font-size:12px; padding:6px 16px; border-radius:20px; background:#2b210c; color:#fbbf24; border:1px solid #713f12; margin-bottom:24px; }
+  p { color:#8fa3b8; font-size:14px; line-height:1.6; margin-bottom:24px; }
+  a.volver { display:inline-block; color:#4cc9e8; text-decoration:none; font-size:14px; }
 </style>
 </head>
 <body>
@@ -25,8 +25,8 @@
       <div class="icono">🚧</div>
       <h1>{{ info.nombre }}</h1>
       <div class="norma">{{ info.norma }}</div>
-      <div class="fase">En migración · Fase {{ info.fase }}</div>
-      <p>{{ info.desc }}.<br>Esta herramienta se activará en la próxima fase del proyecto.</p>
+      <div class="badge">⏳ En desarrollo · No disponible</div>
+      <p>{{ info.desc }}.<br>Esta herramienta se publicará en una próxima actualización de la plataforma.</p>
       <a class="volver" href="/dashboard">← Volver al panel</a>
     </div>
   </div>
