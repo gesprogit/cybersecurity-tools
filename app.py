@@ -74,6 +74,7 @@ def dashboard():
 
 
 # ── Catálogo: cada herramienta apunta a TU HTML original ──
+# "disponible": False  →  muestra cartel "En desarrollo" aunque exista el archivo
 HERRAMIENTAS = {
     "metalimpio": {
         "nombre": "MetaLimpio ENS",
@@ -93,17 +94,25 @@ HERRAMIENTAS = {
         "desc": "Verificación y generación de contraseñas",
         "archivo": "passpolicy.html",
     },
-    "tls_checker": {
-        "nombre": "TLS Privacy Checker",
-        "norma": "RGPD · LOPD-GDD",
-        "desc": "Verificador de cifrado TLS/SSL",
-        "archivo": "tls_checker.html",
-    },
     "securevault": {
         "nombre": "CCN SecureVault",
         "norma": "CCN-STIC-807 · CAT-R",
         "desc": "Cifrado local de archivos AES-256-GCM",
         "archivo": "securevault.html",
+    },
+    "tls_checker": {
+        "nombre": "TLS Privacy Checker",
+        "norma": "RGPD · LOPD-GDD",
+        "desc": "Verificador de cifrado TLS/SSL con mapeo RGPD",
+        "archivo": "tls_checker.html",
+        "disponible": False,
+    },
+    "envio_pass": {
+        "nombre": "Envío Seguro de Contraseñas",
+        "norma": "CCN-STIC-807 · buenas prácticas",
+        "desc": "Envío de credenciales mediante enlaces cifrados de un solo uso",
+        "archivo": "envio_pass.html",
+        "disponible": False,
     },
     "ciberlog": {
         "nombre": "CiberLog ENS",
@@ -147,6 +156,26 @@ HERRAMIENTAS = {
         "desc": "Ciclo de adquisición TIC integral",
         "archivo": "ticadq.html",
     },
+    "secmetrics": {
+        "nombre": "SecMetrics",
+        "norma": "ISO 27001 · NIST CSF · CIS Controls",
+        "desc": "Métricas de seguridad con constructor personalizado",
+        "archivo": "secmetrics.html",
+    },
+    "intel": {
+        "nombre": "Inteligencia de Amenazas",
+        "norma": "CCN-CERT · MITRE ATT&CK",
+        "desc": "Indicadores de compromiso, feeds y análisis de amenazas",
+        "archivo": "intel.html",
+        "disponible": False,
+    },
+    "vulns": {
+        "nombre": "Gestión de Vulnerabilidades",
+        "norma": "Gestión de vulnerabilidades · ENS",
+        "desc": "Escaneo, priorización y remediación de vulnerabilidades",
+        "archivo": "vulns.html",
+        "disponible": False,
+    },
     "securedev": {
         "nombre": "SecureDev Analyzer",
         "norma": "CCN-CERT BP/28 · OWASP 2025",
@@ -169,6 +198,8 @@ def herramienta(clave):
     info = HERRAMIENTAS.get(clave)
     if not info:
         return redirect(url_for("dashboard"))
+    if not info.get("disponible", True):
+        return render_template("herramienta.html", info=info)
     ruta = os.path.join(TOOLS_DIR, info["archivo"])
     if os.path.exists(ruta):
         return send_file(ruta)
