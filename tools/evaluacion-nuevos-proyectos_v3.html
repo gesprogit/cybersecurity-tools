@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación de Nuevos Proyectos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum:#814e83;--plum-deep:#60345e;--plum-darker:#4a2648;
+  --gold:#ffe855;--gold-mid:#fcc123;--gold-dark:#b18a20;
+  --blush:#dca0b5;--magenta:#b33f76;
+  --green:#1a7a4a;--amber:var(--gold-dark);--red:#b83232;
+  --bg:#f9f5fa;--surface:#fff;--surface2:#f3edf5;--surface3:#ecddf0;
+  --border:rgba(96,52,94,.13);--border-med:rgba(96,52,94,.22);
+  --text:#2e1430;--text-mid:#523658;--text-muted:#7a5080;--text-dim:#aa88b0;
+  --r4:4px;--r6:6px;--r8:8px;
+  --shadow:0 1px 4px rgba(96,52,94,.09),0 0 0 1px rgba(96,52,94,.07);
+  --shadow-md:0 4px 20px rgba(96,52,94,.12),0 0 0 1px rgba(96,52,94,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:13.5px;line-height:1.6;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(179,63,118,.055) 0%,transparent 55%),radial-gradient(ellipse at 85% 5%,rgba(255,232,85,.04) 0%,transparent 45%),radial-gradient(ellipse at 50% 100%,rgba(129,78,131,.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:2px solid var(--plum-deep);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:54px;box-shadow:0 2px 8px rgba(96,52,94,.08)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--plum-deep) 0%,var(--plum) 100%);border-radius:var(--r4);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.60rem;font-weight:600;color:var(--gold);flex-shrink:0}
+.brand-name{font-size:1.05rem;font-weight:600;color:var(--plum-deep);letter-spacing:-.3px}
+.brand-sep{width:1px;height:22px;background:var(--border-med);margin:0 4px}
+.brand-sub{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--text-dim);letter-spacing:.3px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+
+/* ── APP ── */
+.app{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:36px 32px 80px}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:28px}
+.page-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.page-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.60rem;font-weight:500;color:var(--magenta);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.page-title{font-size:1.6rem;font-weight:700;color:var(--plum-deep);letter-spacing:-.5px;line-height:1.2}
+.page-subtitle{font-size:.85rem;color:var(--text-muted);margin-top:6px}
+.page-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.stat-card{background:var(--surface);border-radius:var(--r8);padding:16px;box-shadow:var(--shadow);border-top:3px solid transparent}
+.stat-card.gold{border-top-color:var(--gold-mid)}.stat-card.magenta{border-top-color:var(--magenta)}.stat-card.green{border-top-color:var(--green)}.stat-card.plum{border-top-color:var(--plum)}
+.stat-label{font-size:.70rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:500;margin-bottom:6px}
+.stat-value{font-size:1.8rem;font-weight:700;color:var(--plum-deep);font-family:'IBM Plex Mono',monospace;line-height:1}
+.stat-sub{font-size:.72rem;color:var(--text-dim);margin-top:4px}
+
+/* ── SECTION CARD ── */
+.section-card{background:var(--surface);border-radius:var(--r8);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden}
+.section-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none}
+.section-header:hover{background:var(--surface3)}
+.section-icon{width:28px;height:28px;border-radius:var(--r4);background:linear-gradient(135deg,var(--plum-deep) 0%,var(--plum) 100%);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:600;flex-shrink:0}
+.section-title{font-weight:600;font-size:.92rem;color:var(--plum-deep);flex:1}
+.section-badge{font-family:'IBM Plex Mono',monospace;font-size:.60rem;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:.5px;background:rgba(129,78,131,.10);color:var(--plum);border:1px solid rgba(129,78,131,.2)}
+.section-chevron{font-size:.75rem;color:var(--text-dim);transition:transform .2s}
+.section-card.collapsed .section-chevron{transform:rotate(-90deg)}
+.section-body{padding:20px;display:block}
+.section-card.collapsed .section-body{display:none}
+
+/* ── FORM FIELDS ── */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.field-row.full{grid-template-columns:1fr}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:.72rem;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:.6px}
+.field-input,.field-textarea{background:var(--surface2);border:1.5px solid var(--border-med);border-radius:var(--r6);padding:8px 12px;font-family:'Jost',sans-serif;font-size:.88rem;color:var(--text);transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+.field-input:focus,.field-textarea:focus{border-color:var(--plum);box-shadow:0 0 0 3px rgba(129,78,131,.12)}
+.field-textarea{resize:vertical;min-height:72px}
+
+/* ── Q TABLE ── */
+.q-table{width:100%;border-collapse:collapse}
+.q-table thead tr{background:var(--plum-deep)}
+.q-table thead th{padding:10px 14px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;color:#fff;letter-spacing:.8px;text-transform:uppercase}
+.q-table thead th.center{text-align:center}
+.q-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+.q-table tbody tr:hover{background:rgba(129,78,131,.025)}
+.q-table tbody tr.group-row td{background:var(--surface3);font-weight:700;color:var(--plum-deep);font-size:.76rem;padding:7px 14px;letter-spacing:.3px;text-transform:uppercase}
+.q-table td{padding:11px 14px;vertical-align:middle}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text-dim);font-weight:500;width:32px;text-align:center}
+.q-text{font-size:.855rem;color:var(--text-mid);line-height:1.45}
+.q-answers{display:flex;gap:6px;justify-content:flex-end;align-items:center;flex-wrap:nowrap}
+
+/* ── RADIO BUTTONS ── */
+.radio-opt{display:none}
+.radio-label{display:inline-flex;align-items:center;justify-content:center;padding:5px 12px;border-radius:3px;font-size:.70rem;font-weight:600;border:1.5px solid var(--border-med);cursor:pointer;transition:all .15s;font-family:'IBM Plex Mono',monospace;white-space:nowrap;color:var(--text-muted)}
+.radio-label:hover{border-color:var(--plum);color:var(--plum)}
+.radio-opt:checked+.radio-label{color:#fff;border-color:transparent}
+.radio-opt.r-si:checked+.radio-label{background:var(--green)}
+.radio-opt.r-no:checked+.radio-label{background:var(--red)}
+.radio-opt.r-na:checked+.radio-label{background:var(--plum)}
+.radio-opt.r-esp:checked+.radio-label{background:var(--gold-dark)}
+
+/* ── ESP ROW ── */
+.esp-row{display:none;background:rgba(177,138,32,.04);border-bottom:1px solid var(--border)}
+.esp-row.visible{display:table-row}
+.esp-row td{padding:6px 14px 10px 58px}
+.esp-inner{display:flex;align-items:center;gap:8px}
+.esp-tag{font-family:'IBM Plex Mono',monospace;font-size:.60rem;color:var(--gold-dark);font-weight:600;letter-spacing:.8px;white-space:nowrap}
+.esp-input{flex:1;background:var(--surface);border:1.5px solid rgba(177,138,32,.35);border-radius:var(--r4);padding:5px 10px;font-family:'Jost',sans-serif;font-size:.82rem;color:var(--text);outline:none}
+.esp-input:focus{border-color:var(--gold-mid);box-shadow:0 0 0 3px rgba(177,138,32,.10)}
+
+/* ── RISK SECTION ── */
+.risk-auto-notice{background:linear-gradient(90deg,rgba(129,78,131,.07),rgba(179,63,118,.04));border:1px solid rgba(129,78,131,.18);border-radius:var(--r6);padding:10px 14px;margin-bottom:18px;font-size:.80rem;color:var(--text-mid);display:flex;align-items:flex-start;gap:10px}
+.risk-auto-notice strong{color:var(--plum-deep)}
+
+.risk-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.risk-dim-card{background:var(--surface2);border-radius:var(--r8);padding:18px;border:2px solid var(--border);transition:border-color .25s,box-shadow .25s}
+.risk-dim-card.active-conf{border-color:var(--magenta);box-shadow:0 0 0 3px rgba(179,63,118,.07)}
+.risk-dim-card.active-integ{border-color:var(--gold-mid);box-shadow:0 0 0 3px rgba(177,138,32,.07)}
+.risk-dim-card.active-disp{border-color:var(--plum);box-shadow:0 0 0 3px rgba(129,78,131,.07)}
+.risk-dim-title{font-weight:700;font-size:.87rem;color:var(--plum-deep);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+
+.contrib-label{font-size:.62rem;color:var(--text-dim);margin-bottom:4px;display:flex;justify-content:space-between}
+.contrib-bar{height:3px;background:var(--surface3);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.contrib-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.contrib-fill.conf{background:var(--magenta)}.contrib-fill.integ{background:var(--gold-mid)}.contrib-fill.disp{background:var(--plum)}
+
+.risk-sliders{display:flex;flex-direction:column;gap:10px}
+.risk-slider-row{display:flex;flex-direction:column;gap:4px}
+.risk-slider-label{display:flex;justify-content:space-between;font-size:.70rem;color:var(--text-muted);font-weight:500}
+.risk-slider-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--plum-deep)}
+input[type="range"]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--plum) 0%,var(--blush) 100%);outline:none;cursor:pointer}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--plum-deep);border:2px solid var(--gold);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.risk-result-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.risk-result-label{font-size:.70rem;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:.6px}
+.risk-score{font-family:'IBM Plex Mono',monospace;font-size:1.15rem;font-weight:700}
+.risk-score.low{color:var(--green)}.risk-score.med{color:var(--amber)}.risk-score.high{color:var(--red)}
+.manual-note{font-size:.60rem;color:var(--text-dim);margin-top:4px;font-style:italic;display:none}
+
+/* ── RISK ALERTS ── */
+.risk-alerts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.risk-alert{display:none;border-radius:var(--r6);padding:12px 16px;border-left:4px solid;font-size:.82rem;line-height:1.5}
+.risk-alert.visible{display:block}
+.risk-alert.conf{background:rgba(179,63,118,.07);border-color:var(--magenta);color:#4a2648}
+.risk-alert.integ{background:rgba(177,138,32,.08);border-color:var(--gold-dark);color:#4a3800}
+.risk-alert.disp{background:rgba(129,78,131,.08);border-color:var(--plum);color:#4a2648}
+.risk-alert-title{font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+
+/* ── RESULT SUMMARY ── */
+.result-summary{margin-top:20px;background:var(--surface2);border-radius:var(--r8);padding:16px;border:1px solid var(--border)}
+.result-summary-title{font-size:.70rem;font-weight:700;color:var(--plum-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.result-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.res-box{text-align:center;background:var(--surface);border-radius:var(--r8);padding:14px;box-shadow:var(--shadow)}
+.res-box-label{font-size:.68rem;color:var(--text-muted);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.6px}
+.res-box-val{font-family:'IBM Plex Mono',monospace;font-size:1.6rem;font-weight:700;line-height:1}
+.res-box-pill{margin-top:6px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:var(--r6);padding:9px 18px;font-family:'Jost',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--plum-deep) 0%,var(--magenta) 100%);color:#fff;box-shadow:0 2px 10px rgba(179,63,118,.28)}
+.btn-primary:hover{box-shadow:0 3px 14px rgba(179,63,118,.38);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border-med);color:var(--text-muted);font-size:.80rem;padding:7px 14px}
+.btn-ghost:hover{background:rgba(129,78,131,.06);border-color:var(--plum);color:var(--plum)}
+
+/* ── PROGRESS ── */
+.progress-wrap{margin-bottom:28px}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-size:.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.progress-pct{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--plum-deep);font-weight:600}
+.progress-bar{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--plum-deep),var(--magenta));border-radius:3px;transition:width .35s ease}
+
+/* ── RISK PILL ── */
+.risk-pill{display:inline-block;padding:2px 8px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:.60rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.risk-pill.high{background:rgba(184,50,50,.1);color:var(--red);border:1px solid rgba(184,50,50,.25)}
+.risk-pill.med{background:rgba(177,138,32,.1);color:var(--amber);border:1px solid rgba(177,138,32,.25)}
+.risk-pill.low{background:rgba(26,122,74,.1);color:var(--green);border:1px solid rgba(26,122,74,.25)}
+.risk-pill.none{background:rgba(129,78,131,.07);color:var(--plum);border:1px solid rgba(129,78,131,.18)}
+
+/* ── SÍ + DETALLE tooltip ── */
+.esp-label-wrap{position:relative;display:inline-flex;align-items:center}
+.esp-hint{display:none;position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--plum-darker);color:#fff;font-family:'Jost',sans-serif;font-size:.68rem;font-weight:400;white-space:nowrap;padding:5px 10px;border-radius:var(--r4);pointer-events:none;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.25);line-height:1.4;max-width:200px;text-align:center;white-space:normal}
+.esp-hint::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--plum-darker)}
+.esp-label-wrap:hover .esp-hint,.esp-label-wrap:focus-within .esp-hint{display:block}
+
+/* ── CLEAR ANSWERS BTN ── */
+.btn-clear-q{background:transparent;border:1.5px solid rgba(184,50,50,.3);color:#b83232;font-family:'IBM Plex Mono',monospace;font-size:.60rem;font-weight:600;padding:3px 10px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.3px;white-space:nowrap;margin-left:auto}
+.btn-clear-q:hover{background:rgba(184,50,50,.06);border-color:#b83232}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.chart-card{background:var(--surface);border-radius:var(--r8);padding:18px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.chart-card-title{font-size:.70rem;font-weight:700;color:var(--plum-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+canvas{display:block;width:100%!important}
+
+/* ── RISK EXPLANATION ── */
+.risk-explanation{margin-top:20px;border-radius:var(--r8);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
+.risk-explanation-header{background:linear-gradient(90deg,var(--plum-darker),var(--plum-deep));color:#fff;padding:11px 16px;font-size:.70rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.risk-explanation-body{padding:16px;background:var(--surface);display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.risk-exp-dim{border-radius:var(--r6);padding:13px 14px;border-left:4px solid}
+.risk-exp-dim.conf{background:rgba(179,63,118,.05);border-color:var(--magenta)}
+.risk-exp-dim.integ{background:rgba(177,138,32,.06);border-color:var(--gold-dark)}
+.risk-exp-dim.disp{background:rgba(129,78,131,.06);border-color:var(--plum)}
+.risk-exp-title{font-weight:700;font-size:.76rem;color:var(--plum-deep);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.risk-exp-text{font-size:.78rem;color:var(--text-mid);line-height:1.55}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(46,20,48,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r8);width:100%;max-width:780px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(46,20,48,.3)}
+.modal-header{background:linear-gradient(135deg,var(--plum-darker) 0%,var(--plum-deep) 60%,var(--plum) 100%);padding:16px 20px;display:flex;align-items:center;gap:12px}
+.modal-title{font-size:.92rem;font-weight:700;color:#fff;flex:1}
+.modal-close{background:rgba(255,255,255,.12);border:none;border-radius:var(--r4);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.7);font-size:1rem;transition:all .15s}
+.modal-close:hover{background:rgba(255,255,255,.2);color:#fff}
+.modal-body{padding:20px;overflow-y:auto}
+.report-section{margin-bottom:20px}
+.report-title{font-size:.70rem;font-weight:700;color:var(--plum-deep);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--plum-deep);padding-bottom:5px;margin-bottom:12px}
+.report-table{width:100%;border-collapse:collapse;font-size:.80rem}
+.report-table th{background:var(--surface2);padding:8px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:2px solid var(--border-med);font-size:.68rem;text-transform:uppercase;letter-spacing:.6px}
+.report-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);font-size:.80rem}
+.report-table tr:last-child td{border-bottom:none}
+.report-table td.si{color:var(--green);font-weight:600}
+.report-table td.no{color:var(--red);font-weight:600}
+.report-table td.esp{color:var(--amber);font-weight:600}
+
+/* ── FOOTER ── */
+.page-footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.footer-left{font-size:.70rem;color:var(--text-dim)}
+
+/* ── PRINT ── */
+@media print{.topbar,.page-actions,.stats-row,.btn,.modal-overlay,.section-chevron,.risk-auto-notice,.contrib-bar,.contrib-label{display:none!important}body{background:#fff}body::before{display:none}.section-card.collapsed .section-body{display:block!important}.app{padding:20px;max-width:100%}}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.risk-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.app{padding:16px}.topbar{padding:0 16px}.q-answers{flex-wrap:wrap}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">ENP</div>
+    <span class="brand-name">Evaluación de Nuevos Proyectos</span>
+    <div class="brand-sep"></div>
+    <span class="brand-sub">Análisis de Seguridad</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-ghost" onclick="openModal()">⬡ Informe</button>
+    <button class="btn btn-ghost" onclick="exportJSON()">⬇ JSON</button>
+    <button class="btn btn-ghost" onclick="window.print()">⊞ Imprimir</button>
+    <button class="btn btn-ghost" onclick="resetForm()">↺ Limpiar</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <div class="page-header">
+    <div class="page-header-top">
+      <div class="page-title-group">
+        <div class="page-eyebrow">Formulario de evaluación · Seguridad de la información</div>
+        <h1 class="page-title">Evaluación de Nuevos Proyectos</h1>
+        <p class="page-subtitle">Las respuestas al cuestionario alimentan automáticamente el análisis de riesgos CID — Confidencialidad, Integridad y Disponibilidad.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="document.getElementById('sec-riesgos').scrollIntoView({behavior:'smooth'})">▶ Ver Análisis de Riesgos</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span class="progress-label">Progreso</span>
+      <span class="progress-pct" id="progressPct">0 / 0 respondidas</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card gold"><div class="stat-label">Total preguntas</div><div class="stat-value" id="statTotal">0</div><div class="stat-sub">en el cuestionario</div></div>
+    <div class="stat-card green"><div class="stat-label">Respondidas</div><div class="stat-value" id="statAnswered">0</div><div class="stat-sub">completadas</div></div>
+    <div class="stat-card magenta"><div class="stat-label">Alertas activas</div><div class="stat-value" id="statAlerts">0</div><div class="stat-sub">requieren atención</div></div>
+    <div class="stat-card plum"><div class="stat-label">Riesgo global</div><div class="stat-value" id="statRisk" style="font-size:1rem;line-height:2">—</div><div class="stat-sub">nivel estimado</div></div>
+  </div>
+
+  <!-- ── SECCIÓN 1: DATOS ── -->
+  <div class="section-card" id="sec-datos">
+    <div class="section-header" onclick="toggleSection('sec-datos')">
+      <div class="section-icon">01</div>
+      <span class="section-title">Datos del Proyecto</span>
+      <span class="section-badge">Información general</span>
+      <span class="section-chevron">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="field-row full">
+        <div class="field-group">
+          <label class="field-label">Nombre del Proyecto</label>
+          <input class="field-input" id="f-nombre" type="text" placeholder="Introduce el nombre del proyecto…" oninput="updateStats()">
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group">
+          <label class="field-label">Descripción</label>
+          <textarea class="field-textarea" id="f-desc" placeholder="Describe brevemente los objetivos y alcance del proyecto…" oninput="updateStats()"></textarea>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Responsable / Líder del Proyecto</label>
+          <input class="field-input" id="f-resp" type="text" placeholder="Nombre y apellidos…" oninput="updateStats()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Fecha de Evaluación</label>
+          <input class="field-input" id="f-fecha" type="date" oninput="updateStats()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 2: PREGUNTAS ── -->
+  <div class="section-card" id="sec-preguntas">
+    <div class="section-header" onclick="toggleSection('sec-preguntas')">
+      <div class="section-icon">02</div>
+      <span class="section-title">Cuestionario de Evaluación</span>
+      <span class="section-badge" id="sec-badge-q">0 preguntas</span>
+      <button class="btn-clear-q" onclick="clearAnswers(event)" title="Limpiar todas las respuestas del cuestionario">↺ Limpiar respuestas</button>
+      <span class="section-chevron">▾</span>
+    </div>
+    <div class="section-body" style="padding:0">
+      <table class="q-table">
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>Pregunta</th>
+            <th class="center" style="width:230px">Respuesta</th>
+          </tr>
+        </thead>
+        <tbody id="qTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 3: RIESGOS ── -->
+  <div class="section-card" id="sec-riesgos">
+    <div class="section-header" onclick="toggleSection('sec-riesgos')">
+      <div class="section-icon" style="background:linear-gradient(135deg,#4a2648,#b33f76)">03</div>
+      <span class="section-title">Análisis de Riesgos</span>
+      <span class="section-badge">CID · Automático + ajuste manual</span>
+      <span class="section-chevron">▾</span>
+    </div>
+    <div class="section-body">
+
+      <div class="risk-auto-notice">
+        <span style="font-size:1.1rem;flex-shrink:0">⚡</span>
+        <span><strong>Cálculo automático:</strong> Los valores se actualizan en tiempo real según las respuestas del cuestionario. Responder <em>No</em> a controles de protección o <em>Sí</em> a factores de amenaza incrementa el riesgo en la dimensión correspondiente. Puedes afinar los sliders manualmente.</span>
+      </div>
+
+      <div class="risk-grid">
+
+        <!-- Confidencialidad -->
+        <div class="risk-dim-card" id="card-conf">
+          <div class="risk-dim-title">🔒 Confidencialidad</div>
+          <div class="contrib-label"><span>Contribución del cuestionario</span><span id="conf-contrib-pct">0%</span></div>
+          <div class="contrib-bar"><div class="contrib-fill conf" id="conf-contrib-bar" style="width:0%"></div></div>
+          <div class="risk-sliders">
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Probabilidad</span><span class="risk-slider-val" id="conf-prob-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="conf-prob" oninput="onManualSlider('conf','prob')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Baja</span><span>Media</span><span>Alta</span></div>
+            </div>
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Impacto</span><span class="risk-slider-val" id="conf-imp-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="conf-imp" oninput="onManualSlider('conf','imp')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+            </div>
+          </div>
+          <div class="risk-result-row">
+            <span class="risk-result-label">Riesgo</span>
+            <span class="risk-score low" id="conf-risk-score">0</span>
+          </div>
+          <div class="manual-note" id="conf-manual-note">✎ Ajustado manualmente</div>
+        </div>
+
+        <!-- Integridad -->
+        <div class="risk-dim-card" id="card-integ">
+          <div class="risk-dim-title">✏️ Integridad</div>
+          <div class="contrib-label"><span>Contribución del cuestionario</span><span id="integ-contrib-pct">0%</span></div>
+          <div class="contrib-bar"><div class="contrib-fill integ" id="integ-contrib-bar" style="width:0%"></div></div>
+          <div class="risk-sliders">
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Probabilidad</span><span class="risk-slider-val" id="integ-prob-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="integ-prob" oninput="onManualSlider('integ','prob')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Baja</span><span>Media</span><span>Alta</span></div>
+            </div>
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Impacto</span><span class="risk-slider-val" id="integ-imp-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="integ-imp" oninput="onManualSlider('integ','imp')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+            </div>
+          </div>
+          <div class="risk-result-row">
+            <span class="risk-result-label">Riesgo</span>
+            <span class="risk-score low" id="integ-risk-score">0</span>
+          </div>
+          <div class="manual-note" id="integ-manual-note">✎ Ajustado manualmente</div>
+        </div>
+
+        <!-- Disponibilidad -->
+        <div class="risk-dim-card" id="card-disp">
+          <div class="risk-dim-title">📡 Disponibilidad</div>
+          <div class="contrib-label"><span>Contribución del cuestionario</span><span id="disp-contrib-pct">0%</span></div>
+          <div class="contrib-bar"><div class="contrib-fill disp" id="disp-contrib-bar" style="width:0%"></div></div>
+          <div class="risk-sliders">
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Probabilidad</span><span class="risk-slider-val" id="disp-prob-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="disp-prob" oninput="onManualSlider('disp','prob')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Baja</span><span>Media</span><span>Alta</span></div>
+            </div>
+            <div class="risk-slider-row">
+              <div class="risk-slider-label"><span>Impacto</span><span class="risk-slider-val" id="disp-imp-val">0</span></div>
+              <input type="range" min="0" max="3" step="1" value="0" id="disp-imp" oninput="onManualSlider('disp','imp')">
+              <div style="display:flex;justify-content:space-between;font-size:.58rem;color:var(--text-dim)"><span>N/A</span><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+            </div>
+          </div>
+          <div class="risk-result-row">
+            <span class="risk-result-label">Riesgo</span>
+            <span class="risk-score low" id="disp-risk-score">0</span>
+          </div>
+          <div class="manual-note" id="disp-manual-note">✎ Ajustado manualmente</div>
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      <div class="risk-alerts">
+        <div class="risk-alert conf" id="alert-conf">
+          <div class="risk-alert-title">⚠ Riesgo de Confidencialidad detectado</div>
+          El responsable del proyecto debe asegurar: permisos de acceso correctos, privilegios sobre los datos, acceso físico restringido, listado de personas autorizadas e intercambio de información controlado.
+        </div>
+        <div class="risk-alert integ" id="alert-integ">
+          <div class="risk-alert-title">⚠ Riesgo de Integridad detectado</div>
+          El responsable del proyecto debe asegurar: personas autorizadas para modificar datos, permisos de lectura/escritura revisados, mecanismos para impedir datos incorrectos y posibilidad de cifrado para prevenir alteraciones.
+        </div>
+        <div class="risk-alert disp" id="alert-disp">
+          <div class="risk-alert-title">⚠ Riesgo de Disponibilidad detectado</div>
+          El responsable del proyecto debe asegurar: copias de seguridad activas, información no almacenada en repositorios locales ni en dispositivos extraíbles.
+        </div>
+      </div>
+
+      <!-- Resumen numérico -->
+      <div class="result-summary">
+        <div class="result-summary-title">Resultado del análisis temprano</div>
+        <div class="result-summary-grid">
+          <div class="res-box">
+            <div class="res-box-label">Confidencialidad</div>
+            <div class="res-box-val" id="res-conf" style="color:var(--text-dim)">0</div>
+            <div class="res-box-pill"><span class="risk-pill none" id="res-conf-pill">N/A</span></div>
+          </div>
+          <div class="res-box">
+            <div class="res-box-label">Integridad</div>
+            <div class="res-box-val" id="res-integ" style="color:var(--text-dim)">0</div>
+            <div class="res-box-pill"><span class="risk-pill none" id="res-integ-pill">N/A</span></div>
+          </div>
+          <div class="res-box">
+            <div class="res-box-label">Disponibilidad</div>
+            <div class="res-box-val" id="res-disp" style="color:var(--text-dim)">0</div>
+            <div class="res-box-pill"><span class="risk-pill none" id="res-disp-pill">N/A</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card-title">Radar CID — Probabilidad × Impacto</div>
+          <canvas id="chartRadar" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Puntuación de riesgo por dimensión</div>
+          <canvas id="chartBar" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Explicación del riesgo -->
+      <div class="risk-explanation">
+        <div class="risk-explanation-header">📋 Interpretación del resultado obtenido</div>
+        <div class="risk-explanation-body">
+          <div class="risk-exp-dim conf">
+            <div class="risk-exp-title">🔒 Confidencialidad <span class="risk-pill none" id="exp-conf-pill">N/A</span></div>
+            <div class="risk-exp-text" id="exp-conf-text">Completa el cuestionario para obtener la interpretación.</div>
+          </div>
+          <div class="risk-exp-dim integ">
+            <div class="risk-exp-title">✏️ Integridad <span class="risk-pill none" id="exp-integ-pill">N/A</span></div>
+            <div class="risk-exp-text" id="exp-integ-text">Completa el cuestionario para obtener la interpretación.</div>
+          </div>
+          <div class="risk-exp-dim disp">
+            <div class="risk-exp-title">📡 Disponibilidad <span class="risk-pill none" id="exp-disp-pill">N/A</span></div>
+            <div class="risk-exp-text" id="exp-disp-text">Completa el cuestionario para obtener la interpretación.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-left">Evaluación de Nuevos Proyectos · Seguridad de la Información · Datos almacenados localmente</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="exportJSON()">⬇ Exportar JSON</button>
+      <button class="btn btn-primary" onclick="openModal()">⬡ Ver Informe</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="reportModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Informe de Evaluación del Proyecto</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// PREGUNTAS — lista única, sin referencias normativas visibles.
+// Cada pregunta tiene:
+//   text    : texto de la pregunta
+//   group   : categoría temática (usada como separador visual)
+//   type    : 'si-no' | 'si-esp-no'
+//   riskOn  : 'no'  → responder No activa el riesgo (falta el control)
+//             'si'  → responder Sí activa el riesgo (existe la amenaza)
+//   cid     : { conf, integ, disp } pesos 0-3 de influencia en cada dimensión
+// ══════════════════════════════════════════════════════
+const QUESTIONS = [
+
+  // ── Información y clasificación ──
+  { group:'Información y clasificación',
+    text:'¿Se ha definido la clasificación de la información que manejará el proyecto (pública, interna, confidencial, restringida)?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:1,disp:0} },
+  { group:'Información y clasificación',
+    text:'¿Existen normas o procedimientos específicos sobre cómo manipular y tratar la información del proyecto?',
+    type:'si-esp-no', riskOn:'no', cid:{conf:2,integ:2,disp:0} },
+  { group:'Información y clasificación',
+    text:'¿Se ha definido cómo debe eliminarse o destruirse la información al finalizar el proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:1,disp:0} },
+  { group:'Información y clasificación',
+    text:'¿El proyecto trata datos personales (nombre, email, DNI, dirección IP, datos de salud, etc.)?',
+    type:'si-esp-no', riskOn:'si', cid:{conf:3,integ:2,disp:0} },
+  { group:'Información y clasificación',
+    text:'¿Se tratan categorías especiales de datos personales (salud, origen racial, biométricos, creencias…)?',
+    type:'si-no', riskOn:'si', cid:{conf:3,integ:2,disp:0} },
+
+  // ── Accesos y control de usuarios ──
+  { group:'Accesos y control de usuarios',
+    text:'¿Se han definido los roles y permisos de acceso en función de las necesidades del proyecto?',
+    type:'si-esp-no', riskOn:'no', cid:{conf:3,integ:2,disp:0} },
+  { group:'Accesos y control de usuarios',
+    text:'¿Se ha definido el proceso de alta, modificación y baja de usuarios del proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:1,disp:0} },
+  { group:'Accesos y control de usuarios',
+    text:'¿Se ha definido algún requisito específico sobre registros o logs de acceso?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:2,disp:1} },
+  { group:'Accesos y control de usuarios',
+    text:'¿Se aplica el principio de mínimo privilegio (cada usuario accede solo a lo estrictamente necesario)?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:2,disp:0} },
+
+  // ── Personas y formación ──
+  { group:'Personas y formación',
+    text:'¿Las personas asignadas al proyecto tienen la cualificación adecuada (con evidencias documentadas)?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:2,disp:1} },
+  { group:'Personas y formación',
+    text:'¿Se ha informado al equipo sobre la normativa y políticas de seguridad aplicables al proyecto?',
+    type:'si-esp-no', riskOn:'no', cid:{conf:2,integ:1,disp:0} },
+  { group:'Personas y formación',
+    text:'¿Las personas del proyecto han firmado el compromiso de confidencialidad?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:0,disp:0} },
+  { group:'Personas y formación',
+    text:'¿Será necesario el teletrabajo o trabajo en remoto en alguna fase del proyecto?',
+    type:'si-esp-no', riskOn:'si', cid:{conf:2,integ:1,disp:2} },
+
+  // ── Terceros y cadena de suministro ──
+  { group:'Terceros y cadena de suministro',
+    text:'¿Intervienen terceras partes externas (proveedores, consultoras, subcontratistas)?',
+    type:'si-esp-no', riskOn:'si', cid:{conf:2,integ:2,disp:1} },
+  { group:'Terceros y cadena de suministro',
+    text:'¿Se han identificado, evaluado y aprobado formalmente las terceras partes intervinientes?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:1,disp:1} },
+  { group:'Terceros y cadena de suministro',
+    text:'¿Se han firmado acuerdos de confidencialidad (NDA) con todas las partes externas?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:0,disp:0} },
+  { group:'Terceros y cadena de suministro',
+    text:'¿Se utilizan servicios cloud o SaaS de terceros? ¿Se ha evaluado su configuración de seguridad?',
+    type:'si-esp-no', riskOn:'si', cid:{conf:2,integ:1,disp:2} },
+
+  // ── Infraestructura y equipos ──
+  { group:'Infraestructura y equipos',
+    text:'¿Se ha definido la configuración, mantenimiento y ubicación de los equipos del proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:1,disp:2} },
+  { group:'Infraestructura y equipos',
+    text:'¿Se realizarán trabajos en dispositivos portátiles (portátiles, tablets, móviles)?',
+    type:'si-no', riskOn:'si', cid:{conf:2,integ:1,disp:2} },
+  { group:'Infraestructura y equipos',
+    text:'¿Es necesaria alguna configuración de red específica (VLANs, firewalls, VPN, segmentación)?',
+    type:'si-esp-no', riskOn:'si', cid:{conf:2,integ:1,disp:2} },
+  { group:'Infraestructura y equipos',
+    text:'¿La información del proyecto se almacena únicamente en sistemas corporativos aprobados (no en USBs ni equipos personales)?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:1,disp:2} },
+  { group:'Infraestructura y equipos',
+    text:'¿Se ha definido cómo gestionar cambios o redimensionamiento de capacidades hardware y software?',
+    type:'si-no', riskOn:'no', cid:{conf:0,integ:2,disp:3} },
+
+  // ── Protección técnica ──
+  { group:'Protección técnica',
+    text:'¿Se ha definido alguna medida de protección concreta frente a malware (antivirus, EDR, listas blancas…)?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:2,disp:2} },
+  { group:'Protección técnica',
+    text:'¿Se exigen medidas de gestión de vulnerabilidades (escaneos periódicos, parcheo, pentesting)?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:3,disp:1} },
+  { group:'Protección técnica',
+    text:'¿Se ha indicado la obligatoriedad de cifrado o encriptado para algún tipo de información o comunicación?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:1,disp:0} },
+  { group:'Protección técnica',
+    text:'¿Se ha definido cómo debe realizarse el intercambio seguro de información entre las partes?',
+    type:'si-no', riskOn:'no', cid:{conf:3,integ:1,disp:0} },
+  { group:'Protección técnica',
+    text:'¿Se ha definido algún requisito específico sobre copias de seguridad de la información del proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:0,integ:1,disp:3} },
+
+  // ── Desarrollo y entornos ──
+  { group:'Desarrollo y entornos',
+    text:'¿Se requiere uno o varios entornos de desarrollo seguros (separados de producción)?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:3,disp:2} },
+  { group:'Desarrollo y entornos',
+    text:'¿Los entornos de desarrollo o pruebas podrían comprometer o afectar al entorno productivo?',
+    type:'si-no', riskOn:'si', cid:{conf:1,integ:3,disp:2} },
+  { group:'Desarrollo y entornos',
+    text:'¿Existen datos reales o sensibles en los entornos de prueba?',
+    type:'si-no', riskOn:'si', cid:{conf:3,integ:1,disp:0} },
+  { group:'Desarrollo y entornos',
+    text:'¿Se ha definido la monitorización de servicios software de terceros integrados en el proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:1,disp:3} },
+
+  // ── Continuidad y gestión de incidentes ──
+  { group:'Continuidad y gestión de incidentes',
+    text:'¿Se ha definido un proceso de gestión de incidentes de seguridad para el proyecto?',
+    type:'si-no', riskOn:'no', cid:{conf:1,integ:1,disp:3} },
+  { group:'Continuidad y gestión de incidentes',
+    text:'¿Se ha indicado la necesidad de un plan de continuidad o recuperación ante desastres?',
+    type:'si-no', riskOn:'no', cid:{conf:0,integ:1,disp:3} },
+  { group:'Continuidad y gestión de incidentes',
+    text:'¿Se exige algún tipo de cumplimiento normativo, legal o regulatorio específico para el proyecto?',
+    type:'si-esp-no', riskOn:'no', cid:{conf:1,integ:1,disp:1} },
+  { group:'Continuidad y gestión de incidentes',
+    text:'¿Se ha realizado o está prevista una evaluación de impacto sobre la privacidad (EIPD/DPIA)?',
+    type:'si-no', riskOn:'no', cid:{conf:2,integ:1,disp:0} },
+];
+
+// ══ ESTADO ══
+const answers = {};
+const manualOverride = {
+  conf:  { prob: false, imp: false },
+  integ: { prob: false, imp: false },
+  disp:  { prob: false, imp: false },
+};
+
+// ══ BUILD TABLE ══
+function buildTable() {
+  const tbody = document.getElementById('qTableBody');
+  tbody.innerHTML = '';
+  let lastGroup = '';
+  let num = 0;
+
+  QUESTIONS.forEach((q, i) => {
+    if (q.group !== lastGroup) {
+      lastGroup = q.group;
+      const gr = document.createElement('tr');
+      gr.className = 'group-row';
+      gr.innerHTML = `<td colspan="3">${q.group}</td>`;
+      tbody.appendChild(gr);
+    }
+
+    num++;
+    const hasEsp = q.type === 'si-esp-no';
+
+    const tr = document.createElement('tr');
+    tr.id = `qrow-${i}`;
+    tr.innerHTML = `
+      <td class="q-num">${num}</td>
+      <td class="q-text">${q.text}</td>
+      <td>
+        <div class="q-answers">
+          <input type="radio" class="radio-opt r-si" name="q${i}" id="q${i}-si" value="si" onchange="onAnswer(${i},'si')">
+          <label class="radio-label" for="q${i}-si">Sí</label>
+          ${hasEsp ? `<input type="radio" class="radio-opt r-esp" name="q${i}" id="q${i}-esp" value="esp" onchange="onAnswer(${i},'esp')"><span class="esp-label-wrap"><label class="radio-label" for="q${i}-esp">Sí + detalle</label><span class="esp-hint">Marca esta opción si la respuesta es Sí y quieres añadir contexto o especificar detalles relevantes</span></span>` : ''}
+          <input type="radio" class="radio-opt r-no" name="q${i}" id="q${i}-no" value="no" onchange="onAnswer(${i},'no')">
+          <label class="radio-label" for="q${i}-no">No</label>
+          <input type="radio" class="radio-opt r-na" name="q${i}" id="q${i}-na" value="na" onchange="onAnswer(${i},'na')">
+          <label class="radio-label" for="q${i}-na">N/A</label>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+
+    if (hasEsp) {
+      const espTr = document.createElement('tr');
+      espTr.className = 'esp-row' + (answers[i] === 'esp' ? ' visible' : '');
+      espTr.id = `esprow-${i}`;
+      espTr.innerHTML = `<td colspan="3"><div class="esp-inner"><span class="esp-tag">↳ DETALLE</span><input class="esp-input" id="esp-${i}" type="text" placeholder="Especifica…" value="${answers[`esp-${i}`]||''}" oninput="answers['esp-${i}']=this.value"></div></td>`;
+      tbody.appendChild(espTr);
+    }
+
+    if (answers[i]) {
+      const el = document.getElementById(`q${i}-${answers[i]}`);
+      if (el) el.checked = true;
+    }
+  });
+
+  document.getElementById('sec-badge-q').textContent = QUESTIONS.length + ' preguntas';
+  document.getElementById('statTotal').textContent = QUESTIONS.length;
+}
+
+// ══ ON ANSWER ══
+function onAnswer(idx, val) {
+  answers[idx] = val;
+  const espRow = document.getElementById(`esprow-${idx}`);
+  if (espRow) espRow.classList.toggle('visible', val === 'esp');
+  updateStats();
+}
+
+// ══ COMPUTE AUTO RISK ══
+function computeAutoRisk() {
+  const score = {
+    conf:  { pts: 0, max: 0 },
+    integ: { pts: 0, max: 0 },
+    disp:  { pts: 0, max: 0 },
+  };
+
+  QUESTIONS.forEach((q, i) => {
+    const ans = answers[i];
+    const triggered =
+      (q.riskOn === 'no' && ans === 'no') ||
+      (q.riskOn === 'si' && (ans === 'si' || ans === 'esp'));
+
+    ['conf', 'integ', 'disp'].forEach(d => {
+      const w = q.cid[d];
+      if (!w) return;
+      score[d].max += w;
+      if (triggered) score[d].pts += w;
+    });
+  });
+
+  const norm = (pts, max) => max === 0 ? 0 : Math.min(3, Math.round((pts / max) * 3));
+  return {
+    conf:  { prob: norm(score.conf.pts,  score.conf.max),  imp: norm(score.conf.pts,  score.conf.max),  pct: score.conf.max  ? Math.round(score.conf.pts  / score.conf.max  * 100) : 0 },
+    integ: { prob: norm(score.integ.pts, score.integ.max), imp: norm(score.integ.pts, score.integ.max), pct: score.integ.max ? Math.round(score.integ.pts / score.integ.max * 100) : 0 },
+    disp:  { prob: norm(score.disp.pts,  score.disp.max),  imp: norm(score.disp.pts,  score.disp.max),  pct: score.disp.max  ? Math.round(score.disp.pts  / score.disp.max  * 100) : 0 },
+  };
+}
+
+// ══ MANUAL SLIDER ══
+function onManualSlider(dim, axis) {
+  manualOverride[dim][axis] = true;
+  document.getElementById(`${dim}-manual-note`).style.display = 'block';
+  updateRiskDisplay();
+}
+
+// ══ UPDATE STATS ══
+function updateStats() {
+  const total    = QUESTIONS.length;
+  const answered = QUESTIONS.filter((_, i) => answers[i] && answers[i] !== undefined).length;
+  const alerts   = QUESTIONS.filter((q, i) => {
+    const ans = answers[i];
+    return (q.riskOn === 'no' && ans === 'no') || (q.riskOn === 'si' && (ans === 'si' || ans === 'esp'));
+  }).length;
+  const pct = Math.round((answered / total) * 100);
+
+  document.getElementById('statAnswered').textContent  = answered;
+  document.getElementById('statAlerts').textContent    = alerts;
+  document.getElementById('progressFill').style.width  = pct + '%';
+  document.getElementById('progressPct').textContent   = `${answered} / ${total} respondidas`;
+
+  updateRiskDisplay();
+}
+
+// ══ UPDATE RISK DISPLAY ══
+function updateRiskDisplay() {
+  const auto = computeAutoRisk();
+  let maxRisk = 0;
+
+  ['conf', 'integ', 'disp'].forEach(d => {
+    const probEl = document.getElementById(`${d}-prob`);
+    const impEl  = document.getElementById(`${d}-imp`);
+
+    if (!manualOverride[d].prob) probEl.value = auto[d].prob;
+    if (!manualOverride[d].imp)  impEl.value  = auto[d].imp;
+
+    const prob = parseInt(probEl.value);
+    const imp  = parseInt(impEl.value);
+    const risk = prob * imp;
+
+    document.getElementById(`${d}-prob-val`).textContent = prob;
+    document.getElementById(`${d}-imp-val`).textContent  = imp;
+
+    const scoreEl = document.getElementById(`${d}-risk-score`);
+    scoreEl.textContent = risk;
+    scoreEl.className = 'risk-score ' + riskCls(risk);
+
+    const resEl  = document.getElementById(`res-${d}`);
+    const pillEl = document.getElementById(`res-${d}-pill`);
+    resEl.textContent  = risk;
+    resEl.style.color  = riskColor(risk);
+    pillEl.textContent = riskLabel(risk);
+    pillEl.className   = 'risk-pill ' + (risk > 0 ? riskCls(risk) : 'none');
+
+    document.getElementById(`alert-${d}`).classList.toggle('visible', risk >= 2);
+    document.getElementById(`card-${d}`).className = 'risk-dim-card' + (risk >= 4 ? ` active-${d}` : '');
+
+    document.getElementById(`${d}-contrib-bar`).style.width = auto[d].pct + '%';
+    document.getElementById(`${d}-contrib-pct`).textContent = auto[d].pct + '%';
+
+    if (risk > maxRisk) maxRisk = risk;
+  });
+
+  const riskEl = document.getElementById('statRisk');
+  riskEl.textContent = riskLabel(maxRisk);
+  riskEl.style.color = riskColor(maxRisk);
+
+  // update charts and explanation
+  const cv = +document.getElementById('conf-prob').value * +document.getElementById('conf-imp').value;
+  const iv = +document.getElementById('integ-prob').value * +document.getElementById('integ-imp').value;
+  const dv = +document.getElementById('disp-prob').value  * +document.getElementById('disp-imp').value;
+  updateCharts(cv, iv, dv);
+  updateRiskExplanation(cv, iv, dv);
+}
+
+// ══ HELPERS ══
+function riskCls(r)   { return r >= 6 ? 'high' : r >= 3 ? 'med' : 'low'; }
+function riskColor(r) { return r >= 6 ? 'var(--red)' : r >= 3 ? 'var(--amber)' : r > 0 ? 'var(--green)' : 'var(--text-dim)'; }
+function riskLabel(r) { return r >= 6 ? 'ALTO' : r >= 3 ? 'MEDIO' : r > 0 ? 'BAJO' : '—'; }
+function pillCls(r)   { return r >= 6 ? 'high' : r >= 3 ? 'med' : r > 0 ? 'low' : 'none'; }
+
+// ══ RISK EXPLANATION TEXTS ══
+const RISK_EXPLAIN = {
+  conf: {
+    high: 'Riesgo ALTO: Existen múltiples brechas que podrían exponer información confidencial del proyecto. Es urgente establecer controles de acceso, cifrado y acuerdos de confidencialidad antes de continuar.',
+    med:  'Riesgo MEDIO: Se han detectado carencias en la protección de la información. Revisa los permisos de acceso, la clasificación de datos y el tratamiento de datos personales.',
+    low:  'Riesgo BAJO: La exposición de información confidencial es limitada, pero existen puntos de mejora. Verifica que los controles de acceso y confidencialidad estén formalizados.',
+    none: 'Sin datos suficientes para evaluar. Completa el cuestionario para obtener una interpretación del riesgo de confidencialidad.',
+  },
+  integ: {
+    high: 'Riesgo ALTO: Hay indicios de que los datos del proyecto podrían ser alterados o corrompidos. Establece con urgencia controles de modificación, auditoría de cambios y validación de datos.',
+    med:  'Riesgo MEDIO: Algunos mecanismos de integridad no están definidos. Revisa los permisos de escritura, los entornos de desarrollo y las medidas antimalware.',
+    low:  'Riesgo BAJO: La integridad de los datos está razonablemente controlada. Asegúrate de documentar quién puede modificar qué y cómo se gestionan los cambios.',
+    none: 'Sin datos suficientes para evaluar. Completa el cuestionario para obtener una interpretación del riesgo de integridad.',
+  },
+  disp: {
+    high: 'Riesgo ALTO: El proyecto presenta vulnerabilidades serias de disponibilidad. Define urgentemente un plan de continuidad, copias de seguridad verificadas y gestión de incidentes.',
+    med:  'Riesgo MEDIO: La disponibilidad del proyecto puede verse comprometida. Revisa la estrategia de copias de seguridad, la monitorización y los planes de recuperación.',
+    low:  'Riesgo BAJO: La disponibilidad está mayormente garantizada. Confirma que las copias de seguridad se realizan y verifican periódicamente.',
+    none: 'Sin datos suficientes para evaluar. Completa el cuestionario para obtener una interpretación del riesgo de disponibilidad.',
+  },
+};
+
+function updateRiskExplanation(conf, integ, disp) {
+  [['conf', conf], ['integ', integ], ['disp', disp]].forEach(([d, r]) => {
+    const key = r >= 6 ? 'high' : r >= 3 ? 'med' : r > 0 ? 'low' : 'none';
+    document.getElementById(`exp-${d}-text`).textContent = RISK_EXPLAIN[d][key];
+    const pill = document.getElementById(`exp-${d}-pill`);
+    pill.textContent = riskLabel(r);
+    pill.className   = 'risk-pill ' + pillCls(r);
+  });
+}
+
+// ══ CHARTS ══
+let chartRadar = null, chartBar = null;
+
+function initCharts() {
+  const radarCtx = document.getElementById('chartRadar').getContext('2d');
+  const barCtx   = document.getElementById('chartBar').getContext('2d');
+
+  const baseOpts = { responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { labels: { font: { family: 'Jost', size: 11 }, color: '#523658' } } } };
+
+  chartRadar = new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: ['Probabilidad C', 'Impacto C', 'Probabilidad I', 'Impacto I', 'Probabilidad D', 'Impacto D'],
+      datasets: [{
+        label: 'Valores actuales',
+        data: [0,0,0,0,0,0],
+        backgroundColor: 'rgba(179,63,118,.15)',
+        borderColor: 'rgba(179,63,118,.8)',
+        pointBackgroundColor: '#b33f76',
+        pointRadius: 4,
+        borderWidth: 2,
+      }]
+    },
+    options: { ...baseOpts,
+      scales: { r: {
+        min: 0, max: 3, ticks: { stepSize: 1, font: { size: 10 }, color: '#aa88b0', backdropColor: 'transparent' },
+        grid: { color: 'rgba(96,52,94,.12)' },
+        pointLabels: { font: { size: 10, family: 'IBM Plex Mono' }, color: '#523658' },
+      }},
+      plugins: { legend: { display: false } },
+    }
+  });
+
+  chartBar = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Confidencialidad', 'Integridad', 'Disponibilidad'],
+      datasets: [{
+        label: 'Puntuación de riesgo',
+        data: [0, 0, 0],
+        backgroundColor: ['rgba(179,63,118,.7)', 'rgba(177,138,32,.7)', 'rgba(129,78,131,.7)'],
+        borderColor:      ['rgba(179,63,118,1)',  'rgba(177,138,32,1)',  'rgba(129,78,131,1)'],
+        borderWidth: 2,
+        borderRadius: 4,
+      }]
+    },
+    options: { ...baseOpts,
+      scales: {
+        y: { min: 0, max: 9, ticks: { stepSize: 3, font: { size: 11 }, color: '#7a5080' },
+             grid: { color: 'rgba(96,52,94,.08)' },
+             border: { display: false } },
+        x: { ticks: { font: { size: 11, family: 'Jost' }, color: '#523658' },
+             grid: { display: false }, border: { display: false } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => {
+          const v = ctx.raw;
+          return ` ${v} — ${v>=6?'ALTO':v>=3?'MEDIO':v>0?'BAJO':'Sin datos'}`;
+        }}},
+      },
+    }
+  });
+}
+
+function updateCharts(conf, integ, disp) {
+  if (!chartRadar || !chartBar) return;
+  const cp = +document.getElementById('conf-prob').value;
+  const ci = +document.getElementById('conf-imp').value;
+  const ip = +document.getElementById('integ-prob').value;
+  const ii = +document.getElementById('integ-imp').value;
+  const dp = +document.getElementById('disp-prob').value;
+  const di = +document.getElementById('disp-imp').value;
+
+  chartRadar.data.datasets[0].data = [cp, ci, ip, ii, dp, di];
+  chartRadar.update('none');
+
+  chartBar.data.datasets[0].data = [conf, integ, disp];
+  // color coding
+  const colors = [conf, integ, disp].map(v =>
+    v >= 6 ? 'rgba(184,50,50,.75)' : v >= 3 ? 'rgba(177,138,32,.75)' : v > 0 ? 'rgba(26,122,74,.75)' : 'rgba(129,78,131,.35)'
+  );
+  const borders = [conf, integ, disp].map(v =>
+    v >= 6 ? '#b83232' : v >= 3 ? '#b18a20' : v > 0 ? '#1a7a4a' : 'rgba(129,78,131,.4)'
+  );
+  chartBar.data.datasets[0].backgroundColor = colors;
+  chartBar.data.datasets[0].borderColor = borders;
+  chartBar.update('none');
+}
+
+function toggleSection(id) { document.getElementById(id).classList.toggle('collapsed'); }
+
+// ══ CLEAR ANSWERS (only questionnaire) ══
+function clearAnswers(e) {
+  e.stopPropagation(); // don't collapse the section
+  if (!confirm('¿Limpiar todas las respuestas del cuestionario?')) return;
+  Object.keys(answers).forEach(k => delete answers[k]);
+  ['conf','integ','disp'].forEach(d => {
+    manualOverride[d].prob = false;
+    manualOverride[d].imp  = false;
+    document.getElementById(`${d}-manual-note`).style.display = 'none';
+  });
+  buildTable();
+  updateStats();
+}
+
+// ══ MODAL ══
+function openModal()  { generateReport(); document.getElementById('reportModal').classList.add('open'); }
+function closeModal() { document.getElementById('reportModal').classList.remove('open'); }
+
+function generateReport() {
+  const nombre = document.getElementById('f-nombre').value || '(sin nombre)';
+  const desc   = document.getElementById('f-desc').value   || '—';
+  const resp   = document.getElementById('f-resp').value   || '—';
+  const fecha  = document.getElementById('f-fecha').value  || '—';
+
+  const conf  = +document.getElementById('conf-prob').value  * +document.getElementById('conf-imp').value;
+  const integ = +document.getElementById('integ-prob').value * +document.getElementById('integ-imp').value;
+  const disp  = +document.getElementById('disp-prob').value  * +document.getElementById('disp-imp').value;
+
+  let alertRows = '';
+  QUESTIONS.forEach((q, i) => {
+    const ans = answers[i];
+    if (!ans || ans === 'na') return;
+    const triggered = (q.riskOn==='no' && ans==='no') || (q.riskOn==='si' && (ans==='si'||ans==='esp'));
+    if (!triggered) return;
+    alertRows += `<tr>
+      <td style="font-size:.78rem;color:var(--text-mid)">${q.text}</td>
+      <td style="font-size:.72rem;text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--magenta)">${ans==='no'?'No':'Sí'}</td>
+    </tr>`;
+  });
+
+  let qRows = '';
+  QUESTIONS.forEach((q, i) => {
+    const val = answers[i];
+    if (!val) return;
+    const esp = answers[`esp-${i}`] ? ` <span style="color:var(--amber);font-size:.72rem">· ${answers['esp-'+i]}</span>` : '';
+    const label = val==='si'?'Sí':val==='no'?'No':val==='esp'?'Sí + detalle':val==='na'?'N/A':'—';
+    const cls   = val==='si'?'si':val==='no'?'no':val==='esp'?'esp':'';
+    qRows += `<tr>
+      <td style="font-size:.78rem;color:var(--text-mid)">${q.text}</td>
+      <td class="${cls}" style="text-align:center;white-space:nowrap">${label}${esp}</td>
+    </tr>`;
+  });
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="report-section">
+      <div class="report-title">Datos del Proyecto</div>
+      <table class="report-table">
+        <tr><td style="width:130px;color:var(--text-muted);font-weight:600;font-size:.76rem">Nombre</td><td>${nombre}</td></tr>
+        <tr><td style="color:var(--text-muted);font-weight:600;font-size:.76rem">Descripción</td><td>${desc}</td></tr>
+        <tr><td style="color:var(--text-muted);font-weight:600;font-size:.76rem">Responsable</td><td>${resp}</td></tr>
+        <tr><td style="color:var(--text-muted);font-weight:600;font-size:.76rem">Fecha</td><td>${fecha}</td></tr>
+      </table>
+    </div>
+    <div class="report-section">
+      <div class="report-title">Resultado del Análisis CID</div>
+      <table class="report-table">
+        <thead><tr><th>Dimensión</th><th style="text-align:center">Puntuación</th><th style="text-align:center">Nivel</th><th>Interpretación</th></tr></thead>
+        <tbody>
+          <tr><td>Confidencialidad</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700">${conf}</td><td style="text-align:center"><span class="risk-pill ${pillCls(conf)}">${riskLabel(conf)}</span></td><td style="font-size:.75rem;color:var(--text-mid)">${RISK_EXPLAIN.conf[conf>=6?'high':conf>=3?'med':conf>0?'low':'none']}</td></tr>
+          <tr><td>Integridad</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700">${integ}</td><td style="text-align:center"><span class="risk-pill ${pillCls(integ)}">${riskLabel(integ)}</span></td><td style="font-size:.75rem;color:var(--text-mid)">${RISK_EXPLAIN.integ[integ>=6?'high':integ>=3?'med':integ>0?'low':'none']}</td></tr>
+          <tr><td>Disponibilidad</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700">${disp}</td><td style="text-align:center"><span class="risk-pill ${pillCls(disp)}">${riskLabel(disp)}</span></td><td style="font-size:.75rem;color:var(--text-mid)">${RISK_EXPLAIN.disp[disp>=6?'high':disp>=3?'med':disp>0?'low':'none']}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    ${alertRows ? `<div class="report-section">
+      <div class="report-title">Controles que generaron riesgo</div>
+      <table class="report-table">
+        <thead><tr><th>Pregunta</th><th style="text-align:center;width:60px">Resp.</th></tr></thead>
+        <tbody>${alertRows}</tbody>
+      </table>
+    </div>` : ''}
+    <div class="report-section">
+      <div class="report-title">Todas las respuestas</div>
+      <table class="report-table">
+        <thead><tr><th>Pregunta</th><th style="text-align:center;width:110px">Respuesta</th></tr></thead>
+        <tbody>${qRows || '<tr><td colspan="2" style="color:var(--text-dim);text-align:center;padding:16px">Sin respuestas registradas</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn btn-primary" onclick="window.print()">⊞ Imprimir informe</button>
+    </div>`;
+}
+
+// ══ EXPORT JSON ══
+function exportJSON() {
+  const data = {
+    proyecto: {
+      nombre:      document.getElementById('f-nombre').value,
+      descripcion: document.getElementById('f-desc').value,
+      responsable: document.getElementById('f-resp').value,
+      fecha:       document.getElementById('f-fecha').value,
+    },
+    respuestas: QUESTIONS.map((q, i) => ({
+      pregunta:      q.text,
+      categoria:     q.group,
+      respuesta:     answers[i] || null,
+      especificacion:answers[`esp-${i}`] || null,
+    })),
+    riesgos: {
+      confidencialidad: { prob: document.getElementById('conf-prob').value,  imp: document.getElementById('conf-imp').value  },
+      integridad:       { prob: document.getElementById('integ-prob').value, imp: document.getElementById('integ-imp').value },
+      disponibilidad:   { prob: document.getElementById('disp-prob').value,  imp: document.getElementById('disp-imp').value  },
+    },
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `evaluacion-${(document.getElementById('f-nombre').value||'proyecto').replace(/\s+/g,'-').toLowerCase()}-${Date.now()}.json`;
+  a.click();
+}
+
+// ══ RESET FULL FORM ══
+function resetForm() {
+  if (!confirm('¿Limpiar todos los datos del formulario?')) return;
+  ['f-nombre','f-desc','f-resp','f-fecha'].forEach(id => document.getElementById(id).value = '');
+  Object.keys(answers).forEach(k => delete answers[k]);
+  ['conf','integ','disp'].forEach(d => {
+    manualOverride[d].prob = false;
+    manualOverride[d].imp  = false;
+    document.getElementById(`${d}-manual-note`).style.display = 'none';
+  });
+  buildTable();
+  updateStats();
+}
+
+// ══ INIT ══
+buildTable();
+updateStats();
+initCharts();
+</script>
+</body>
+</html>
