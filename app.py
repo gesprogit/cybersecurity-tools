@@ -81,23 +81,53 @@ HERRAMIENTAS = {
         "desc": "Borrado de metadatos en documentos",
         "archivo": "metalimpio.html",
     },
-    "passpolicy": {
-        "nombre": "PassPolicy ENS",
-        "norma": "CCN-STIC-807 · CCN-STIC-140",
-        "desc": "Verificación y generación de contraseñas",
-        "archivo": "passpolicy.html",
-    },
     "anonimizador": {
         "nombre": "AnonimizadorPD",
         "norma": "PDPC/AEPD · RGPD Art. 4(1)",
         "desc": "Anonimización de datos personales",
         "archivo": "anonimizador.html",
     },
+    "passpolicy": {
+        "nombre": "PassPolicy ENS",
+        "norma": "CCN-STIC-807 · CCN-STIC-140",
+        "desc": "Verificación y generación de contraseñas",
+        "archivo": "passpolicy.html",
+    },
     "tls_checker": {
         "nombre": "TLS Privacy Checker",
         "norma": "RGPD · LOPD-GDD",
         "desc": "Verificador de cifrado TLS/SSL",
         "archivo": "tls_checker.html",
+    },
+    "ciberlog": {
+        "nombre": "CiberLog ENS",
+        "norma": "CCN-STIC-817 · ENS art. 24",
+        "desc": "Registro, evaluación y notificación de ciberincidentes",
+        "archivo": "ciberlog.html",
+    },
+    "cambiolog": {
+        "nombre": "CambioLog ENS",
+        "norma": "ENS op.exp.5 · RD 311/2022",
+        "desc": "Gestión del cambio con trazabilidad y autorización RSEG",
+        "archivo": "cambiolog.html",
+    },
+    "biacalc": {
+        "nombre": "BIACalc",
+        "norma": "Continuidad de servicio · BIA",
+        "desc": "Análisis de impacto, RTO/RPO y planes de continuidad",
+        "archivo": "biacalc.html",
+    },
+    "securedev": {
+        "nombre": "SecureDev Analyzer",
+        "norma": "CCN-CERT BP/28 · OWASP 2025",
+        "desc": "Análisis estático de código seguro",
+        "archivo": "securedev.html",
+    },
+    "checklist_bastionado": {
+        "nombre": "Checklist de Bastionado",
+        "norma": "ENS · CCN-STIC",
+        "desc": "Checklist auditable de bastionado con IA",
+        "archivo": "checklist_bastionado.html",
     },
 }
 
