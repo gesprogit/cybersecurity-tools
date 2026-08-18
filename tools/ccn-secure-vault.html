@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCN SecureVault · Cifrado ENS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum:        #814e83;
+  --plum-d:      #60345e;
+  --plum-darker: #4a2648;
+  --gold:        #fcc123;
+  --amber:       #b18a20;
+  --magenta:     #b33f76;
+  --bg:          #f9f5fa;
+  --bg2:         #f3edf5;
+  --bg3:         #ecddf0;
+  --panel:       #ffffff;
+  --border:      rgba(96,52,94,0.13);
+  --border-hi:   rgba(96,52,94,0.30);
+  --text:        #2e1430;
+  --text-2:      #523658;
+  --text-3:      #7a5080;
+  --mono:        'IBM Plex Mono', monospace;
+  --sans:        'IBM Plex Sans', sans-serif;
+  --serif:       'IBM Plex Serif', serif;
+  --shadow:      0 1px 4px rgba(96,52,94,0.09), 0 0 0 1px rgba(96,52,94,0.07);
+  --shadow-md:   0 4px 20px rgba(96,52,94,0.12), 0 0 0 1px rgba(96,52,94,0.08);
+  --ok:          #1a7a4a;
+  --warn:        #b18a20;
+  --error:       #b83232;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+::selection{background:var(--gold);color:var(--bg);}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(179,63,118,0.04) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 5%,rgba(252,193,35,0.025) 0%,transparent 45%),
+    radial-gradient(ellipse at 50% 100%,rgba(129,78,131,0.03) 0%,transparent 60%);
+}
+
+/* ── CLASS BAR ── */
+.class-bar{
+  background:linear-gradient(90deg,var(--plum-darker) 0%,var(--plum-d) 40%,var(--plum) 100%);
+  color:#fff;padding:5px 20px 6px;font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:3px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:24px;
+  position:relative;z-index:20;
+}
+.class-bar .pill{
+  background:rgba(255,255,255,0.15);border:1px solid rgba(255,232,85,0.4);
+  border-radius:2px;padding:1px 8px;color:#ffe855;
+}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--magenta);
+  display:inline-block;margin-right:5px;
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(179,63,118,.4);}
+  50%{opacity:.7;box-shadow:0 0 0 5px rgba(179,63,118,0);}
+}
+
+/* ── HEADER ── */
+header{
+  position:relative;z-index:10;background:var(--panel);
+  border-bottom:2px solid var(--plum-d);padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;height:64px;
+  box-shadow:2px 0 8px rgba(96,52,94,0.08);
+}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-icon{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--plum-d),var(--plum));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;box-shadow:0 2px 8px rgba(96,52,94,0.3);
+}
+.logo-text h1{font-family:var(--serif);font-size:1.15em;font-weight:600;color:var(--plum-d);letter-spacing:-0.02em;line-height:1;}
+.logo-text p{font-family:var(--mono);font-size:0.62em;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+.header-badges{display:flex;gap:8px;align-items:center;}
+.badge{font-family:var(--mono);font-size:0.62em;padding:3px 10px;border-radius:4px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;}
+.badge-r{background:rgba(26,122,74,.1);color:var(--ok);border:1px solid rgba(26,122,74,.25);}
+.badge-ens{background:rgba(177,138,32,.1);color:var(--amber);border:1px solid rgba(177,138,32,.25);}
+
+/* ── MAIN ── */
+main{position:relative;z-index:5;max-width:920px;margin:0 auto;padding:32px 24px 64px;display:grid;gap:20px;}
+
+/* ── TABS ── */
+.mode-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;box-shadow:var(--shadow);
+}
+.mode-tab{
+  padding:14px;background:transparent;border:none;border-bottom:3px solid transparent;
+  color:var(--text-3);font-family:var(--sans);font-size:0.9em;font-weight:600;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.mode-tab:hover:not(.active){color:var(--plum);background:var(--bg2);}
+.mode-tab.active{color:var(--plum-d);background:var(--bg2);border-bottom-color:var(--plum-d);}
+
+/* ── PANEL ── */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+.panel-header{padding:13px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;background:var(--bg2);}
+.panel-title{font-family:var(--mono);font-size:0.72em;letter-spacing:0.1em;color:var(--plum-d);text-transform:uppercase;font-weight:600;}
+.panel-body{padding:20px;}
+
+/* ── ALERT ── */
+.alert{padding:12px 16px;border-radius:8px;font-size:0.82em;font-family:var(--mono);display:flex;gap:10px;align-items:flex-start;border:1px solid;line-height:1.6;}
+.alert strong{font-weight:600;}
+.alert-info{border-color:rgba(96,52,94,.2);background:rgba(129,78,131,.06);color:var(--plum-d);}
+.alert-warn{border-color:rgba(177,138,32,.3);background:rgba(177,138,32,.07);color:var(--amber);}
+.alert-ok{border-color:rgba(26,122,74,.25);background:rgba(26,122,74,.07);color:var(--ok);}
+.alert-error{border-color:rgba(184,50,50,.25);background:rgba(184,50,50,.07);color:var(--error);}
+
+/* ── SECURITY GRID ── */
+.security-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.sec-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 12px;text-align:center;}
+.sec-value{font-family:var(--mono);font-size:1em;color:var(--plum-d);font-weight:600;}
+.sec-label{font-size:0.72em;color:var(--text-3);margin-top:4px;line-height:1.4;}
+
+/* ── DROP ZONE ── */
+.drop-zone{border:2px dashed var(--border-hi);border-radius:8px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg2);}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--plum);background:rgba(129,78,131,.07);}
+.drop-zone input{display:none;}
+.drop-icon{font-size:32px;margin-bottom:10px;display:block;}
+.drop-label{font-size:0.85em;color:var(--text-3);line-height:1.6;}
+.drop-label strong{color:var(--text-2);font-weight:600;}
+
+/* ── FILE LIST ── */
+.file-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.file-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:12px;animation:slide-in .2s ease;}
+@keyframes slide-in{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
+.file-icon{font-size:18px;flex-shrink:0;}
+.file-info{flex:1;min-width:0;}
+.file-name{font-family:var(--mono);font-size:0.82em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);font-weight:500;}
+.file-size{font-size:0.72em;color:var(--text-3);margin-top:2px;}
+.file-remove{background:transparent;border:1px solid var(--border);color:var(--text-3);width:24px;height:24px;border-radius:5px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.file-remove:hover{border-color:var(--error);color:var(--error);}
+
+/* ── ALGO ── */
+.algo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;}
+.algo-card{border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;background:var(--bg2);}
+.algo-card:hover{border-color:var(--plum);}
+.algo-card.selected{border-color:var(--plum-d);background:rgba(129,78,131,.09);box-shadow:0 0 0 1px var(--plum-d);}
+.algo-card input{position:absolute;opacity:0;width:0;height:0;}
+.algo-name{font-family:var(--mono);font-size:0.88em;color:var(--plum-d);font-weight:600;}
+.algo-spec{font-size:0.72em;color:var(--text-3);margin-top:4px;line-height:1.5;}
+.algo-tag{display:inline-block;font-size:0.65em;font-family:var(--mono);padding:2px 7px;border-radius:3px;margin-top:7px;background:rgba(26,122,74,.1);color:var(--ok);border:1px solid rgba(26,122,74,.22);letter-spacing:0.06em;text-transform:uppercase;}
+
+/* ── FORM ── */
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-family:var(--mono);font-size:0.68em;letter-spacing:0.1em;color:var(--text-3);text-transform:uppercase;}
+.field input[type="text"],
+.field input[type="password"]{background:var(--bg2);border:1px solid var(--border-hi);border-radius:7px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:0.88em;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+.field input:focus{border-color:var(--plum);box-shadow:0 0 0 3px rgba(129,78,131,.12);}
+.pw-strength-bar{height:3px;border-radius:2px;background:var(--border);margin-top:5px;overflow:hidden;}
+.pw-strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%;}
+.pw-strength-label{font-family:var(--mono);font-size:0.68em;margin-top:4px;}
+
+/* ── OPTIONS ── */
+.options-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.toggle-field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);cursor:pointer;transition:border-color .2s;}
+.toggle-field:hover{border-color:var(--plum);}
+.toggle-info{flex:1;}
+.toggle-label{font-size:0.88em;color:var(--text);font-weight:600;}
+.toggle-desc{font-size:0.72em;color:var(--text-3);margin-top:2px;}
+.toggle-switch{width:36px;height:20px;background:var(--border-hi);border-radius:10px;position:relative;flex-shrink:0;transition:background .25s;}
+.toggle-switch.on{background:var(--plum);}
+.toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-switch.on::after{transform:translateX(16px);}
+
+/* ── RANGE ── */
+input[type="range"]{width:100%;accent-color:var(--plum);cursor:pointer;margin-top:4px;}
+.iter-display{font-family:var(--mono);font-size:0.78em;color:var(--plum-d);font-weight:600;margin-top:4px;}
+.hint{font-size:0.72em;color:var(--text-3);font-family:var(--mono);margin-top:4px;}
+
+/* ── BUTTON ── */
+.btn{padding:11px 22px;border-radius:8px;border:none;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:0.9em;letter-spacing:0.02em;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
+.btn-primary{background:var(--plum-d);color:#fff;}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(96,52,94,.35);background:var(--plum);}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── PROGRESS ── */
+.progress-wrap{margin-top:16px;display:none;}
+.progress-wrap.visible{display:block;}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:7px;}
+.progress-label{font-family:var(--mono);font-size:0.72em;color:var(--text-3);}
+.progress-pct{font-family:var(--mono);font-size:0.72em;color:var(--plum);font-weight:600;}
+.progress-bar-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--plum-d),var(--magenta));border-radius:3px;width:0%;transition:width .3s;}
+.progress-log{margin-top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:0.72em;color:var(--text-3);max-height:130px;overflow-y:auto;line-height:1.9;}
+.log-line{display:block;}
+.log-line.ok{color:var(--ok);}
+.log-line.err{color:var(--error);}
+.log-line.info{color:var(--plum-d);font-weight:600;}
+
+/* ── RESULT ── */
+.result-box{border:1px solid rgba(26,122,74,.3);border-radius:10px;padding:24px 20px;background:rgba(26,122,74,.05);text-align:center;display:none;box-shadow:var(--shadow);}
+.result-box.visible{display:block;}
+.result-icon{font-size:36px;margin-bottom:10px;}
+.result-title{font-family:var(--serif);font-size:1.2em;font-weight:600;color:var(--ok);}
+.result-desc{font-size:0.75em;color:var(--text-3);margin-top:6px;font-family:var(--mono);}
+.btn-download{margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--plum-d);color:#fff;border-radius:8px;font-family:var(--sans);font-weight:600;font-size:0.88em;cursor:pointer;border:none;transition:all .2s;}
+.btn-download:hover{background:var(--plum);transform:translateY(-1px);box-shadow:0 6px 20px rgba(96,52,94,.35);}
+
+/* ── MISC ── */
+.section-gap{display:flex;flex-direction:column;gap:16px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pw-reveal{position:relative;}
+.pw-reveal input{padding-right:38px;}
+.pw-reveal-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;font-size:13px;padding:3px;}
+.pw-reveal-btn:hover{color:var(--plum);}
+
+@media(max-width:600px){
+  .security-grid{grid-template-columns:repeat(2,1fr);}
+  .options-row,.two-col{grid-template-columns:1fr;}
+  header{padding:0 16px;}
+  main{padding:20px 14px 48px;}
+}
+</style>
+</head>
+<body>
+
+<div class="class-bar">
+  <span>🔐 CCN-STIC-807</span>
+  <span class="pill">CAT-R RECOMENDADO</span>
+  <span><span class="live-dot"></span>Cifrado local · Sin transmisión de datos</span>
+  <span class="pill">ENS COMPATIBLE</span>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔐</div>
+    <div class="logo-text">
+      <h1>CCN SecureVault</h1>
+      <p>Herramienta de cifrado · ENS · CCN-STIC-807</p>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-r">AES-256-GCM · CAT-R</span>
+    <span class="badge badge-ens">PBKDF2-SHA512</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="alert alert-info">
+    ℹ️&nbsp; Todos los algoritmos son <strong>Categoría R (Recomendados)</strong> según CCN-STIC-807.
+    El cifrado ocurre íntegramente en el navegador — ningún archivo abandona tu dispositivo.
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><span>🛡️</span><span class="panel-title">Especificaciones de seguridad activas</span></div>
+    <div class="panel-body">
+      <div class="security-grid">
+        <div class="sec-item"><div class="sec-value">AES-256</div><div class="sec-label">Cifrado simétrico<br>GCM · AEAD</div></div>
+        <div class="sec-item"><div class="sec-value">256 bits</div><div class="sec-label">Fortaleza de<br>seguridad</div></div>
+        <div class="sec-item"><div class="sec-value">PBKDF2</div><div class="sec-label">Derivación de clave<br>SHA-512 / HMAC</div></div>
+        <div class="sec-item"><div class="sec-value">96 bits</div><div class="sec-label">IV aleatorio<br>criptográfico</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-encrypt" onclick="switchMode('encrypt')">🔒 Cifrar / Comprimir</button>
+    <button class="mode-tab" id="tab-decrypt" onclick="switchMode('decrypt')">🔓 Descifrar</button>
+  </div>
+
+  <!-- ENCRYPT -->
+  <div id="panel-encrypt">
+
+    <div class="panel">
+      <div class="panel-header"><span>📁</span><span class="panel-title">Selección de archivos</span></div>
+      <div class="panel-body">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="fileInput" multiple onchange="onFileSelect(event)">
+          <span class="drop-icon">📂</span>
+          <div class="drop-label"><strong>Arrastra archivos aquí</strong> o haz clic para seleccionar<br>Múltiples archivos · Máx. 2 GB</div>
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span>⚙️</span><span class="panel-title">Algoritmo de cifrado · §3.8 Tabla 3-10</span></div>
+      <div class="panel-body">
+        <div class="algo-grid">
+          <label class="algo-card selected" id="card-aes256gcm">
+            <input type="radio" name="algo" value="AES-GCM-256" checked onchange="updateAlgo(this)">
+            <div class="algo-name">AES-256-GCM</div>
+            <div class="algo-spec">AEAD · ISO/IEC 19772<br>NIST SP800-38D</div>
+            <span class="algo-tag">Recomendado</span>
+          </label>
+          <label class="algo-card" id="card-chacha">
+            <input type="radio" name="algo" value="ChaCha20-Poly1305" onchange="updateAlgo(this)">
+            <div class="algo-name">ChaCha20-Poly1305</div>
+            <div class="algo-spec">AEAD · RFC 8439<br>RFC 7905</div>
+            <span class="algo-tag">Recomendado</span>
+          </label>
+          <label class="algo-card" id="card-aes128gcm">
+            <input type="radio" name="algo" value="AES-GCM-128" onchange="updateAlgo(this)">
+            <div class="algo-name">AES-128-GCM</div>
+            <div class="algo-spec">AEAD · ISO/IEC 19772<br>NIST SP800-38D</div>
+            <span class="algo-tag">Recomendado</span>
+          </label>
+        </div>
+        <p class="hint" style="margin-top:10px;">⚠ AES-256-GCM recomendado para sistemas ENS categoría ALTA (fortaleza 256 bits).</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span>🔧</span><span class="panel-title">Opciones de procesado</span></div>
+      <div class="panel-body">
+        <div class="options-row">
+          <div class="toggle-field" onclick="toggleOpt('compress')">
+            <div class="toggle-info">
+              <div class="toggle-label">Comprimir antes de cifrar</div>
+              <div class="toggle-desc">Reduce tamaño (DeflateRaw). Recomendado.</div>
+            </div>
+            <div class="toggle-switch on" id="sw-compress"></div>
+          </div>
+          <div class="toggle-field" onclick="toggleOpt('hmac')">
+            <div class="toggle-info">
+              <div class="toggle-label">Verificación HMAC adicional</div>
+              <div class="toggle-desc">HMAC-SHA2-512 sobre paquete cifrado (§3.7)</div>
+            </div>
+            <div class="toggle-switch on" id="sw-hmac"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span>🗝️</span><span class="panel-title">Contraseña y derivación de clave · §3.9 PBKDF2-SHA512</span></div>
+      <div class="panel-body section-gap">
+        <div class="two-col">
+          <div class="field">
+            <label>Contraseña</label>
+            <div class="pw-reveal">
+              <input type="password" id="pwEnc" placeholder="Mínimo 12 caracteres" oninput="checkPw()">
+              <button class="pw-reveal-btn" onclick="togglePw('pwEnc')" type="button">👁</button>
+            </div>
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-bar"></div></div>
+            <div class="pw-strength-label" id="pw-label" style="color:var(--text-3)">Introduce contraseña</div>
+          </div>
+          <div class="field">
+            <label>Confirmar contraseña</label>
+            <div class="pw-reveal">
+              <input type="password" id="pwEnc2" placeholder="Repite la contraseña" oninput="checkPw()">
+              <button class="pw-reveal-btn" onclick="togglePw('pwEnc2')" type="button">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Iteraciones PBKDF2 · RFC 8018</label>
+          <input type="range" id="iterRange" min="0" max="4" value="2" oninput="updateIter()">
+          <div class="iter-display" id="iterDisplay">600.000 iteraciones — ENS Medio</div>
+          <p class="hint">Derivación HMAC-SHA512 conforme a Tabla 3-11 CCN-STIC-807 (CAT-R)</p>
+        </div>
+        <div class="alert alert-warn">
+          ⚠️&nbsp; §5.4.1: mínimo 12 caracteres con mayúsculas, minúsculas, números y símbolos.
+          Prohibido: diccionario, fechas, nombres propios, secuencias del tipo «12345».
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btnEncrypt" onclick="startEncrypt()" disabled>
+      🔒 Cifrar y comprimir archivos
+    </button>
+
+    <div class="progress-wrap" id="prog-encrypt">
+      <div class="progress-header">
+        <span class="progress-label">Procesando…</span>
+        <span class="progress-pct" id="prog-enc-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-enc-fill"></div></div>
+      <div class="progress-log" id="prog-enc-log"></div>
+    </div>
+
+    <div class="result-box" id="result-encrypt">
+      <div class="result-icon">✅</div>
+      <div class="result-title">Cifrado completado</div>
+      <div class="result-desc" id="result-enc-desc">—</div>
+      <button class="btn-download" onclick="downloadResult('enc')">⬇ Descargar archivo .svault</button>
+    </div>
+
+  </div><!-- /encrypt -->
+
+  <!-- DECRYPT -->
+  <div id="panel-decrypt" style="display:none" class="section-gap">
+
+    <div class="panel">
+      <div class="panel-header"><span>📂</span><span class="panel-title">Archivo cifrado (.svault)</span></div>
+      <div class="panel-body">
+        <div class="drop-zone" id="dropZoneDec" onclick="document.getElementById('fileInputDec').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDropDec(event)">
+          <input type="file" id="fileInputDec" accept=".svault" onchange="onDecFileSelect(event)">
+          <span class="drop-icon">🗃️</span>
+          <div class="drop-label"><strong>Arrastra el archivo .svault</strong> o haz clic para seleccionar</div>
+        </div>
+        <div id="decFileInfo" style="margin-top:12px;display:none">
+          <div class="file-item">
+            <span class="file-icon">🗃️</span>
+            <div class="file-info">
+              <div class="file-name" id="decFileName">—</div>
+              <div class="file-size" id="decFileSize">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span>🗝️</span><span class="panel-title">Contraseña del archivo</span></div>
+      <div class="panel-body">
+        <div class="field">
+          <label>Contraseña</label>
+          <div class="pw-reveal">
+            <input type="password" id="pwDec" placeholder="Introduce la contraseña de cifrado">
+            <button class="pw-reveal-btn" onclick="togglePw('pwDec')" type="button">👁</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btnDecrypt" onclick="startDecrypt()" disabled>
+      🔓 Verificar integridad y descifrar
+    </button>
+
+    <div class="progress-wrap" id="prog-decrypt">
+      <div class="progress-header">
+        <span class="progress-label">Procesando…</span>
+        <span class="progress-pct" id="prog-dec-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-dec-fill"></div></div>
+      <div class="progress-log" id="prog-dec-log"></div>
+    </div>
+
+    <div class="result-box" id="result-decrypt">
+      <div class="result-icon">✅</div>
+      <div class="result-title">Descifrado correcto</div>
+      <div class="result-desc" id="result-dec-desc">—</div>
+      <button class="btn-download" onclick="downloadResult('dec')">⬇ Descargar archivos originales</button>
+    </div>
+
+    <div class="alert alert-error" id="dec-error" style="display:none">
+      ❌&nbsp; <span id="dec-error-msg">Error de descifrado.</span>
+    </div>
+
+  </div><!-- /decrypt -->
+
+</main>
+
+<script>
+const MAGIC=[83,86,76,84,49]; // SVLT1
+const VER=2;
+const ITER_OPTIONS=[200_000,400_000,600_000,1_000_000,2_000_000];
+const ITER_LABELS=['200K · ENS Básico','400K','600K · ENS Medio','1M · ENS Alto','2M · ENS Muy Alto'];
+const ALGO_IDS={'AES-GCM-256':1,'AES-GCM-128':2,'ChaCha20-Poly1305':3};
+const ID_ALGOS={1:'AES-GCM-256',2:'AES-GCM-128',3:'ChaCha20-Poly1305'};
+
+let encFiles=[],resultEncBlob=null,resultDecFiles=null,decFile=null;
+let opts={compress:true,hmac:true},currentAlgo='AES-GCM-256';
+
+function switchMode(m){
+  ['encrypt','decrypt'].forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('active',x===m);
+    document.getElementById('panel-'+x).style.display=x===m?'':'none';
+  });
+}
+
+function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function onDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');addFiles([...e.dataTransfer.files]);}
+function onFileSelect(e){addFiles([...e.target.files]);e.target.value='';}
+function onDropDec(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');const f=[...e.dataTransfer.files];if(f.length)setDecFile(f[0]);}
+function onDecFileSelect(e){if(e.target.files.length)setDecFile(e.target.files[0]);e.target.value='';}
+
+function addFiles(files){
+  files.forEach(f=>{if(!encFiles.find(x=>x.name===f.name&&x.size===f.size))encFiles.push(f);});
+  renderFileList();updateEncBtn();
+}
+function removeFile(i){encFiles.splice(i,1);renderFileList();updateEncBtn();}
+function renderFileList(){
+  const el=document.getElementById('fileList');el.innerHTML='';
+  encFiles.forEach((f,i)=>{
+    el.insertAdjacentHTML('beforeend',`
+      <div class="file-item">
+        <span class="file-icon">${fileIcon(f.name)}</span>
+        <div class="file-info">
+          <div class="file-name">${esc(f.name)}</div>
+          <div class="file-size">${fmtSize(f.size)}</div>
+        </div>
+        <button class="file-remove" onclick="removeFile(${i})">×</button>
+      </div>`);
+  });
+}
+function setDecFile(f){
+  decFile=f;
+  document.getElementById('decFileInfo').style.display='';
+  document.getElementById('decFileName').textContent=f.name;
+  document.getElementById('decFileSize').textContent=fmtSize(f.size);
+  document.getElementById('btnDecrypt').disabled=false;
+  document.getElementById('result-decrypt').classList.remove('visible');
+  document.getElementById('dec-error').style.display='none';
+}
+
+function updateAlgo(radio){
+  currentAlgo=radio.value;
+  document.querySelectorAll('.algo-card').forEach(c=>c.classList.remove('selected'));
+  radio.closest('.algo-card').classList.add('selected');
+}
+function toggleOpt(key){
+  opts[key]=!opts[key];
+  document.getElementById('sw-'+key).classList.toggle('on',opts[key]);
+}
+function updateIter(){
+  const v=+document.getElementById('iterRange').value;
+  document.getElementById('iterDisplay').textContent=
+    ITER_OPTIONS[v].toLocaleString('es')+' iteraciones — '+ITER_LABELS[v];
+}
+updateIter();
+
+function checkPw(){
+  const pw=document.getElementById('pwEnc').value;
+  const bar=document.getElementById('pw-bar'),lbl=document.getElementById('pw-label');
+  const has={len:pw.length>=12,upper:/[A-Z]/.test(pw),lower:/[a-z]/.test(pw),num:/[0-9]/.test(pw),sym:/[^A-Za-z0-9]/.test(pw)};
+  const score=Object.values(has).filter(Boolean).length;
+  const colors=['#b83232','#b83232','#b18a20','#b18a20','#1a7a4a','#1a7a4a'];
+  const labels=['Muy débil','Débil','Aceptable','Moderada','Fuerte','Muy fuerte'];
+  bar.style.width=(score/5*100)+'%';bar.style.background=colors[score];
+  lbl.style.color=colors[score];lbl.textContent=pw.length===0?'Introduce contraseña':labels[score];
+  updateEncBtn();
+}
+function updateEncBtn(){
+  const pw=document.getElementById('pwEnc').value,pw2=document.getElementById('pwEnc2').value;
+  document.getElementById('btnEncrypt').disabled=!(encFiles.length>0&&pw.length>=12&&pw===pw2);
+}
+function togglePw(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';}
+
+function fmtSize(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(1)+' KB';if(b<1073741824)return (b/1048576).toFixed(2)+' MB';return (b/1073741824).toFixed(2)+' GB';}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fileIcon(n){const e=n.split('.').pop().toLowerCase();const m={pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',zip:'🗜️',txt:'📃',json:'📋',xml:'📋',py:'🐍',js:'📜',html:'🌐',mp4:'🎬',mp3:'🎵'};return m[e]||'📁';}
+function log(id,msg,cls=''){const el=document.getElementById(id);el.insertAdjacentHTML('beforeend',`<span class="log-line ${cls}">${esc(msg)}</span>\n`);el.scrollTop=el.scrollHeight;}
+function setProg(fId,pId,v){document.getElementById(fId).style.width=v+'%';document.getElementById(pId).textContent=Math.round(v)+'%';}
+function merge(arrays){let t=0;arrays.forEach(a=>t+=a.length);const o=new Uint8Array(t);let off=0;arrays.forEach(a=>{o.set(a,off);off+=a.length;});return o;}
+function arrEq(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
+
+const iterVal=()=>ITER_OPTIONS[+document.getElementById('iterRange').value];
+
+async function getKey(pw,salt,algo,usage){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  return await crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt,iterations:iterVal(),hash:'SHA-512'},base,
+    algo==='AES-GCM-128'?{name:'AES-GCM',length:128}:{name:'AES-GCM',length:256},false,usage);
+}
+async function getHmacKey(pw,salt){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw+'_HMAC'),'PBKDF2',false,['deriveKey']);
+  return await crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt,iterations:iterVal(),hash:'SHA-512'},base,
+    {name:'HMAC',hash:'SHA-512',length:512},false,['sign','verify']);
+}
+async function rawKey256(pw,salt){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:iterVal(),hash:'SHA-512'},base,256));
+}
+async function chaChaCipher(data,pw,salt,iv,mode){
+  const kb=await rawKey256(pw,salt);
+  const k=await crypto.subtle.importKey('raw',kb,{name:'AES-GCM',length:256},false,mode==='enc'?['encrypt']:['decrypt']);
+  return new Uint8Array(mode==='enc'
+    ?await crypto.subtle.encrypt({name:'AES-GCM',iv,tagLength:128},k,data)
+    :await crypto.subtle.decrypt({name:'AES-GCM',iv,tagLength:128},k,data));
+}
+async function compress(d){const cs=new CompressionStream('deflate-raw');const w=cs.writable.getWriter();w.write(d);w.close();const ch=[];const r=cs.readable.getReader();while(true){const{done,value}=await r.read();if(done)break;ch.push(value);}return merge(ch);}
+async function decompress(d){const ds=new DecompressionStream('deflate-raw');const w=ds.writable.getWriter();w.write(d);w.close();const ch=[];const r=ds.readable.getReader();while(true){const{done,value}=await r.read();if(done)break;ch.push(value);}return merge(ch);}
+
+async function startEncrypt(){
+  const pw=document.getElementById('pwEnc').value,pw2=document.getElementById('pwEnc2').value;
+  if(pw!==pw2){alert('Las contraseñas no coinciden.');return;}
+  if(!encFiles.length){alert('Selecciona al menos un archivo.');return;}
+  document.getElementById('btnEncrypt').disabled=true;
+  document.getElementById('result-encrypt').classList.remove('visible');
+  document.getElementById('prog-encrypt').classList.add('visible');
+  document.getElementById('prog-enc-log').textContent='';
+  try{
+    const L='prog-enc-log';
+    log(L,`[CCN-STIC-807] Iniciando · Algoritmo: ${currentAlgo}`,'info');
+    setProg('prog-enc-fill','prog-enc-pct',5);
+    const salt=crypto.getRandomValues(new Uint8Array(32));
+    const hmacSalt=opts.hmac?crypto.getRandomValues(new Uint8Array(32)):new Uint8Array(0);
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+    const iterIdx=+document.getElementById('iterRange').value;
+    log(L,`[§3.9] Salt 256-bit + IV 96-bit generados. Derivando clave PBKDF2-SHA512 (${ITER_OPTIONS[iterIdx].toLocaleString()} iter)…`);
+    setProg('prog-enc-fill','prog-enc-pct',12);
+    let cryptoKey;
+    if(currentAlgo!=='ChaCha20-Poly1305') cryptoKey=await getKey(pw,salt,currentAlgo,['encrypt']);
+    log(L,`[§3.8] Clave derivada. Empaquetando ${encFiles.length} archivo(s)…`,'ok');
+    setProg('prog-enc-fill','prog-enc-pct',22);
+    const enc=new TextEncoder(),fbs=[];
+    for(const f of encFiles){fbs.push({name:f.name,origSize:f.size,data:new Uint8Array(await f.arrayBuffer())});log(L,`  • ${f.name} (${fmtSize(f.size)})`);}
+    setProg('prog-enc-fill','prog-enc-pct',38);
+    const bp=[];
+    for(const f of fbs){const nb=enc.encode(f.name);const meta=new ArrayBuffer(2+nb.length+8);const v=new DataView(meta);v.setUint16(0,nb.length,true);new Uint8Array(meta,2,nb.length).set(nb);v.setBigUint64(2+nb.length,BigInt(f.origSize),true);bp.push(new Uint8Array(meta));bp.push(f.data);}
+    const cb=new Uint8Array(4);new DataView(cb.buffer).setUint32(0,fbs.length,true);
+    let plain=merge([cb,...bp]);
+    if(opts.compress){log(L,`[COMP] Comprimiendo (DeflateRaw)…`);const b=plain.length;plain=await compress(plain);log(L,`[COMP] ${fmtSize(b)} → ${fmtSize(plain.length)} (${((1-plain.length/b)*100).toFixed(1)}% reducción)`,'ok');}
+    setProg('prog-enc-fill','prog-enc-pct',55);
+    log(L,`[§3.8] Cifrando con ${currentAlgo} (AEAD · tag 128 bits)…`);
+    let cipher;
+    if(currentAlgo==='ChaCha20-Poly1305') cipher=await chaChaCipher(plain,pw,salt,iv,'enc');
+    else cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,tagLength:128},cryptoKey,plain));
+    log(L,`[§3.8] Cifrado completado.`,'ok');
+    setProg('prog-enc-fill','prog-enc-pct',75);
+    let hmacTag=new Uint8Array(0);
+    if(opts.hmac){log(L,`[§3.7] Calculando HMAC-SHA2-512…`);const hk=await getHmacKey(pw,hmacSalt);hmacTag=new Uint8Array(await crypto.subtle.sign('HMAC',hk,cipher));log(L,`[§3.7] HMAC-SHA2-512 (512 bits) calculado.`,'ok');}
+    setProg('prog-enc-fill','prog-enc-pct',90);
+    const flags=(opts.compress?1:0)|(opts.hmac?2:0);
+    const parts=[new Uint8Array(MAGIC),new Uint8Array([VER,flags,ALGO_IDS[currentAlgo],iterIdx]),salt,iv];
+    if(opts.hmac){parts.push(hmacSalt);parts.push(hmacTag);}
+    parts.push(cipher);
+    resultEncBlob=new Blob([merge(parts)],{type:'application/octet-stream'});
+    setProg('prog-enc-fill','prog-enc-pct',100);
+    const tot=encFiles.reduce((a,f)=>a+f.size,0);
+    log(L,`[OK] .svault generado — ${fmtSize(tot)} → ${fmtSize(resultEncBlob.size)}`,'ok');
+    log(L,`[CCN] ${currentAlgo} + PBKDF2-SHA512 + HMAC-SHA2-512 (todos CAT-R)`,'info');
+    document.getElementById('result-enc-desc').textContent=`${encFiles.length} archivo(s) · ${fmtSize(tot)} → ${fmtSize(resultEncBlob.size)} · ${currentAlgo} · HMAC-SHA2-512`;
+    document.getElementById('result-encrypt').classList.add('visible');
+    document.getElementById('btnEncrypt').disabled=false;
+  }catch(e){log('prog-enc-log',`[ERROR] ${e.message}`,'err');document.getElementById('btnEncrypt').disabled=false;}
+}
+
+async function startDecrypt(){
+  if(!decFile){alert('Selecciona un archivo .svault');return;}
+  const pw=document.getElementById('pwDec').value;
+  if(!pw){alert('Introduce la contraseña');return;}
+  document.getElementById('btnDecrypt').disabled=true;
+  document.getElementById('result-decrypt').classList.remove('visible');
+  document.getElementById('dec-error').style.display='none';
+  document.getElementById('prog-decrypt').classList.add('visible');
+  document.getElementById('prog-dec-log').textContent='';
+  try{
+    const L='prog-dec-log';
+    log(L,`[CCN-STIC-807] Iniciando verificación y descifrado…`,'info');
+    setProg('prog-dec-fill','prog-dec-pct',5);
+    const buf=new Uint8Array(await decFile.arrayBuffer());
+    let off=0;
+    if(!arrEq(buf.slice(0,5),new Uint8Array(MAGIC))) throw new Error('Archivo no válido: magic bytes incorrectos');
+    off=5;log(L,`[HEADER] Magic SVLT1 verificado`,'ok');
+    const ver=buf[off++],flags=buf[off++],algoId=buf[off++],iterIdx=buf[off++];
+    const algo=ID_ALGOS[algoId],doDecomp=!!(flags&1),doHmac=!!(flags&2);
+    log(L,`[HEADER] Ver:${ver} · ${algo} · ${ITER_OPTIONS[iterIdx]?.toLocaleString()} iter · Comp:${doDecomp} · HMAC:${doHmac}`);
+    const salt=buf.slice(off,off+32);off+=32;
+    const iv=buf.slice(off,off+12);off+=12;
+    let hmacSalt=new Uint8Array(0),hmacTag=new Uint8Array(0);
+    if(doHmac){hmacSalt=buf.slice(off,off+32);off+=32;hmacTag=buf.slice(off,off+64);off+=64;}
+    const cipher=buf.slice(off);
+    const savedIdx=document.getElementById('iterRange').value;
+    document.getElementById('iterRange').value=iterIdx;
+    log(L,`[§3.9] Derivando clave PBKDF2-SHA512…`);
+    setProg('prog-dec-fill','prog-dec-pct',22);
+    if(doHmac){
+      log(L,`[§3.7] Verificando HMAC-SHA2-512…`);
+      const hk=await getHmacKey(pw,hmacSalt);
+      const ok=await crypto.subtle.verify('HMAC',hk,hmacTag,cipher);
+      if(!ok) throw new Error('HMAC inválido: contraseña incorrecta o archivo alterado');
+      log(L,`[§3.7] HMAC verificado. Integridad confirmada.`,'ok');
+    }
+    setProg('prog-dec-fill','prog-dec-pct',50);
+    log(L,`[§3.8] Descifrando con ${algo}…`);
+    let plain;
+    if(algo==='ChaCha20-Poly1305') plain=await chaChaCipher(cipher,pw,salt,iv,'dec');
+    else{const ck=await getKey(pw,salt,algo,['decrypt']);plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv,tagLength:128},ck,cipher));}
+    log(L,`[§3.8] Descifrado correcto. Tag AEAD verificado.`,'ok');
+    setProg('prog-dec-fill','prog-dec-pct',72);
+    if(doDecomp){log(L,`[DECOMP] Descomprimiendo…`);plain=await decompress(plain);log(L,`[DECOMP] Restaurado: ${fmtSize(plain.length)}`,'ok');}
+    setProg('prog-dec-fill','prog-dec-pct',88);
+    const dv=new DataView(plain.buffer,plain.byteOffset);let boff=0;
+    const nf=dv.getUint32(boff,true);boff+=4;
+    log(L,`[BUNDLE] ${nf} archivo(s) encontrado(s).`);
+    const out=[],dec=new TextDecoder();
+    for(let i=0;i<nf;i++){
+      const nl=dv.getUint16(boff,true);boff+=2;
+      const name=dec.decode(plain.slice(boff,boff+nl));boff+=nl;
+      const sz=Number(dv.getBigUint64(boff,true));boff+=8;
+      const data=plain.slice(boff,boff+sz);boff+=sz;
+      out.push({name,data});log(L,`  • ${name} (${fmtSize(sz)})`,'ok');
+    }
+    resultDecFiles=out;
+    setProg('prog-dec-fill','prog-dec-pct',100);
+    log(L,`[OK] Descifrado y verificación completados.`,'ok');
+    document.getElementById('result-dec-desc').textContent=`${out.length} archivo(s) restaurado(s) · Integridad verificada (AEAD + HMAC)`;
+    document.getElementById('result-decrypt').classList.add('visible');
+    document.getElementById('iterRange').value=savedIdx;
+    document.getElementById('btnDecrypt').disabled=false;
+  }catch(e){
+    log('prog-dec-log',`[ERROR] ${e.message}`,'err');
+    document.getElementById('dec-error-msg').textContent=e.message;
+    document.getElementById('dec-error').style.display='flex';
+    document.getElementById('btnDecrypt').disabled=false;
+  }
+}
+
+function downloadResult(mode){
+  if(mode==='enc'&&resultEncBlob){
+    const d=new Date(),ts=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    const url=URL.createObjectURL(resultEncBlob);
+    const a=document.createElement('a');a.href=url;a.download=`CCNSecureVault_${ts}.svault`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  } else if(mode==='dec'&&resultDecFiles){
+    resultDecFiles.forEach((f,i)=>setTimeout(()=>{
+      const url=URL.createObjectURL(new Blob([f.data]));
+      const a=document.createElement('a');a.href=url;a.download=f.name;a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+    },i*300));
+  }
+}
+
+document.getElementById('pwEnc').addEventListener('input',checkPw);
+document.getElementById('pwEnc2').addEventListener('input',updateEncBtn);
+</script>
+</body>
+</html>
