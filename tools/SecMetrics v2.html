@@ -1,0 +1,2877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecMetrics — Métricas de Seguridad</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #0d0f14;
+  --ink-2:     #1e2230;
+  --ink-3:     #3d4461;
+  --ink-4:     #6b7494;
+  --rule:      #dadee8;
+  --rule-2:    #edf0f7;
+  --paper:     #f5f6fa;
+  --white:     #ffffff;
+
+  --blue-dk:   #0a1f5c;
+  --blue-md:   #1742b8;
+  --blue:      #2557e8;
+  --blue-lt:   #6b9aff;
+  --blue-bg:   #eaf0ff;
+
+  --amber-dk:  #6b3700;
+  --amber:     #cc6f00;
+  --amber-lt:  #f0a830;
+  --amber-bg:  #fff3d6;
+
+  --red-dk:    #5c0f0f;
+  --red:       #c42020;
+  --red-lt:    #f07070;
+  --red-bg:    #fff0f0;
+
+  --green-dk:  #0f4526;
+  --green:     #1a8044;
+  --green-lt:  #5cc482;
+  --green-bg:  #e6f7ee;
+
+  --purple-dk: #2d0a5e;
+  --purple:    #6b21e8;
+  --purple-lt: #b07aff;
+  --purple-bg: #f3ecff;
+
+  --cyan-dk:   #073540;
+  --cyan:      #0e8094;
+  --cyan-lt:   #50c8d8;
+  --cyan-bg:   #e2f8fb;
+
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-body:    'Instrument Sans', system-ui, sans-serif;
+  --font-mono:    'Fira Code', monospace;
+
+  --radius:    8px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(13,15,20,0.07), 0 0 0 1px rgba(13,15,20,0.04);
+  --shadow-md: 0 4px 14px rgba(13,15,20,0.10), 0 0 0 1px rgba(13,15,20,0.04);
+  --shadow-lg: 0 12px 40px rgba(13,15,20,0.15), 0 0 0 1px rgba(13,15,20,0.05);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--ink);
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 20px; height: 54px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+  color: #fff;
+}
+.logo-text { font-family: var(--font-display); font-size: 17px; color: #fff; font-weight: 700; letter-spacing: -0.01em; }
+.logo-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.12); margin: 0 4px; }
+.logo-sub { font-family: var(--font-mono); font-size: 10px; color: #6b7494; letter-spacing: 0.08em; }
+
+.topbar-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.topbar-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 10px; color: #9aa3c0;
+}
+.topbar-pill-num { font-size: 13px; font-weight: 500; color: #fff; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* ── NAV ── */
+.nav-tabs {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  display: flex; padding: 0 28px;
+  position: sticky; top: 54px; z-index: 190;
+  box-shadow: var(--shadow-sm);
+}
+.ntab {
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  padding: 13px 18px; margin-bottom: -1px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  color: var(--ink-4); cursor: pointer;
+  transition: color 0.14s, border-color 0.14s;
+  display: flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+}
+.ntab:hover { color: var(--ink-2); border-bottom-color: var(--rule); }
+.ntab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.ntab-badge {
+  background: var(--blue-bg); color: var(--blue);
+  border-radius: 10px; padding: 1px 7px;
+  font-size: 10px; font-family: var(--font-mono); font-weight: 500;
+}
+.ntab.active .ntab-badge { background: var(--blue); color: #fff; }
+
+/* ── LAYOUT ── */
+.page { display: none; flex: 1; }
+.page.active { display: flex; flex-direction: column; }
+.inner { max-width: 1280px; margin: 0 auto; width: 100%; padding: 30px 28px; }
+
+/* ── PAGE HEADER ── */
+.ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+.ph-left h1 { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+.ph-left p { font-size: 13px; color: var(--ink-4); margin-top: 3px; line-height: 1.5; }
+.ph-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 15px; border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.13s; white-space: nowrap;
+}
+.btn-primary { background: var(--blue); color: #fff; border-color: var(--blue-md); }
+.btn-primary:hover { background: var(--blue-md); }
+.btn-outline { background: var(--white); color: var(--ink-2); border-color: var(--rule); box-shadow: var(--shadow-sm); }
+.btn-outline:hover { border-color: var(--ink-4); }
+.btn-danger { background: transparent; color: var(--red); border-color: var(--red-lt); }
+.btn-danger:hover { background: var(--red-bg); }
+.btn-ghost { background: transparent; color: var(--ink-3); border-color: transparent; }
+.btn-ghost:hover { background: var(--rule-2); }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 6px; }
+.btn-purple { background: var(--purple); color: #fff; border-color: var(--purple-dk); }
+.btn-purple:hover { background: var(--purple-dk); }
+
+/* ── CARD ── */
+.card { background: var(--white); border: 1px solid var(--rule); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-header { padding: 14px 20px; border-bottom: 1px solid var(--rule-2); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.card-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--ink-2); display: flex; align-items: center; gap: 7px; }
+.card-body { padding: 20px; }
+
+/* ── FIELD ── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; font-family: var(--font-mono); }
+.field-input, .field-select, .field-textarea {
+  padding: 9px 11px; border: 1px solid var(--rule); border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 13px; color: var(--ink);
+  background: var(--white); outline: none;
+  transition: border-color 0.13s, box-shadow 0.13s;
+  width: 100%; min-width: 0; box-sizing: border-box;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--blue-lt); box-shadow: 0 0 0 3px rgba(37,87,232,0.1);
+}
+.field-textarea { resize: vertical; min-height: 68px; }
+.field-hint { font-size: 11px; color: var(--ink-4); line-height: 1.4; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-row > * { min-width: 0; }
+.fg-full { grid-column: 1 / -1; }
+
+/* ── DASHBOARD GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--radius-lg); padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.kpi-label { font-size: 10px; font-family: var(--font-mono); font-weight: 500; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.08em; }
+.kpi-value { font-family: var(--font-display); font-size: 30px; font-weight: 800; line-height: 1; color: var(--ink); }
+.kpi-sub { font-size: 11px; color: var(--ink-4); }
+.kpi-status { display: flex; align-items: center; gap: 5px; font-size: 11px; font-family: var(--font-mono); font-weight: 500; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.s-green { background: var(--green); }
+.s-amber { background: var(--amber); }
+.s-red   { background: var(--red); }
+.s-grey  { background: var(--ink-4); }
+
+/* ── METRIC ROW ── */
+.metrics-list { display: flex; flex-direction: column; gap: 10px; }
+
+.metric-row {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.14s;
+}
+.metric-row:hover { box-shadow: var(--shadow-md); }
+
+.metric-row-header {
+  display: flex; align-items: center; padding: 14px 18px; gap: 14px;
+  cursor: pointer; user-select: none;
+}
+.metric-row-header:hover { background: var(--rule-2); }
+
+.metric-indicator {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+}
+
+.metric-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+
+.metric-info { flex: 1; min-width: 0; }
+.metric-name { font-weight: 600; font-size: 14px; color: var(--ink); font-family: var(--font-display); }
+.metric-meta { font-size: 11px; color: var(--ink-4); margin-top: 2px; font-family: var(--font-mono); }
+
+.metric-value-display {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0;
+}
+.mvd-val { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--ink); }
+.mvd-unit { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); }
+.mvd-status { font-size: 11px; font-family: var(--font-mono); font-weight: 600; }
+.mvd-status.s-green { color: var(--green); }
+.mvd-status.s-amber { color: var(--amber); }
+.mvd-status.s-red   { color: var(--red); }
+
+.m-chevron { color: var(--ink-4); transition: transform 0.2s; font-size: 11px; flex-shrink: 0; }
+.metric-row.open .m-chevron { transform: rotate(90deg); }
+
+.metric-row-body { display: none; border-top: 1px solid var(--rule-2); }
+.metric-row.open .metric-row-body { display: block; }
+
+.metric-detail-panel { padding: 20px; background: var(--paper); }
+
+/* ── THRESHOLD BAR ── */
+.threshold-section { margin-bottom: 18px; }
+.threshold-bar-wrap { margin: 12px 0 6px; }
+.threshold-bar-track {
+  height: 10px; border-radius: 5px; position: relative;
+  background: linear-gradient(to right, #e8f7ee 0%, #fff3d6 55%, #fff0f0 100%);
+  border: 1px solid var(--rule);
+  overflow: visible;
+}
+.threshold-marker {
+  position: absolute; top: -4px;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--white);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transform: translateX(-50%);
+  transition: left 0.3s ease;
+  cursor: pointer;
+}
+.threshold-label-row {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-top: 4px;
+}
+.threshold-zones { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.tz-item { display: flex; align-items: center; gap: 5px; font-size: 11px; font-family: var(--font-mono); }
+.tz-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── TREND MINI ── */
+.trend-mini {
+  height: 50px; background: var(--white); border: 1px solid var(--rule);
+  border-radius: 8px; overflow: hidden; position: relative;
+}
+.trend-svg { width: 100%; height: 100%; }
+
+/* ── DATA ENTRY GRID ── */
+.data-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── BUILDER (Tab 3) ── */
+.builder-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.builder-form { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 110px; }
+
+.threshold-config { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.threshold-row { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 8px; align-items: center; }
+.threshold-row-label { font-size: 11px; font-family: var(--font-mono); font-weight: 600; color: var(--ink-3); white-space: nowrap; }
+.threshold-condition { display: flex; align-items: center; gap: 6px; }
+.cond-select { padding: 5px 8px; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; font-family: var(--font-mono); background: var(--white); color: var(--ink); outline: none; }
+.cond-input { padding: 5px 8px; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; font-family: var(--font-mono); background: var(--white); color: var(--ink); width: 70px; outline: none; }
+.cond-input:focus, .cond-select:focus { border-color: var(--blue-lt); }
+
+/* ── COLOR PICKER ── */
+.color-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.color-chip {
+  width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+  border: 2px solid transparent; transition: transform 0.12s;
+}
+.color-chip:hover { transform: scale(1.1); }
+.color-chip.selected { border-color: var(--ink); }
+
+/* ── FORMULA EDITOR ── */
+.formula-editor {
+  background: var(--ink); border-radius: var(--radius);
+  padding: 10px 12px; font-family: var(--font-mono);
+  font-size: 12px; color: #c8d0e8; line-height: 1.6;
+  min-height: 52px; border: none; width: 100%; resize: none;
+  outline: none;
+}
+.formula-hint { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); margin-top: 4px; line-height: 1.5; }
+.formula-vars { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.fvar { background: var(--blue-bg); color: var(--blue-md); border-radius: 4px; padding: 2px 7px; font-family: var(--font-mono); font-size: 10px; cursor: pointer; border: 1px solid var(--blue-lt); }
+.fvar:hover { background: var(--blue); color: #fff; }
+
+/* ── PREVIEW CARD ── */
+.preview-pane { display: flex; flex-direction: column; gap: 16px; }
+.preview-empty {
+  text-align: center; padding: 48px 24px; color: var(--ink-4);
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+}
+.preview-empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+/* ── DATA TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { background: var(--paper); padding: 8px 12px; text-align: left; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--rule-2); color: var(--ink-2); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--rule-2); }
+
+/* ── SECTION HEADER ── */
+.section-lbl {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--ink-3);
+  font-family: var(--font-mono); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-lbl::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+/* ── BADGE ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-family: var(--font-mono); font-weight: 600; border: 1px solid; }
+.badge-green { background: var(--green-bg); color: var(--green-dk); border-color: var(--green-lt); }
+.badge-amber { background: var(--amber-bg); color: var(--amber-dk); border-color: var(--amber-lt); }
+.badge-red   { background: var(--red-bg);   color: var(--red-dk);   border-color: var(--red-lt); }
+.badge-grey  { background: var(--rule-2);   color: var(--ink-3);    border-color: var(--rule); }
+.badge-blue  { background: var(--blue-bg);  color: var(--blue-md);  border-color: var(--blue-lt); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(13,15,20,0.6); z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); width: 100%; max-width: 580px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-header {
+  padding: 18px 22px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.modal-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--ink); }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.modal-footer { padding: 16px 22px; border-top: 1px solid var(--rule); display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ── HELPER ── */
+.info-box { background: var(--blue-bg); border: 1px solid var(--blue-lt); border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--blue-dk); line-height: 1.6; }
+.warn-box { background: var(--amber-bg); border: 1px solid var(--amber-lt); border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--amber-dk); line-height: 1.6; }
+
+/* ── TABS (inner) ── */
+.inner-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+.itab { background: none; border: 1px solid transparent; border-radius: 7px; padding: 6px 14px; font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--ink-4); cursor: pointer; transition: all 0.13s; }
+.itab:hover { background: var(--rule-2); color: var(--ink-2); }
+.itab.active { background: var(--blue); color: #fff; border-color: var(--blue-md); }
+
+/* ── TOGGLE ── */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--rule); border-radius: 20px; cursor: pointer; transition: 0.2s; }
+.toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle input:checked + .toggle-slider { background: var(--blue); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* ── CHART ── */
+.chart-wrap { position: relative; }
+canvas { display: block; }
+
+/* ── TEMPLATE LIBRARY ── */
+.tpl-library {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+  margin-bottom: 24px; overflow: hidden;
+}
+.tpl-library-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--rule-2);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: linear-gradient(135deg, #0d0f14 0%, #1e2a4a 100%);
+}
+.tpl-library-title {
+  font-family: var(--font-display); font-size: 15px; font-weight: 700;
+  color: #fff; display: flex; align-items: center; gap: 8px;
+}
+.tpl-library-sub { font-size: 11px; color: rgba(255,255,255,0.5); font-family: var(--font-mono); margin-top: 2px; }
+.tpl-toggle-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; padding: 6px 14px; color: #fff; font-size: 12px;
+  font-family: var(--font-body); cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background 0.13s;
+}
+.tpl-toggle-btn:hover { background: rgba(255,255,255,0.18); }
+
+.tpl-body { display: none; }
+.tpl-body.open { display: block; }
+
+.tpl-filter-bar {
+  padding: 12px 20px; border-bottom: 1px solid var(--rule-2);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--paper);
+}
+.tpl-filter-btn {
+  background: var(--white); border: 1px solid var(--rule); border-radius: 20px;
+  padding: 4px 14px; font-size: 11px; font-family: var(--font-mono); font-weight: 500;
+  color: var(--ink-3); cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.tpl-filter-btn:hover { border-color: var(--ink-4); }
+.tpl-filter-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.tpl-search {
+  margin-left: auto; padding: 5px 11px; border: 1px solid var(--rule);
+  border-radius: 20px; font-size: 12px; font-family: var(--font-body);
+  color: var(--ink); background: var(--white); outline: none; width: 200px;
+  transition: border-color 0.13s;
+}
+.tpl-search:focus { border-color: var(--blue-lt); }
+
+.tpl-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px; padding: 16px 20px;
+}
+
+.tpl-card {
+  border: 1.5px solid var(--rule); border-radius: 10px; overflow: hidden;
+  cursor: pointer; transition: all 0.16s; background: var(--white);
+  position: relative;
+}
+.tpl-card:hover { border-color: var(--blue-lt); box-shadow: 0 4px 16px rgba(37,87,232,0.12); transform: translateY(-1px); }
+.tpl-card.selected { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,87,232,0.15); }
+
+.tpl-card-accent {
+  height: 4px; width: 100%;
+}
+.tpl-card-body { padding: 14px 16px; }
+.tpl-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.tpl-card-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.tpl-card-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.tpl-card-cat { font-size: 10px; font-family: var(--font-mono); font-weight: 500; margin-top: 2px; }
+.tpl-card-desc { font-size: 11px; color: var(--ink-4); line-height: 1.55; margin-bottom: 10px; }
+.tpl-card-footer { display: flex; align-items: center; justify-content: space-between; }
+.tpl-card-vars { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); }
+.tpl-card-use {
+  background: var(--blue-bg); color: var(--blue-md); border: 1px solid var(--blue-lt);
+  border-radius: 6px; padding: 4px 12px; font-size: 11px; font-family: var(--font-body);
+  font-weight: 600; cursor: pointer; transition: all 0.12s;
+}
+.tpl-card-use:hover { background: var(--blue); color: #fff; }
+.tpl-card-use.loaded { background: var(--green-bg); color: var(--green-dk); border-color: var(--green-lt); }
+.tpl-card-preview {
+  background: var(--paper); color: var(--ink-4); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 4px 8px; font-size: 13px; cursor: pointer;
+  transition: all 0.12s; line-height: 1;
+}
+.tpl-card-preview:hover { background: var(--blue-bg); border-color: var(--blue-lt); }
+
+.tpl-framework-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(13,15,20,0.08); border-radius: 4px;
+  padding: 2px 6px; font-size: 9px; font-family: var(--font-mono);
+  font-weight: 600; color: var(--ink-4); letter-spacing: 0.06em;
+}
+
+.tpl-empty { text-align:center; padding: 32px 24px; color: var(--ink-4); font-family: var(--font-mono); font-size: 12px; }
+
+/* ── TEMPLATE LIBRARY ── */
+.tpl-library {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow-sm); margin-bottom: 20px;
+}
+.tpl-library-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--rule-2);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: linear-gradient(135deg, #0d0f14 0%, #1e2230 100%);
+}
+.tpl-library-title {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  color: #fff; display: flex; align-items: center; gap: 8px;
+}
+.tpl-library-sub { font-size: 11px; color: #6b7494; font-family: var(--font-mono); margin-top: 2px; }
+.tpl-toggle-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; border-radius: 6px; padding: 5px 12px;
+  font-size: 12px; font-family: var(--font-body); cursor: pointer;
+  transition: background 0.13s; white-space: nowrap;
+}
+.tpl-toggle-btn:hover { background: rgba(255,255,255,0.18); }
+
+.tpl-body { display: none; padding: 16px 20px; }
+.tpl-body.open { display: block; }
+
+.tpl-filter-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+}
+.tpl-filter-label { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.07em; margin-right: 4px; }
+.tpl-chip {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono);
+  border: 1px solid var(--rule); background: var(--white); color: var(--ink-3);
+  cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.tpl-chip:hover { border-color: var(--blue-lt); color: var(--blue); }
+.tpl-chip.active { background: var(--blue); color: #fff; border-color: var(--blue-md); }
+
+.tpl-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.tpl-card {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; transition: all 0.14s;
+  background: var(--white); position: relative;
+}
+.tpl-card:hover { border-color: var(--blue-lt); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tpl-card.selected { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(37,87,232,0.2); }
+
+.tpl-card-top {
+  padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
+}
+.tpl-card-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.tpl-card-info { flex: 1; min-width: 0; }
+.tpl-card-name { font-weight: 600; font-size: 13px; color: var(--ink); line-height: 1.3; font-family: var(--font-display); }
+.tpl-card-cat { font-size: 10px; font-family: var(--font-mono); color: var(--ink-4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.tpl-card-desc { font-size: 11px; color: var(--ink-3); line-height: 1.5; }
+
+.tpl-card-bottom {
+  padding: 8px 14px; background: var(--paper); border-top: 1px solid var(--rule-2);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.tpl-card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tpl-tag { padding: 1px 6px; border-radius: 4px; font-size: 9px; font-family: var(--font-mono); font-weight: 600; border: 1px solid; text-transform: uppercase; letter-spacing: 0.04em; }
+.tpl-tag-iso { background: #eaf0ff; color: #1742b8; border-color: #6b9aff; }
+.tpl-tag-nist { background: #e6f7ee; color: #0f4526; border-color: #5cc482; }
+.tpl-tag-cis  { background: #f3ecff; color: #2d0a5e; border-color: #b07aff; }
+.tpl-tag-ens  { background: #fff3d6; color: #6b3700; border-color: #f0a830; }
+.tpl-tag-owasp{ background: #e2f8fb; color: #073540; border-color: #50c8d8; }
+.tpl-tag-kpi  { background: #f5f6fa; color: #3d4461; border-color: #dadee8; }
+
+.tpl-use-btn {
+  background: var(--blue); color: #fff; border: none; border-radius: 6px;
+  padding: 4px 10px; font-size: 11px; font-family: var(--font-body); font-weight: 500;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.12s;
+}
+.tpl-use-btn:hover { background: var(--blue-md); }
+.tpl-checkmark {
+  position: absolute; top: 8px; right: 8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  font-size: 10px; display: none; align-items: center; justify-content: center;
+}
+.tpl-card.selected .tpl-checkmark { display: flex; }
+
+.tpl-search {
+  padding: 7px 11px; border: 1px solid var(--rule); border-radius: 8px;
+  font-family: var(--font-body); font-size: 12px; color: var(--ink);
+  background: var(--white); outline: none; width: 220px;
+}
+.tpl-search:focus { border-color: var(--blue-lt); box-shadow: 0 0 0 3px rgba(37,87,232,0.1); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 56px 24px; color: var(--ink-4);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty-icon { font-size: 42px; opacity: 0.35; }
+.empty-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--ink-3); }
+.empty-desc { font-size: 13px; line-height: 1.6; max-width: 360px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .builder-layout { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .builder-form { position: static; }
+}
+@media (max-width: 600px) {
+  .inner { padding: 20px 16px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .topbar { padding: 0 16px; }
+  .nav-tabs { padding: 0 16px; }
+}
+
+.incident-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sub-metric-panel {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 16px;
+}
+.sub-metric-label { font-size: 10px; font-family: var(--font-mono); font-weight: 600; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+.sub-metric-value { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--ink); }
+.sub-metric-unit { font-size: 11px; color: var(--ink-4); font-family: var(--font-mono); margin-top: 2px; }
+
+.gauge-wrap { position: relative; width: 160px; height: 90px; margin: 0 auto; }
+
+.efficiency-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+.alert-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius);
+  font-size: 12px; line-height: 1.5;
+}
+.alert-row.green { background: var(--green-bg); border: 1px solid var(--green-lt); color: var(--green-dk); }
+.alert-row.amber { background: var(--amber-bg); border: 1px solid var(--amber-lt); color: var(--amber-dk); }
+.alert-row.red   { background: var(--red-bg);   border: 1px solid var(--red-lt);   color: var(--red-dk); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     TOP BAR
+═══════════════════════════════════ -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">🔒</div>
+    <div class="logo-text">SecMetrics</div>
+    <div class="logo-sep"></div>
+    <div class="logo-sub">MÉTRICAS DE SEGURIDAD</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-pill">
+      <div class="pill-dot" style="background:var(--green)"></div>
+      <span>Métricas activas</span>
+      <span class="topbar-pill-num" id="tb-active">2</span>
+    </div>
+    <div class="topbar-pill">
+      <div class="pill-dot" id="tb-global-dot" style="background:var(--green)"></div>
+      <span>Estado global</span>
+      <span class="topbar-pill-num" id="tb-global-status">OK</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     NAV TABS
+═══════════════════════════════════ -->
+<div class="nav-tabs">
+  <button class="ntab active" onclick="showPage('dashboard',this)">
+    📊 Dashboard
+  </button>
+  <button class="ntab" onclick="showPage('incidents',this)">
+    🚨 Incidentes
+    <span class="ntab-badge" id="nb-incidents">—</span>
+  </button>
+  <button class="ntab" onclick="showPage('efficiency',this)">
+    ⚡ Eficiencia
+    <span class="ntab-badge" id="nb-efficiency">—</span>
+  </button>
+  <button class="ntab" onclick="showPage('custom',this)">
+    🛠 Métricas Custom
+    <span class="ntab-badge" id="nb-custom">0</span>
+  </button>
+  <button class="ntab" onclick="showPage('builder',this)">
+    ✦ Constructor
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: DASHBOARD
+═══════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Dashboard de Seguridad</h1>
+        <p>Vista consolidada de todas las métricas activas · Actualización: <span id="dash-time">—</span></p>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm" onclick="exportReport()">↓ Exportar informe</button>
+        <button class="btn btn-primary btn-sm" onclick="refreshAll()">↻ Actualizar</button>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">T(50) — Incidentes</div>
+        <div class="kpi-value" id="kpi-t50">—</div>
+        <div class="kpi-sub" id="kpi-t50-unit">días hasta cerrar 50%</div>
+        <div class="kpi-status">
+          <div class="status-dot s-grey" id="kpi-t50-dot"></div>
+          <span id="kpi-t50-status">Sin datos</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">T(90) — Incidentes</div>
+        <div class="kpi-value" id="kpi-t90">—</div>
+        <div class="kpi-sub">días hasta cerrar 90%</div>
+        <div class="kpi-status">
+          <div class="status-dot s-grey" id="kpi-t90-dot"></div>
+          <span id="kpi-t90-status">Sin datos</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Eficiencia Horas</div>
+        <div class="kpi-value" id="kpi-eff-h">—</div>
+        <div class="kpi-sub">% incidentes / hora seg.</div>
+        <div class="kpi-status">
+          <div class="status-dot s-grey" id="kpi-eff-h-dot"></div>
+          <span id="kpi-eff-h-status">Sin datos</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Eficiencia Presupuesto</div>
+        <div class="kpi-value" id="kpi-eff-b">—</div>
+        <div class="kpi-sub">% gasto real vs presup.</div>
+        <div class="kpi-status">
+          <div class="status-dot s-grey" id="kpi-eff-b-dot"></div>
+          <span id="kpi-eff-b-status">Sin datos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics summary list -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Todas las métricas activas</div>
+        <button class="btn btn-sm btn-outline" onclick="showPage('builder', document.querySelector('.ntab:last-child'))">+ Nueva métrica</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table" style="min-width:700px">
+          <thead>
+            <tr>
+              <th>Métrica</th>
+              <th>Categoría</th>
+              <th>Valor actual</th>
+              <th>Objetivo</th>
+              <th>Estado</th>
+              <th>Última actualización</th>
+            </tr>
+          </thead>
+          <tbody id="dash-table-body">
+            <tr><td colspan="6" style="text-align:center;color:var(--ink-4);padding:24px;font-family:var(--font-mono);font-size:12px">Introduce datos en las pestañas de métricas para ver el resumen.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: INCIDENTS
+═══════════════════════════════════ -->
+<div class="page" id="page-incidents">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Métrica: Tiempo de Cierre de Incidentes</h1>
+        <p>T(50) y T(90) miden los días necesarios para cerrar el 50% y 90% de los incidentes abiertos.</p>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm" onclick="addIncidentRow()">+ Añadir incidente</button>
+        <button class="btn btn-primary btn-sm" onclick="calcIncidents()">▶ Calcular</button>
+      </div>
+    </div>
+
+    <!-- Thresholds info -->
+    <div class="info-box" style="margin-bottom:20px">
+      <strong>Umbrales configurados:</strong>
+      Objetivo = T(50)=0d &amp;&amp; T(90)=0d &nbsp;·&nbsp;
+      <span style="color:var(--amber-dk)">⚠ Amarillo</span> = T(50)&gt;10d || T(90)&gt;30d &nbsp;·&nbsp;
+      <span style="color:var(--red-dk)">🔴 Rojo</span> = T(50)&gt;15d || T(90)&gt;45d
+    </div>
+
+    <!-- Results -->
+    <div class="incident-sub-grid" style="margin-bottom:20px" id="incident-results-grid">
+      <div class="sub-metric-panel">
+        <div class="sub-metric-label">T(50) — Percentil 50</div>
+        <div class="sub-metric-value" id="res-t50">—</div>
+        <div class="sub-metric-unit">días para cerrar el 50% de incidentes</div>
+        <div style="margin-top:10px" id="res-t50-badge"></div>
+      </div>
+      <div class="sub-metric-panel">
+        <div class="sub-metric-label">T(90) — Percentil 90</div>
+        <div class="sub-metric-value" id="res-t90">—</div>
+        <div class="sub-metric-unit">días para cerrar el 90% de incidentes</div>
+        <div style="margin-top:10px" id="res-t90-badge"></div>
+      </div>
+    </div>
+
+    <!-- Alert display -->
+    <div id="incident-alert" style="margin-bottom:20px"></div>
+
+    <!-- Threshold visual -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><div class="card-title">📏 Visualización de umbrales — T(50)</div></div>
+      <div class="card-body">
+        <div style="position:relative;height:40px;border-radius:8px;overflow:hidden;background:linear-gradient(to right,#e6f7ee 0%,#e6f7ee 43%,#fff3d6 43%,#fff3d6 65%,#fff0f0 65%)">
+          <div id="t50-marker" style="position:absolute;top:50%;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--ink);border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:left 0.4s ease;left:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--ink-4);margin-top:6px">
+          <span>0d (objetivo)</span><span>10d (⚠)</span><span>15d (🔴)</span><span>23d+</span>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:10px;height:10px;border-radius:3px;background:#e6f7ee;border:1px solid var(--green-lt)"></div>Verde (0–10d)</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:10px;height:10px;border-radius:3px;background:#fff3d6;border:1px solid var(--amber-lt)"></div>Amarillo (10–15d)</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:10px;height:10px;border-radius:3px;background:#fff0f0;border:1px solid var(--red-lt)"></div>Rojo (&gt;15d)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data entry -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Registro de incidentes</div>
+        <div style="font-size:11px;color:var(--ink-4);font-family:var(--font-mono)">Introduce la duración en días de cada incidente</div>
+      </div>
+      <div class="card-body">
+        <div style="overflow-x:auto">
+          <table class="data-table" style="min-width:600px">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Identificador</th>
+                <th>Severidad</th>
+                <th>Fecha apertura</th>
+                <th>Días hasta cierre</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="incidents-table-body"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="addIncidentRow()">+ Añadir fila</button>
+          <button class="btn btn-ghost btn-sm" onclick="addSampleIncidents()">↪ Cargar datos de ejemplo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: EFFICIENCY
+═══════════════════════════════════ -->
+<div class="page" id="page-efficiency">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Métrica: Eficiencia del Sistema de Seguridad</h1>
+        <p>Mide el rendimiento del área de seguridad en relación con los recursos consumidos (horas y presupuesto).</p>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-primary btn-sm" onclick="calcEfficiency()">▶ Calcular</button>
+      </div>
+    </div>
+
+    <!-- Results row -->
+    <div class="efficiency-grid" style="margin-bottom:20px">
+      <div class="sub-metric-panel">
+        <div class="sub-metric-label">Eficiencia en Horas</div>
+        <div class="sub-metric-value" id="eff-res-hours">—</div>
+        <div class="sub-metric-unit">incidentes resueltos / hora seg.</div>
+        <div style="margin-top:8px" id="eff-hours-badge"></div>
+      </div>
+      <div class="sub-metric-panel">
+        <div class="sub-metric-label">Eficiencia Presupuestaria</div>
+        <div class="sub-metric-value" id="eff-res-budget">—%</div>
+        <div class="sub-metric-unit">% gasto real vs presupuesto</div>
+        <div style="margin-top:8px" id="eff-budget-badge"></div>
+      </div>
+      <div class="sub-metric-panel">
+        <div class="sub-metric-label">Coste por incidente</div>
+        <div class="sub-metric-value" id="eff-res-cost">—</div>
+        <div class="sub-metric-unit">€ por incidente resuelto</div>
+        <div style="margin-top:8px" id="eff-cost-badge"></div>
+      </div>
+    </div>
+
+    <div id="eff-alert" style="margin-bottom:20px"></div>
+
+    <!-- Input form -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><div class="card-title">⏱ Recursos de tiempo — Período actual</div></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Período de medición</label>
+            <select class="field-select" id="eff-period">
+              <option value="mes">Mensual</option>
+              <option value="trim">Trimestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Nombre / referencia del período</label>
+            <input class="field-input" id="eff-period-name" placeholder="Ej: Mayo 2025, Q1 2025…">
+          </div>
+          <div class="field">
+            <label class="field-label">Horas dedicadas a seguridad</label>
+            <input class="field-input" type="number" id="eff-hours-real" placeholder="Ej: 320" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Horas planificadas / target</label>
+            <input class="field-input" type="number" id="eff-hours-plan" placeholder="Ej: 280" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Incidentes gestionados</label>
+            <input class="field-input" type="number" id="eff-incidents" placeholder="Ej: 47" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Incidentes resueltos</label>
+            <input class="field-input" type="number" id="eff-resolved" placeholder="Ej: 42" min="0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><div class="card-title">💰 Recursos presupuestarios</div></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Presupuesto total asignado (€)</label>
+            <input class="field-input" type="number" id="eff-budget-total" placeholder="Ej: 120000" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Gasto real ejecutado (€)</label>
+            <input class="field-input" type="number" id="eff-budget-real" placeholder="Ej: 98000" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Gasto en herramientas/licencias (€)</label>
+            <input class="field-input" type="number" id="eff-budget-tools" placeholder="Ej: 35000" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">Gasto en personal (€)</label>
+            <input class="field-input" type="number" id="eff-budget-people" placeholder="Ej: 63000" min="0">
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field fg-full">
+            <label class="field-label">Umbrales personalizados de eficiencia presupuestaria</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+                <span style="color:var(--amber-dk);font-family:var(--font-mono)">⚠ Amarillo si gasto &gt;</span>
+                <input class="field-input" type="number" id="eff-thr-amber" value="95" style="width:70px;padding:5px 8px;font-size:12px">
+                <span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">% del presupuesto</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+                <span style="color:var(--red-dk);font-family:var(--font-mono)">🔴 Rojo si gasto &gt;</span>
+                <input class="field-input" type="number" id="eff-thr-red" value="110" style="width:70px;padding:5px 8px;font-size:12px">
+                <span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">% del presupuesto</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historical -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📈 Histórico de eficiencia</div>
+        <button class="btn btn-outline btn-sm" onclick="saveEfficiencyRecord()">✓ Guardar período actual</button>
+      </div>
+      <div class="card-body">
+        <div style="overflow-x:auto">
+          <table class="data-table" id="eff-history-table" style="min-width:700px">
+            <thead>
+              <tr>
+                <th>Período</th>
+                <th>Horas reales</th>
+                <th>Incidentes</th>
+                <th>Efic. Horas</th>
+                <th>Presupuesto</th>
+                <th>Gasto real</th>
+                <th>Efic. Presupuesto</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="eff-history-body">
+              <tr><td colspan="9" style="text-align:center;color:var(--ink-4);padding:20px;font-family:var(--font-mono);font-size:12px">Sin registros históricos aún.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: CUSTOM METRICS
+═══════════════════════════════════ -->
+<div class="page" id="page-custom">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Métricas Personalizadas</h1>
+        <p>Métricas definidas por el usuario con umbrales y fórmulas propias.</p>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-purple btn-sm" onclick="showPage('builder', document.querySelectorAll('.ntab')[4])">✦ Crear nueva métrica</button>
+      </div>
+    </div>
+    <div class="metrics-list" id="custom-metrics-list">
+      <div class="empty-state">
+        <div class="empty-icon">🛠</div>
+        <div class="empty-title">Sin métricas personalizadas</div>
+        <div class="empty-desc">Usa el Constructor para crear métricas adaptadas a tu organización, con umbrales y fórmulas propias.</div>
+        <button class="btn btn-purple" onclick="showPage('builder', document.querySelectorAll('.ntab')[4])">✦ Ir al Constructor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: BUILDER
+═══════════════════════════════════ -->
+<div class="page" id="page-builder">
+  <div class="inner">
+    <div class="ph">
+      <div class="ph-left">
+        <h1>Constructor de Métricas</h1>
+        <p>Define métricas de seguridad con fórmulas personalizadas, umbrales de alerta y variables de entrada.</p>
+      </div>
+    </div>
+
+    <!-- ── TEMPLATE LIBRARY ── -->
+    <div class="tpl-library" id="tpl-library">
+      <div class="tpl-library-header">
+        <div>
+          <div class="tpl-library-title">📚 Biblioteca de métricas predefinidas</div>
+          <div class="tpl-library-sub">30 plantillas basadas en estándares ISO 27001 · NIST CSF · CIS Controls v8 · ENS · ENISA · MITRE ATT&amp;CK</div>
+        </div>
+        <button class="tpl-toggle-btn" onclick="toggleTemplateLibrary()" id="tpl-toggle-btn">
+          <span id="tpl-toggle-icon">▾</span> Ver plantillas
+        </button>
+      </div>
+      <div class="tpl-body open" id="tpl-body">
+        <div class="tpl-filter-bar">
+          <button class="tpl-filter-btn active" data-filter="all" onclick="filterTemplates('all',this)">Todas (30)</button>
+          <button class="tpl-filter-btn" data-filter="incidentes" onclick="filterTemplates('incidentes',this)">🚨 Incidentes</button>
+          <button class="tpl-filter-btn" data-filter="vulnerabilidades" onclick="filterTemplates('vulnerabilidades',this)">🔍 Vulnerabilidades</button>
+          <button class="tpl-filter-btn" data-filter="compliance" onclick="filterTemplates('compliance',this)">⚖️ Compliance</button>
+          <button class="tpl-filter-btn" data-filter="operaciones" onclick="filterTemplates('operaciones',this)">⚙️ Operaciones</button>
+          <button class="tpl-filter-btn" data-filter="identidad" onclick="filterTemplates('identidad',this)">🪪 Identidad</button>
+          <button class="tpl-filter-btn" data-filter="amenazas" onclick="filterTemplates('amenazas',this)">🕵️ Amenazas</button>
+          <button class="tpl-filter-btn" data-filter="riesgo" onclick="filterTemplates('riesgo',this)">🎯 Riesgo</button>
+          <button class="tpl-filter-btn" data-filter="eficiencia" onclick="filterTemplates('eficiencia',this)">⚡ Eficiencia</button>
+          <input class="tpl-search" type="text" placeholder="🔎 Buscar por nombre, categoría o estándar…" oninput="searchTemplates(this.value)">
+        </div>
+        <div class="tpl-grid" id="tpl-grid">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="builder-layout">
+      <!-- LEFT: Form -->
+      <div class="builder-form">
+        <div class="card">
+          <div class="card-header"><div class="card-title">① Identidad de la métrica</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+            <div class="field">
+              <label class="field-label">Nombre de la métrica *</label>
+              <input class="field-input" id="b-name" placeholder="Ej: Tasa de detección temprana">
+            </div>
+            <div class="field">
+              <label class="field-label">Descripción</label>
+              <textarea class="field-textarea" id="b-desc" placeholder="¿Qué mide esta métrica y por qué es relevante?" style="min-height:56px"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 72px;gap:14px;min-width:0">
+              <div class="field" style="min-width:0">
+                <label class="field-label">Categoría</label>
+                <select class="field-select" id="b-category">
+                  <option value="incidentes">Incidentes</option>
+                  <option value="vulnerabilidades">Vulnerabilidades</option>
+                  <option value="compliance">Compliance</option>
+                  <option value="operaciones">Operaciones</option>
+                  <option value="riesgo">Riesgo</option>
+                  <option value="eficiencia">Eficiencia</option>
+                  <option value="identidad">Identidad</option>
+                  <option value="amenazas">Amenazas</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="field" style="min-width:0">
+                <label class="field-label">Icono</label>
+                <input class="field-input" id="b-icon" placeholder="🔍" maxlength="4" style="font-size:20px;text-align:center;padding:6px 4px;width:100%">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Unidad de medida</label>
+              <input class="field-input" id="b-unit" placeholder="Ej: días, %, €/incidente, puntos…">
+            </div>
+            <div class="field">
+              <label class="field-label">Color de acento</label>
+              <div class="color-row" id="b-color-row">
+                <div class="color-chip selected" style="background:#2557e8" data-color="#2557e8" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#6b21e8" data-color="#6b21e8" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#0e8094" data-color="#0e8094" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#1a8044" data-color="#1a8044" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#cc6f00" data-color="#cc6f00" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#c42020" data-color="#c42020" onclick="selectColor(this)"></div>
+                <div class="color-chip" style="background:#5c5f80" data-color="#5c5f80" onclick="selectColor(this)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">② Variables de entrada</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div class="field-hint">Define las variables que el usuario introducirá para calcular la métrica.</div>
+            <div id="b-vars-list" style="display:flex;flex-direction:column;gap:8px"></div>
+            <button class="btn btn-outline btn-sm" onclick="addVar()" style="align-self:flex-start">+ Añadir variable</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">③ Fórmula de cálculo</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div class="field">
+              <label class="field-label">Expresión JavaScript</label>
+              <textarea class="formula-editor" id="b-formula" placeholder="Ej: (resolved / total) * 100" rows="3"></textarea>
+              <div class="formula-hint">Usa las variables definidas arriba. Expresión JavaScript válida.</div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:6px">Variables disponibles (haz clic para insertar)</div>
+              <div class="formula-vars" id="b-fvars"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">④ Umbrales de alerta</div></div>
+          <div class="card-body">
+            <div class="threshold-config">
+              <div style="font-size:11px;color:var(--ink-4);font-family:var(--font-mono);margin-bottom:4px">Configura cuándo la métrica entra en estado amarillo o rojo.</div>
+              <div class="threshold-row" style="grid-template-columns:auto 1fr auto">
+                <div class="threshold-row-label">🟢 Objetivo</div>
+                <div class="field-row" style="gap:6px">
+                  <input class="field-input" id="b-goal" placeholder="Valor objetivo (descripción)" style="font-size:12px;padding:6px 10px">
+                </div>
+              </div>
+              <div style="height:1px;background:var(--rule);margin:4px 0"></div>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4);margin-bottom:6px">Umbral ⚠ Amarillo (condición que activa la alerta)</div>
+              <div style="display:flex;flex-direction:column;gap:6px" id="b-thr-amber-list">
+                <!-- conditions added dynamically -->
+              </div>
+              <button class="btn btn-xs btn-outline" onclick="addCondition('amber')" style="align-self:flex-start;margin-top:4px">+ Añadir condición AND</button>
+
+              <div style="height:1px;background:var(--rule);margin:8px 0"></div>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4);margin-bottom:6px">Umbral 🔴 Rojo</div>
+              <div style="display:flex;flex-direction:column;gap:6px" id="b-thr-red-list"></div>
+              <button class="btn btn-xs btn-outline" onclick="addCondition('red')" style="align-self:flex-start;margin-top:4px">+ Añadir condición AND</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-purple" style="flex:1" onclick="saveMetric()">✦ Guardar métrica</button>
+          <button class="btn btn-ghost" onclick="clearBuilder()">✕ Limpiar</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="preview-pane">
+        <div class="card">
+          <div class="card-header"><div class="card-title">👁 Vista previa en tiempo real</div></div>
+          <div class="card-body" id="builder-preview">
+            <div class="preview-empty">
+              <div class="preview-empty-icon">✦</div>
+              Rellena el formulario de la izquierda para ver<br>cómo quedará tu métrica.
+            </div>
+          </div>
+        </div>
+
+        <!-- Test inputs -->
+        <div class="card" id="builder-test-card" style="display:none">
+          <div class="card-header"><div class="card-title">🧪 Probar con valores</div></div>
+          <div class="card-body">
+            <div id="builder-test-inputs" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
+            <button class="btn btn-outline btn-sm" onclick="testFormula()">▶ Evaluar</button>
+            <div id="test-result" style="margin-top:12px;font-family:var(--font-mono);font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODAL: Enter data for custom metric
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="data-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="data-modal-title">Introducir datos</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="data-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitDataModal()">Calcular &amp; guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODAL: Template Detail Preview
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="tpl-detail-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header" id="tpl-detail-header">
+      <div class="modal-title" id="tpl-detail-title">Detalle de plantilla</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeTplDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="tpl-detail-body" style="gap:14px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeTplDetail()">Cerrar</button>
+      <button class="btn btn-primary" id="tpl-detail-load-btn" onclick="loadTemplateFromDetail()">✦ Cargar en el Constructor</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let state = {
+  incidents: [],
+  effHistory: [],
+  customMetrics: [],
+  activeModalMetricId: null,
+  builderVars: [],
+  builderAmberConditions: [],
+  builderRedConditions: [],
+  selectedColor: '#2557e8',
+  editingMetricId: null
+};
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'dashboard') updateDashboard();
+  if (name === 'custom') renderCustomMetrics();
+  if (name === 'builder') { updateBuilderPreview(); renderTemplateGrid(); }
+}
+
+/* ══════════════════════════════════════
+   METRIC TEMPLATES LIBRARY
+══════════════════════════════════════ */
+const METRIC_TEMPLATES = [
+  /* ─ INCIDENTES ─ */
+  {
+    id:'tpl_mttd', name:'MTTD — Tiempo Medio de Detección', icon:'🔍', category:'incidentes', color:'#c42020',
+    framework:'ISO 27035',
+    desc:'Mide el tiempo promedio desde que ocurre un incidente hasta que es detectado por el equipo de seguridad. KPI fundamental de la capacidad de detección.',
+    unit:'horas', goal:'≤ 1h',
+    vars:[
+      {id:'v1',name:'suma_tiempos_deteccion',type:'number',label:'Suma total de tiempos de detección (horas)',unit:'h'},
+      {id:'v2',name:'num_incidentes',type:'number',label:'Número de incidentes del período',unit:''}
+    ],
+    formula:'suma_tiempos_deteccion / num_incidentes',
+    amberConditions:[{var:'resultado',op:'>',val:4}],
+    redConditions:[{var:'resultado',op:'>',val:24}]
+  },
+  {
+    id:'tpl_mttr', name:'MTTR — Tiempo Medio de Respuesta', icon:'⚡', category:'incidentes', color:'#cc6f00',
+    framework:'NIST CSF',
+    desc:'Tiempo promedio desde la detección de un incidente hasta su contención o resolución. Mide la agilidad de respuesta del equipo.',
+    unit:'horas', goal:'≤ 4h (críticos)',
+    vars:[
+      {id:'v1',name:'suma_tiempos_respuesta',type:'number',label:'Suma de tiempos detección→resolución (horas)',unit:'h'},
+      {id:'v2',name:'num_incidentes',type:'number',label:'Número de incidentes',unit:''}
+    ],
+    formula:'suma_tiempos_respuesta / num_incidentes',
+    amberConditions:[{var:'resultado',op:'>',val:8}],
+    redConditions:[{var:'resultado',op:'>',val:48}]
+  },
+  {
+    id:'tpl_recurrence', name:'Tasa de Recurrencia de Incidentes', icon:'🔄', category:'incidentes', color:'#6b21e8',
+    framework:'ISO 27035',
+    desc:'Porcentaje de incidentes que vuelven a producirse en el período por no haber resuelto la causa raíz. Indica la efectividad de las acciones correctoras.',
+    unit:'%', goal:'< 5%',
+    vars:[
+      {id:'v1',name:'incidentes_recurrentes',type:'number',label:'Incidentes recurrentes (ya ocurridos antes)',unit:''},
+      {id:'v2',name:'total_incidentes',type:'number',label:'Total incidentes del período',unit:''}
+    ],
+    formula:'(incidentes_recurrentes / total_incidentes) * 100',
+    amberConditions:[{var:'resultado',op:'>',val:10}],
+    redConditions:[{var:'resultado',op:'>',val:20}]
+  },
+  {
+    id:'tpl_escalation', name:'Tasa de Escalado de Incidentes', icon:'📶', category:'incidentes', color:'#0e8094',
+    framework:'NIST CSF',
+    desc:'Porcentaje de incidentes que requieren escalar a niveles superiores o a soporte externo. Un valor alto puede indicar falta de capacidad interna.',
+    unit:'%', goal:'< 15%',
+    vars:[
+      {id:'v1',name:'incidentes_escalados',type:'number',label:'Incidentes que requirieron escalado',unit:''},
+      {id:'v2',name:'total_incidentes',type:'number',label:'Total incidentes gestionados',unit:''}
+    ],
+    formula:'(incidentes_escalados / total_incidentes) * 100',
+    amberConditions:[{var:'resultado',op:'>',val:15}],
+    redConditions:[{var:'resultado',op:'>',val:30}]
+  },
+
+  /* ─ VULNERABILIDADES ─ */
+  {
+    id:'tpl_vuln_rate', name:'Tasa de Remediación de Vulnerabilidades', icon:'🩹', category:'vulnerabilidades', color:'#1a8044',
+    framework:'CIS Controls',
+    desc:'Porcentaje de vulnerabilidades identificadas que han sido remediadas en el período. Mide la velocidad de respuesta ante exposiciones conocidas.',
+    unit:'%', goal:'≥ 90%',
+    vars:[
+      {id:'v1',name:'vuln_remediadas',type:'number',label:'Vulnerabilidades remediadas',unit:''},
+      {id:'v2',name:'vuln_total',type:'number',label:'Vulnerabilidades identificadas total',unit:''}
+    ],
+    formula:'(vuln_remediadas / vuln_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:80}],
+    redConditions:[{var:'resultado',op:'<',val:60}]
+  },
+  {
+    id:'tpl_vuln_sla', name:'SLA de Remediación por Criticidad', icon:'⏱', category:'vulnerabilidades', color:'#c42020',
+    framework:'CIS Controls v8',
+    desc:'Porcentaje de vulnerabilidades críticas remediadas dentro del SLA establecido (ej: 7 días para críticas, 30 para altas). Mide el cumplimiento de compromisos.',
+    unit:'%', goal:'100%',
+    vars:[
+      {id:'v1',name:'criticas_en_sla',type:'number',label:'Vulnerabilidades críticas remediadas en SLA',unit:''},
+      {id:'v2',name:'criticas_total',type:'number',label:'Total vulnerabilidades críticas identificadas',unit:''}
+    ],
+    formula:'(criticas_en_sla / criticas_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:95}],
+    redConditions:[{var:'resultado',op:'<',val:80}]
+  },
+  {
+    id:'tpl_attack_surface', name:'Reducción de Superficie de Ataque', icon:'🛡', category:'vulnerabilidades', color:'#2557e8',
+    framework:'NIST CSF · CIS',
+    desc:'Variación porcentual en el número de activos expuestos o puertos/servicios innecesarios respecto al período anterior. Negativo = reducción = mejora.',
+    unit:'%', goal:'< 0% (reducción)',
+    vars:[
+      {id:'v1',name:'activos_expuestos_actual',type:'number',label:'Activos/servicios expuestos (período actual)',unit:''},
+      {id:'v2',name:'activos_expuestos_anterior',type:'number',label:'Activos/servicios expuestos (período anterior)',unit:''}
+    ],
+    formula:'((activos_expuestos_actual - activos_expuestos_anterior) / activos_expuestos_anterior) * 100',
+    amberConditions:[{var:'resultado',op:'>',val:5}],
+    redConditions:[{var:'resultado',op:'>',val:20}]
+  },
+
+  /* ─ COMPLIANCE ─ */
+  {
+    id:'tpl_compliance_rate', name:'Nivel de Cumplimiento Normativo', icon:'⚖️', category:'compliance', color:'#5c5f80',
+    framework:'ISO 27001',
+    desc:'Porcentaje de controles del marco normativo (ISO 27001, ENS, GDPR…) que se cumplen correctamente tras la última auditoría o revisión.',
+    unit:'%', goal:'≥ 95%',
+    vars:[
+      {id:'v1',name:'controles_cumplidos',type:'number',label:'Controles auditados como conformes',unit:''},
+      {id:'v2',name:'controles_totales',type:'number',label:'Total controles aplicables',unit:''}
+    ],
+    formula:'(controles_cumplidos / controles_totales) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:85}],
+    redConditions:[{var:'resultado',op:'<',val:70}]
+  },
+  {
+    id:'tpl_audit_findings', name:'Hallazgos de Auditoría Críticos Pendientes', icon:'📋', category:'compliance', color:'#cc6f00',
+    framework:'ISO 27001 · ENS',
+    desc:'Número de no conformidades graves o críticas detectadas en auditoría que aún no han sido subsanadas. El objetivo es siempre cero hallazgos críticos abiertos.',
+    unit:'hallazgos', goal:'0',
+    vars:[
+      {id:'v1',name:'hallazgos_criticos',type:'number',label:'Hallazgos críticos/graves sin resolver',unit:''},
+      {id:'v2',name:'hallazgos_medios',type:'number',label:'Hallazgos medios sin resolver',unit:''}
+    ],
+    formula:'hallazgos_criticos + (hallazgos_medios * 0.5)',
+    amberConditions:[{var:'hallazgos_criticos',op:'>',val:0},{var:'resultado',op:'>',val:2}],
+    redConditions:[{var:'hallazgos_criticos',op:'>',val:2}]
+  },
+  {
+    id:'tpl_training', name:'Cobertura de Formación en Seguridad', icon:'🎓', category:'compliance', color:'#1a8044',
+    framework:'ISO 27001 A.7.2.2',
+    desc:'Porcentaje de empleados que han completado la formación obligatoria en seguridad en el período (concienciación, phishing, GDPR, etc.).',
+    unit:'%', goal:'100%',
+    vars:[
+      {id:'v1',name:'empleados_formados',type:'number',label:'Empleados que han completado la formación',unit:''},
+      {id:'v2',name:'empleados_total',type:'number',label:'Total empleados obligados a formarse',unit:''}
+    ],
+    formula:'(empleados_formados / empleados_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:90}],
+    redConditions:[{var:'resultado',op:'<',val:70}]
+  },
+
+  /* ─ OPERACIONES ─ */
+  {
+    id:'tpl_patch', name:'Cobertura de Parcheo de Sistemas', icon:'🔧', category:'operaciones', color:'#0e8094',
+    framework:'CIS Controls v8',
+    desc:'Porcentaje de sistemas que tienen aplicados todos los parches de seguridad críticos dentro del plazo establecido.',
+    unit:'%', goal:'≥ 98%',
+    vars:[
+      {id:'v1',name:'sistemas_parcheados',type:'number',label:'Sistemas con parches críticos al día',unit:''},
+      {id:'v2',name:'sistemas_total',type:'number',label:'Total sistemas gestionados',unit:''}
+    ],
+    formula:'(sistemas_parcheados / sistemas_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:95}],
+    redConditions:[{var:'resultado',op:'<',val:85}]
+  },
+  {
+    id:'tpl_availability', name:'Disponibilidad de Sistemas Críticos', icon:'📡', category:'operaciones', color:'#2557e8',
+    framework:'ISO 27001 A.17',
+    desc:'Porcentaje de tiempo en que los sistemas críticos estuvieron disponibles y operativos, excluyendo mantenimientos programados.',
+    unit:'%', goal:'≥ 99.9%',
+    vars:[
+      {id:'v1',name:'minutos_caida',type:'number',label:'Minutos de caída no planificada',unit:'min'},
+      {id:'v2',name:'minutos_totales',type:'number',label:'Minutos totales del período',unit:'min'}
+    ],
+    formula:'((minutos_totales - minutos_caida) / minutos_totales) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:99.5}],
+    redConditions:[{var:'resultado',op:'<',val:99}]
+  },
+  {
+    id:'tpl_mfa', name:'Adopción de Autenticación Multifactor', icon:'🔐', category:'operaciones', color:'#6b21e8',
+    framework:'CIS Controls · ENISA',
+    desc:'Porcentaje de cuentas (especialmente privilegiadas) con MFA habilitado y activo. Control básico de higiene de identidad.',
+    unit:'%', goal:'100% cuentas privilegiadas',
+    vars:[
+      {id:'v1',name:'cuentas_con_mfa',type:'number',label:'Cuentas con MFA habilitado y activo',unit:''},
+      {id:'v2',name:'cuentas_total',type:'number',label:'Total cuentas (o solo privilegiadas)',unit:''}
+    ],
+    formula:'(cuentas_con_mfa / cuentas_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:95}],
+    redConditions:[{var:'resultado',op:'<',val:80}]
+  },
+
+  /* ─ RIESGO ─ */
+  {
+    id:'tpl_risk_reduction', name:'Reducción del Riesgo Residual', icon:'📉', category:'riesgo', color:'#c42020',
+    framework:'ISO 31000 · ISO 27005',
+    desc:'Variación porcentual del riesgo residual total del mapa de riesgos respecto al período anterior. Mide si el programa de seguridad está reduciendo la exposición.',
+    unit:'%', goal:'> 0% (reducción)',
+    vars:[
+      {id:'v1',name:'riesgo_actual',type:'number',label:'Puntuación de riesgo residual actual',unit:'pts'},
+      {id:'v2',name:'riesgo_anterior',type:'number',label:'Puntuación de riesgo residual anterior',unit:'pts'}
+    ],
+    formula:'((riesgo_anterior - riesgo_actual) / riesgo_anterior) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:0}],
+    redConditions:[{var:'resultado',op:'<',val:-10}]
+  },
+  {
+    id:'tpl_risk_acceptance', name:'Riesgos en Exceso Aceptados sin Mitigar', icon:'⚠️', category:'riesgo', color:'#cc6f00',
+    framework:'ISO 27005 · ENS',
+    desc:'Número de riesgos clasificados como altos o críticos que han sido aceptados sin plan de mitigación activo. Indicador de deuda de riesgo.',
+    unit:'riesgos', goal:'0',
+    vars:[
+      {id:'v1',name:'riesgos_criticos_aceptados',type:'number',label:'Riesgos críticos aceptados sin mitigar',unit:''},
+      {id:'v2',name:'riesgos_altos_aceptados',type:'number',label:'Riesgos altos aceptados sin mitigar',unit:''}
+    ],
+    formula:'riesgos_criticos_aceptados + riesgos_altos_aceptados',
+    amberConditions:[{var:'riesgos_criticos_aceptados',op:'>',val:0}],
+    redConditions:[{var:'riesgos_criticos_aceptados',op:'>',val:2}]
+  },
+
+  /* ─ EFICIENCIA ─ */
+  {
+    id:'tpl_cost_per_event', name:'Coste Medio por Evento de Seguridad', icon:'💰', category:'eficiencia', color:'#1a8044',
+    framework:'ENISA · CISO KPIs',
+    desc:'Coste promedio (interno + externo) de gestionar cada evento de seguridad, incluyendo horas del equipo, herramientas y servicios externos.',
+    unit:'€/evento', goal:'Tendencia decreciente',
+    vars:[
+      {id:'v1',name:'coste_total_seguridad',type:'number',label:'Coste total del equipo de seguridad (€)',unit:'€'},
+      {id:'v2',name:'eventos_gestionados',type:'number',label:'Total eventos/incidentes gestionados',unit:''}
+    ],
+    formula:'coste_total_seguridad / eventos_gestionados',
+    amberConditions:[{var:'resultado',op:'>',val:5000}],
+    redConditions:[{var:'resultado',op:'>',val:15000}]
+  },
+  {
+    id:'tpl_automation', name:'Tasa de Automatización de Respuesta', icon:'🤖', category:'eficiencia', color:'#2557e8',
+    framework:'NIST CSF · SOAR KPIs',
+    desc:'Porcentaje de alertas o incidentes de baja/media severidad gestionados de forma automática sin intervención humana (SOAR, SIEM, scripts).',
+    unit:'%', goal:'≥ 60%',
+    vars:[
+      {id:'v1',name:'eventos_automatizados',type:'number',label:'Alertas gestionadas automáticamente',unit:''},
+      {id:'v2',name:'eventos_total',type:'number',label:'Total alertas recibidas',unit:''}
+    ],
+    formula:'(eventos_automatizados / eventos_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:40}],
+    redConditions:[{var:'resultado',op:'<',val:20}]
+  },
+  {
+    id:'tpl_phishing', name:'Tasa de Click en Phishing Simulado', icon:'🎣', category:'eficiencia', color:'#cc6f00',
+    framework:'ENISA · CIS Controls',
+    desc:'Porcentaje de empleados que hacen clic en correos de phishing durante campañas de concienciación simuladas. Mide la resiliencia humana.',
+    unit:'%', goal:'< 5%',
+    vars:[
+      {id:'v1',name:'usuarios_clicaron',type:'number',label:'Usuarios que clicaron en phishing simulado',unit:''},
+      {id:'v2',name:'usuarios_enviados',type:'number',label:'Total usuarios a los que se envió el test',unit:''}
+    ],
+    formula:'(usuarios_clicaron / usuarios_enviados) * 100',
+    amberConditions:[{var:'resultado',op:'>',val:10}],
+    redConditions:[{var:'resultado',op:'>',val:20}]
+  },
+
+  /* ─ IDENTIDAD Y ACCESOS ─ */
+  {
+    id:'tpl_priv_accounts', name:'Cuentas Privilegiadas sin Revisión', icon:'👑', category:'identidad', color:'#6b21e8',
+    framework:'CIS Controls v8 · ISO 27001 A.9',
+    desc:'Número de cuentas con privilegios elevados (admin, root, sysadmin) que no han sido revisadas ni recertificadas en el período establecido (ej: trimestral). Objetivo siempre cero.',
+    unit:'cuentas', goal:'0',
+    vars:[
+      {id:'v1',name:'cuentas_priv_total',type:'number',label:'Total cuentas privilegiadas activas',unit:''},
+      {id:'v2',name:'cuentas_priv_revisadas',type:'number',label:'Cuentas privilegiadas recertificadas en período',unit:''}
+    ],
+    formula:'cuentas_priv_total - cuentas_priv_revisadas',
+    amberConditions:[{var:'resultado',op:'>',val:0}],
+    redConditions:[{var:'resultado',op:'>',val:5}]
+  },
+  {
+    id:'tpl_orphan_accounts', name:'Cuentas Huérfanas / No Activas', icon:'👻', category:'identidad', color:'#5c5f80',
+    framework:'ISO 27001 A.9.2 · CIS Controls',
+    desc:'Número de cuentas de usuario activas en sistemas que corresponden a empleados que ya no pertenecen a la organización o llevan más de 90 días sin iniciar sesión.',
+    unit:'cuentas', goal:'0',
+    vars:[
+      {id:'v1',name:'cuentas_ex_empleados',type:'number',label:'Cuentas activas de ex-empleados',unit:''},
+      {id:'v2',name:'cuentas_inactivas_90d',type:'number',label:'Cuentas sin login en más de 90 días',unit:''}
+    ],
+    formula:'cuentas_ex_empleados + cuentas_inactivas_90d',
+    amberConditions:[{var:'cuentas_ex_empleados',op:'>',val:0}],
+    redConditions:[{var:'cuentas_ex_empleados',op:'>',val:2}]
+  },
+  {
+    id:'tpl_pam_coverage', name:'Cobertura de Gestión de Accesos Privilegiados (PAM)', icon:'🔑', category:'identidad', color:'#0e8094',
+    framework:'CIS Controls v8 · NIST SP 800-53',
+    desc:'Porcentaje de cuentas privilegiadas gestionadas a través de una solución PAM (Privileged Access Management) con grabación de sesión, rotación de credenciales y control de acceso.',
+    unit:'%', goal:'100%',
+    vars:[
+      {id:'v1',name:'cuentas_en_pam',type:'number',label:'Cuentas privilegiadas bajo gestión PAM',unit:''},
+      {id:'v2',name:'cuentas_priv_total',type:'number',label:'Total cuentas privilegiadas',unit:''}
+    ],
+    formula:'(cuentas_en_pam / cuentas_priv_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:90}],
+    redConditions:[{var:'resultado',op:'<',val:70}]
+  },
+  {
+    id:'tpl_sso_adoption', name:'Adopción de SSO en Aplicaciones Corporativas', icon:'🔗', category:'identidad', color:'#2557e8',
+    framework:'NIST CSF · Zero Trust',
+    desc:'Porcentaje de aplicaciones corporativas integradas con el proveedor de identidad corporativo (SSO/IdP). Reduce el riesgo de credenciales dispersas y facilita la revocación de accesos.',
+    unit:'%', goal:'≥ 90%',
+    vars:[
+      {id:'v1',name:'apps_con_sso',type:'number',label:'Aplicaciones integradas con SSO/IdP',unit:''},
+      {id:'v2',name:'apps_total',type:'number',label:'Total aplicaciones corporativas',unit:''}
+    ],
+    formula:'(apps_con_sso / apps_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:80}],
+    redConditions:[{var:'resultado',op:'<',val:60}]
+  },
+
+  /* ─ AMENAZAS E INTELIGENCIA ─ */
+  {
+    id:'tpl_false_positive', name:'Tasa de Falsos Positivos en Alertas SIEM', icon:'📡', category:'amenazas', color:'#c42020',
+    framework:'NIST CSF · MITRE ATT&CK',
+    desc:'Porcentaje de alertas generadas por el SIEM que resultan ser falsos positivos tras la triaje. Un ratio alto degrada la capacidad de respuesta y produce fatiga de alertas.',
+    unit:'%', goal:'< 10%',
+    vars:[
+      {id:'v1',name:'alertas_falso_positivo',type:'number',label:'Alertas descartadas como falso positivo',unit:''},
+      {id:'v2',name:'alertas_total',type:'number',label:'Total alertas generadas por el SIEM',unit:''}
+    ],
+    formula:'(alertas_falso_positivo / alertas_total) * 100',
+    amberConditions:[{var:'resultado',op:'>',val:30}],
+    redConditions:[{var:'resultado',op:'>',val:60}]
+  },
+  {
+    id:'tpl_ioc_coverage', name:'Cobertura de Indicadores de Compromiso (IoC)', icon:'🕵️', category:'amenazas', color:'#6b21e8',
+    framework:'MITRE ATT&CK · NIST CSF',
+    desc:'Porcentaje de fuentes de inteligencia de amenazas (CTI feeds) activas cuyos IoCs están integrados en las herramientas de detección (SIEM, EDR, firewall). Mide la madurez del programa de threat intelligence.',
+    unit:'%', goal:'≥ 80%',
+    vars:[
+      {id:'v1',name:'feeds_integrados',type:'number',label:'Feeds CTI integrados y operativos',unit:''},
+      {id:'v2',name:'feeds_totales',type:'number',label:'Total fuentes CTI disponibles/suscritas',unit:''}
+    ],
+    formula:'(feeds_integrados / feeds_totales) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:60}],
+    redConditions:[{var:'resultado',op:'<',val:40}]
+  },
+  {
+    id:'tpl_dwell_time', name:'Tiempo de Permanencia del Atacante (Dwell Time)', icon:'⏳', category:'amenazas', color:'#c42020',
+    framework:'MITRE ATT&CK · ISO 27035',
+    desc:'Tiempo medio en días que un atacante permanece en la red o sistemas desde la intrusión inicial hasta la detección. Indicador clave de madurez del SOC y capacidad de detección avanzada.',
+    unit:'días', goal:'< 1 día',
+    vars:[
+      {id:'v1',name:'suma_dwell_times',type:'number',label:'Suma de tiempos de permanencia (días)',unit:'días'},
+      {id:'v2',name:'incidentes_con_dwell',type:'number',label:'Incidentes con dwell time medido',unit:''}
+    ],
+    formula:'suma_dwell_times / incidentes_con_dwell',
+    amberConditions:[{var:'resultado',op:'>',val:7}],
+    redConditions:[{var:'resultado',op:'>',val:30}]
+  },
+  {
+    id:'tpl_pentest_findings', name:'Hallazgos Críticos de Pentest sin Remediar', icon:'🗡', category:'amenazas', color:'#cc6f00',
+    framework:'OWASP · CIS Controls',
+    desc:'Número de vulnerabilidades críticas o altas identificadas en los últimos ejercicios de pentesting o red team que permanecen sin remediar pasado el SLA acordado.',
+    unit:'hallazgos', goal:'0',
+    vars:[
+      {id:'v1',name:'criticos_abiertos',type:'number',label:'Hallazgos críticos de pentest sin remediar',unit:''},
+      {id:'v2',name:'altos_abiertos',type:'number',label:'Hallazgos altos de pentest sin remediar',unit:''}
+    ],
+    formula:'criticos_abiertos + (altos_abiertos * 0.5)',
+    amberConditions:[{var:'criticos_abiertos',op:'>',val:0}],
+    redConditions:[{var:'criticos_abiertos',op:'>',val:3}]
+  },
+
+  /* ─ OPERACIONES ADICIONALES ─ */
+  {
+    id:'tpl_backup_success', name:'Tasa de Éxito de Copias de Seguridad', icon:'💾', category:'operaciones', color:'#1a8044',
+    framework:'ISO 27001 A.12.3 · CIS Controls',
+    desc:'Porcentaje de trabajos de backup que se completan con éxito y verificación de integridad en el período. Mide la fiabilidad de la estrategia de recuperación ante desastres.',
+    unit:'%', goal:'100%',
+    vars:[
+      {id:'v1',name:'backups_exitosos',type:'number',label:'Backups completados con éxito y verificados',unit:''},
+      {id:'v2',name:'backups_programados',type:'number',label:'Total backups programados en el período',unit:''}
+    ],
+    formula:'(backups_exitosos / backups_programados) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:99}],
+    redConditions:[{var:'resultado',op:'<',val:95}]
+  },
+  {
+    id:'tpl_encryption', name:'Cobertura de Cifrado en Activos Críticos', icon:'🔒', category:'operaciones', color:'#2557e8',
+    framework:'ISO 27001 A.10 · GDPR Art.32',
+    desc:'Porcentaje de activos críticos (bases de datos, repositorios, dispositivos) que tienen cifrado activado tanto en reposo como en tránsito según la política de seguridad.',
+    unit:'%', goal:'100%',
+    vars:[
+      {id:'v1',name:'activos_cifrados',type:'number',label:'Activos críticos con cifrado en reposo y tránsito',unit:''},
+      {id:'v2',name:'activos_criticos_total',type:'number',label:'Total activos críticos inventariados',unit:''}
+    ],
+    formula:'(activos_cifrados / activos_criticos_total) * 100',
+    amberConditions:[{var:'resultado',op:'<',val:95}],
+    redConditions:[{var:'resultado',op:'<',val:80}]
+  },
+  {
+    id:'tpl_security_debt', name:'Índice de Deuda Técnica de Seguridad', icon:'📊', category:'riesgo', color:'#cc6f00',
+    framework:'ENISA · NIST CSF',
+    desc:'Puntuación compuesta que refleja el volumen de controles de seguridad pendientes de implementar, ponderados por su criticidad. Cuanto más alto, mayor es el riesgo acumulado sin gestionar.',
+    unit:'puntos', goal:'< 20 pts',
+    vars:[
+      {id:'v1',name:'controles_criticos_pendientes',type:'number',label:'Controles críticos pendientes',unit:''},
+      {id:'v2',name:'controles_altos_pendientes',type:'number',label:'Controles altos pendientes',unit:''},
+      {id:'v3',name:'controles_medios_pendientes',type:'number',label:'Controles medios pendientes',unit:''}
+    ],
+    formula:'(controles_criticos_pendientes * 10) + (controles_altos_pendientes * 5) + (controles_medios_pendientes * 1)',
+    amberConditions:[{var:'resultado',op:'>',val:20}],
+    redConditions:[{var:'resultado',op:'>',val:60}]
+  },
+  {
+    id:'tpl_nps_security', name:'Satisfacción Interna con el Equipo de Seguridad', icon:'⭐', category:'eficiencia', color:'#1a8044',
+    framework:'CISO KPIs · Gartner',
+    desc:'Puntuación de satisfacción (tipo NPS) de los equipos internos respecto a los servicios prestados por el departamento de seguridad: tiempo de respuesta, accesibilidad, formación, etc.',
+    unit:'puntos (0–100)', goal:'≥ 70',
+    vars:[
+      {id:'v1',name:'suma_puntuaciones',type:'number',label:'Suma de puntuaciones recibidas (0-10 por encuestado)',unit:''},
+      {id:'v2',name:'encuestados_total',type:'number',label:'Total empleados que respondieron la encuesta',unit:''}
+    ],
+    formula:'(suma_puntuaciones / encuestados_total) * 10',
+    amberConditions:[{var:'resultado',op:'<',val:60}],
+    redConditions:[{var:'resultado',op:'<',val:40}]
+  }
+];
+
+let tplFilterActive = 'all';
+let tplSearchTerm = '';
+
+function renderTemplateGrid() {
+  const grid = document.getElementById('tpl-grid');
+  const catColors = {
+    incidentes:'#c42020', vulnerabilidades:'#1a8044', compliance:'#5c5f80',
+    operaciones:'#0e8094', riesgo:'#cc6f00', eficiencia:'#2557e8',
+    identidad:'#6b21e8', amenazas:'#73150d'
+  };
+  const catBg = {
+    incidentes:'#fff0f0', vulnerabilidades:'#e6f7ee', compliance:'#f0f0f5',
+    operaciones:'#e2f8fb', riesgo:'#fff3d6', eficiencia:'#eaf0ff',
+    identidad:'#f3ecff', amenazas:'#fff5f5'
+  };
+  const catIcons = {
+    incidentes:'🚨', vulnerabilidades:'🔍', compliance:'⚖️',
+    operaciones:'⚙️', riesgo:'🎯', eficiencia:'⚡',
+    identidad:'🪪', amenazas:'🕵️'
+  };
+
+  const filtered = METRIC_TEMPLATES.filter(t => {
+    const matchCat = tplFilterActive === 'all' || t.category === tplFilterActive;
+    const matchSearch = !tplSearchTerm || t.name.toLowerCase().includes(tplSearchTerm)
+      || t.desc.toLowerCase().includes(tplSearchTerm)
+      || t.category.includes(tplSearchTerm)
+      || (t.framework||'').toLowerCase().includes(tplSearchTerm);
+    return matchCat && matchSearch;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="tpl-empty" style="grid-column:1/-1">No se encontraron plantillas con ese criterio.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(t => {
+    const c = catColors[t.category] || '#2557e8';
+    const bg = catBg[t.category] || '#eaf0ff';
+    const catIcon = catIcons[t.category] || '📊';
+    return `
+      <div class="tpl-card" id="tpl-card-${t.id}">
+        <div class="tpl-card-accent" style="background:linear-gradient(90deg,${c},${c}88)"></div>
+        <div class="tpl-framework-badge">${t.framework}</div>
+        <div class="tpl-card-body">
+          <div class="tpl-card-top">
+            <div class="tpl-card-icon" style="background:${bg};color:${c}">${t.icon}</div>
+            <div>
+              <div class="tpl-card-name">${t.name}</div>
+              <div class="tpl-card-cat" style="color:${c}">${catIcon} ${t.category.toUpperCase()}</div>
+            </div>
+          </div>
+          <div class="tpl-card-desc">${t.desc.length > 110 ? t.desc.slice(0,108)+'…' : t.desc}</div>
+          <div class="tpl-card-footer">
+            <div class="tpl-card-vars">📐 ${t.vars.length} var${t.vars.length!==1?'s':''} &nbsp;·&nbsp; 🎯 ${t.goal}</div>
+            <div style="display:flex;gap:5px">
+              <button class="tpl-card-preview" onclick="event.stopPropagation();openTemplateDetail('${t.id}')" title="Vista previa">👁</button>
+              <button class="tpl-card-use" id="tpl-use-${t.id}" onclick="event.stopPropagation();loadTemplate('${t.id}')">Usar →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleTemplateLibrary() {
+  const body = document.getElementById('tpl-body');
+  const icon = document.getElementById('tpl-toggle-icon');
+  const btn = document.getElementById('tpl-toggle-btn');
+  const open = body.classList.toggle('open');
+  icon.textContent = open ? '▾' : '▸';
+  btn.innerHTML = `<span id="tpl-toggle-icon">${open?'▾':'▸'}</span> ${open?'Ocultar':'Ver plantillas'}`;
+}
+
+function filterTemplates(cat, btn) {
+  tplFilterActive = cat;
+  document.querySelectorAll('.tpl-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTemplateGrid();
+}
+
+function searchTemplates(val) {
+  tplSearchTerm = val.toLowerCase().trim();
+  renderTemplateGrid();
+}
+
+function loadTemplate(tplId) {
+  const t = METRIC_TEMPLATES.find(x=>x.id===tplId);
+  if (!t) return;
+
+  // Highlight selected card
+  document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.tpl-card-use').forEach(b=>{ b.textContent='Usar →'; b.classList.remove('loaded'); });
+  const card = document.getElementById(`tpl-card-${tplId}`);
+  if (card) {
+    card.classList.add('selected');
+    const useBtn = document.getElementById(`tpl-use-${tplId}`);
+    if (useBtn) { useBtn.textContent = '✓ Cargada'; useBtn.classList.add('loaded'); }
+  }
+
+  // Populate builder fields
+  document.getElementById('b-name').value = t.name;
+  document.getElementById('b-desc').value = t.desc;
+  document.getElementById('b-icon').value = t.icon;
+  document.getElementById('b-unit').value = t.unit;
+  document.getElementById('b-goal').value = t.goal;
+  document.getElementById('b-formula').value = t.formula;
+
+  // Category
+  const catSel = document.getElementById('b-category');
+  catSel.value = t.category;
+
+  // Color
+  state.selectedColor = t.color;
+  document.querySelectorAll('.color-chip').forEach(c=>{
+    c.classList.toggle('selected', c.dataset.color === t.color);
+  });
+  // If no chip matches, add a temp color indicator
+  const anySelected = [...document.querySelectorAll('.color-chip')].some(c=>c.dataset.color===t.color);
+  if (!anySelected) {
+    // Update first chip to this color temporarily
+    const firstChip = document.querySelector('.color-chip');
+    if (firstChip) {
+      firstChip.style.background = t.color;
+      firstChip.dataset.color = t.color;
+      firstChip.classList.add('selected');
+    }
+  }
+
+  // Variables
+  document.getElementById('b-vars-list').innerHTML = '';
+  state.builderVars = [];
+  varCounter = 0;
+  t.vars.forEach(v => {
+    varCounter++;
+    const newV = {...v, id:`var_${varCounter}`};
+    state.builderVars.push(newV);
+    const wrap = document.getElementById('b-vars-list');
+    const div = document.createElement('div');
+    div.dataset.varid = newV.id;
+    div.style.cssText = 'background:var(--rule-2);border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--blue)">VAR ${varCounter}</span>
+        <button class="btn btn-danger btn-xs" onclick="removeVar('${newV.id}')">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0;overflow:hidden">
+        <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Nombre clave</label><input class="field-input" style="font-family:var(--font-mono);font-size:11px;width:100%;min-width:0" value="${newV.name}" oninput="updateVar('${newV.id}','name',this.value);updateBuilderPreview()" data-field="name"></div>
+        <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Tipo</label><select class="field-select" style="font-size:12px;width:100%;min-width:0" onchange="updateVar('${newV.id}','type',this.value)" data-field="type">
+          <option value="number" ${newV.type==='number'?'selected':''}>Número</option>
+          <option value="percent" ${newV.type==='percent'?'selected':''}>Porcentaje</option>
+          <option value="currency" ${newV.type==='currency'?'selected':''}>Moneda</option>
+          <option value="text" ${newV.type==='text'?'selected':''}>Texto</option>
+        </select></div>
+        <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Etiqueta</label><input class="field-input" style="font-size:12px;width:100%;min-width:0" value="${newV.label||''}" oninput="updateVar('${newV.id}','label',this.value)" data-field="label"></div>
+        <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Unidad</label><input class="field-input" style="font-size:12px;width:100%;min-width:0" value="${newV.unit||''}" oninput="updateVar('${newV.id}','unit',this.value)" data-field="unit"></div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+
+  // Conditions
+  document.getElementById('b-thr-amber-list').innerHTML = '';
+  document.getElementById('b-thr-red-list').innerHTML = '';
+  condCounter = 0;
+
+  const loadConds = (conds, color) => {
+    conds.forEach(c => {
+      condCounter++;
+      const listId = `b-thr-${color}-list`;
+      const condId = `cond_${color}_${condCounter}`;
+      const list = document.getElementById(listId);
+      const varOptions = state.builderVars.filter(v=>v.name).map(v=>`<option value="${v.name}" ${c.var===v.name?'selected':''}>${v.name}</option>`).join('');
+      const extraOpt = c.var === 'resultado' ? `<option value="resultado" ${c.var==='resultado'?'selected':''}>resultado</option>` : '';
+
+      const div = document.createElement('div');
+      div.dataset.condid = condId;
+      div.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+      div.innerHTML = `
+        <select class="cond-select" data-field="var">
+          ${varOptions}${extraOpt}
+        </select>
+        <select class="cond-select" data-field="op">
+          <option value=">" ${c.op==='>'?'selected':''}>&gt;</option>
+          <option value=">=" ${c.op==='>='?'selected':''}>&gt;=</option>
+          <option value="<" ${c.op==='<'?'selected':''}>&lt;</option>
+          <option value="<=" ${c.op==='<='?'selected':''}>&lt;=</option>
+          <option value="==" ${c.op==='=='?'selected':''}>==</option>
+        </select>
+        <input class="cond-input" type="number" data-field="val" value="${c.val}">
+        <button class="btn btn-danger btn-xs" onclick="this.parentElement.remove()">✕</button>
+      `;
+      list.appendChild(div);
+    });
+  };
+
+  loadConds(t.amberConditions || [], 'amber');
+  loadConds(t.redConditions || [], 'red');
+
+  updateFormulaVars();
+  updateBuilderPreview();
+  updateBuilderTestInputs();
+
+  // Scroll to form
+  document.querySelector('.builder-form').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Toast feedback
+  showToast(`✓ Plantilla "${t.name}" cargada. Puedes modificarla antes de guardar.`);
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('sm-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'sm-toast';
+    toast.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+      padding:10px 20px;border-radius:20px;font-size:12px;font-family:var(--font-mono);z-index:999;
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:opacity 0.3s;pointer-events:none`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ toast.style.opacity='0'; }, 3000);
+}
+
+/* ══════════════════════════════════════
+   TEMPLATE DETAIL MODAL
+══════════════════════════════════════ */
+let activeTplDetailId = null;
+
+function openTemplateDetail(tplId) {
+  const t = METRIC_TEMPLATES.find(x=>x.id===tplId);
+  if (!t) return;
+  activeTplDetailId = tplId;
+
+  const catColors = {
+    incidentes:'#c42020', vulnerabilidades:'#1a8044', compliance:'#5c5f80',
+    operaciones:'#0e8094', riesgo:'#cc6f00', eficiencia:'#2557e8',
+    identidad:'#6b21e8', amenazas:'#73150d'
+  };
+  const catBg = {
+    incidentes:'#fff0f0', vulnerabilidades:'#e6f7ee', compliance:'#f0f0f5',
+    operaciones:'#e2f8fb', riesgo:'#fff3d6', eficiencia:'#eaf0ff',
+    identidad:'#f3ecff', amenazas:'#fff5f5'
+  };
+  const c = catColors[t.category] || '#2557e8';
+  const bg = catBg[t.category] || '#eaf0ff';
+
+  // Header style
+  const header = document.getElementById('tpl-detail-header');
+  header.style.background = c;
+  header.style.borderBottom = 'none';
+  header.querySelector('.modal-title').style.color = '#fff';
+  header.querySelector('.btn').style.color = 'rgba(255,255,255,0.8)';
+  document.getElementById('tpl-detail-title').innerHTML = `
+    <span style="font-size:20px;margin-right:8px">${t.icon}</span>${t.name}
+  `;
+
+  // Body
+  const already = state.customMetrics.some(m=>m.id===('custom_'+tplId));
+  document.getElementById('tpl-detail-body').innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="badge badge-blue">${t.category.toUpperCase()}</span>
+      <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">📐 Marco: <strong style="color:var(--ink-2)">${t.framework}</strong></span>
+      <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">🎯 Objetivo: <strong style="color:${c}">${t.goal}</strong></span>
+      <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">📏 Unidad: <strong style="color:var(--ink-2)">${t.unit}</strong></span>
+    </div>
+
+    <p style="font-size:13px;color:var(--ink-3);line-height:1.65;border-left:3px solid ${c};padding-left:12px;margin:0">${t.desc}</p>
+
+    <div>
+      <div class="section-lbl">Variables de entrada</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${t.vars.map((v,i)=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--paper);border-radius:8px;border:1px solid var(--rule)">
+            <div style="width:22px;height:22px;border-radius:50%;background:${c}20;color:${c};font-family:var(--font-mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${i+1}</div>
+            <div style="flex:1">
+              <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:${c}">${v.name}</div>
+              <div style="font-size:12px;color:var(--ink-3)">${v.label}${v.unit?' ('+v.unit+')':''}</div>
+            </div>
+            <span class="badge badge-grey">${v.type}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div>
+      <div class="section-lbl">Fórmula de cálculo</div>
+      <div style="background:var(--ink);border-radius:8px;padding:12px 16px;font-family:var(--font-mono);font-size:12px;color:#a8d8ff;line-height:1.6;word-break:break-all">${t.formula}</div>
+    </div>
+
+    <div>
+      <div class="section-lbl">Umbrales de alerta</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--green-bg);border:1px solid var(--green-lt);border-radius:8px">
+          <span style="font-size:16px">🟢</span>
+          <div>
+            <div style="font-size:11px;font-family:var(--font-mono);font-weight:600;color:var(--green-dk)">OBJETIVO / VERDE</div>
+            <div style="font-size:12px;color:var(--green-dk)">${t.goal}</div>
+          </div>
+        </div>
+        ${t.amberConditions?.length ? `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--amber-bg);border:1px solid var(--amber-lt);border-radius:8px">
+          <span style="font-size:16px">⚠️</span>
+          <div>
+            <div style="font-size:11px;font-family:var(--font-mono);font-weight:600;color:var(--amber-dk)">UMBRAL AMARILLO</div>
+            <div style="font-size:12px;color:var(--amber-dk)">${t.amberConditions.map(c=>`${c.var} ${c.op} ${c.val}`).join(' AND ')}</div>
+          </div>
+        </div>` : ''}
+        ${t.redConditions?.length ? `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--red-bg);border:1px solid var(--red-lt);border-radius:8px">
+          <span style="font-size:16px">🔴</span>
+          <div>
+            <div style="font-size:11px;font-family:var(--font-mono);font-weight:600;color:var(--red-dk)">UMBRAL ROJO</div>
+            <div style="font-size:12px;color:var(--red-dk)">${t.redConditions.map(c=>`${c.var} ${c.op} ${c.val}`).join(' AND ')}</div>
+          </div>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('tpl-detail-modal').classList.add('open');
+}
+
+function closeTplDetail() {
+  document.getElementById('tpl-detail-modal').classList.remove('open');
+  activeTplDetailId = null;
+  // Reset header style
+  const header = document.getElementById('tpl-detail-header');
+  header.style.background = '';
+  header.style.borderBottom = '';
+  header.querySelector('.modal-title').style.color = '';
+  header.querySelector('.btn').style.color = '';
+}
+
+function loadTemplateFromDetail() {
+  if (activeTplDetailId) {
+    closeTplDetail();
+    loadTemplate(activeTplDetailId);
+  }
+}
+
+/* ══════════════════════════════════════
+   INCIDENTS
+══════════════════════════════════════ */
+function addIncidentRow(id='', sev='medio', date='', days='', status='cerrado') {
+  const tbody = document.getElementById('incidents-table-body');
+  const idx = tbody.children.length + 1;
+  const tr = document.createElement('tr');
+  tr.dataset.idx = idx;
+  tr.innerHTML = `
+    <td style="font-family:var(--font-mono);color:var(--ink-4)">${idx}</td>
+    <td><input class="field-input" data-field="id" style="width:100%;padding:5px 8px;font-size:12px" placeholder="INC-${String(idx).padStart(3,'0')}" value="${id}" oninput="calcIncidents()"></td>
+    <td>
+      <select class="field-select" data-field="sev" style="padding:5px 8px;font-size:12px;width:100%" onchange="calcIncidents()">
+        <option value="critico" ${sev==='critico'?'selected':''}>Crítico</option>
+        <option value="alto" ${sev==='alto'?'selected':''}>Alto</option>
+        <option value="medio" ${sev==='medio'?'selected':''}>Medio</option>
+        <option value="bajo" ${sev==='bajo'?'selected':''}>Bajo</option>
+      </select>
+    </td>
+    <td><input class="field-input" data-field="date" type="date" style="padding:5px 8px;font-size:12px" value="${date}" oninput="calcIncidents()"></td>
+    <td><input class="field-input" data-field="days" type="number" min="0" step="0.5" style="width:90px;padding:5px 8px;font-size:12px" placeholder="0" value="${days}" oninput="calcIncidents()"></td>
+    <td>
+      <select class="field-select" data-field="status" style="padding:5px 8px;font-size:12px" onchange="calcIncidents()">
+        <option value="cerrado" ${status==='cerrado'?'selected':''}>Cerrado</option>
+        <option value="abierto" ${status==='abierto'?'selected':''}>Abierto</option>
+      </select>
+    </td>
+    <td><button class="btn btn-danger btn-xs" onclick="this.closest('tr').remove();calcIncidents()">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function addSampleIncidents() {
+  const samples = [
+    ['INC-001','critico','2025-04-01',4,'cerrado'],
+    ['INC-002','alto','2025-04-03',12,'cerrado'],
+    ['INC-003','medio','2025-04-05',6,'cerrado'],
+    ['INC-004','alto','2025-04-08',18,'cerrado'],
+    ['INC-005','bajo','2025-04-10',3,'cerrado'],
+    ['INC-006','critico','2025-04-12',25,'cerrado'],
+    ['INC-007','medio','2025-04-15',9,'cerrado'],
+    ['INC-008','bajo','2025-04-18',2,'cerrado'],
+    ['INC-009','alto','2025-04-20',35,'cerrado'],
+    ['INC-010','medio','2025-04-22',7,'cerrado'],
+  ];
+  document.getElementById('incidents-table-body').innerHTML = '';
+  samples.forEach(s => addIncidentRow(...s));
+  calcIncidents();
+}
+
+function calcIncidents() {
+  const rows = document.querySelectorAll('#incidents-table-body tr');
+  const durations = [];
+  rows.forEach(r => {
+    const statusEl = r.querySelector('[data-field="status"]');
+    const daysEl   = r.querySelector('[data-field="days"]');
+    if (!statusEl || !daysEl) return;
+    const status = statusEl.value;
+    const days = parseFloat(daysEl.value);
+    if (status === 'cerrado' && !isNaN(days) && days >= 0) durations.push(days);
+  });
+
+  if (durations.length === 0) {
+    ['res-t50','res-t90'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('incident-alert').innerHTML = '';
+    return;
+  }
+
+  durations.sort((a,b)=>a-b);
+  const pct = (p) => {
+    const idx = (p/100) * durations.length;
+    const lo = Math.floor(idx - 1), hi = Math.ceil(idx - 1);
+    if (lo < 0) return durations[0];
+    if (hi >= durations.length) return durations[durations.length-1];
+    return (durations[lo] + durations[hi]) / 2;
+  };
+
+  const t50 = pct(50);
+  const t90 = pct(90);
+
+  document.getElementById('res-t50').textContent = t50 % 1 === 0 ? t50 : t50.toFixed(1);
+  document.getElementById('res-t90').textContent = t90 % 1 === 0 ? t90 : t90.toFixed(1);
+
+  // Status T50
+  let t50Status = 'verde', t90Status = 'verde';
+  if (t50 > 15) t50Status = 'rojo';
+  else if (t50 > 10) t50Status = 'amarillo';
+  if (t90 > 45) t90Status = 'rojo';
+  else if (t90 > 30) t90Status = 'amarillo';
+
+  const globalStatus = (t50Status==='rojo'||t90Status==='rojo') ? 'rojo'
+                     : (t50Status==='amarillo'||t90Status==='amarillo') ? 'amarillo' : 'verde';
+
+  const badgeClass = {verde:'badge-green',amarillo:'badge-amber',rojo:'badge-red'};
+  const badgeLabel = {verde:'✓ VERDE',amarillo:'⚠ AMARILLO',rojo:'🔴 ROJO'};
+
+  document.getElementById('res-t50-badge').innerHTML = `<span class="badge ${badgeClass[t50Status]}">${badgeLabel[t50Status]}</span>`;
+  document.getElementById('res-t90-badge').innerHTML = `<span class="badge ${badgeClass[t90Status]}">${badgeLabel[t90Status]}</span>`;
+
+  // Threshold bar — map t50 to % (0=0%, 23+=100%)
+  const maxVis = 23;
+  const pctPos = Math.min(t50 / maxVis * 100, 100);
+  document.getElementById('t50-marker').style.left = pctPos + '%';
+  const dotColor = t50Status==='rojo' ? 'var(--red)' : t50Status==='amarillo' ? 'var(--amber)' : 'var(--green)';
+  document.getElementById('t50-marker').style.background = dotColor;
+
+  // Alert
+  let alertHtml = '';
+  if (globalStatus === 'verde') {
+    alertHtml = `<div class="alert-row green"><span style="font-size:16px">✓</span><span><strong>Estado óptimo.</strong> T(50)=${t50}d y T(90)=${t90}d están dentro del objetivo.</span></div>`;
+  } else if (globalStatus === 'amarillo') {
+    alertHtml = `<div class="alert-row amber"><span style="font-size:16px">⚠</span><span><strong>Atención requerida.</strong> ${t50Status==='amarillo'?`T(50)=${t50}d supera el umbral de 10 días.`:''} ${t90Status==='amarillo'?`T(90)=${t90}d supera el umbral de 30 días.`:''} Revisa la carga de trabajo del equipo.</span></div>`;
+  } else {
+    alertHtml = `<div class="alert-row red"><span style="font-size:16px">🔴</span><span><strong>Alerta crítica.</strong> ${t50Status==='rojo'?`T(50)=${t50}d supera el umbral de 15 días.`:''} ${t90Status==='rojo'?`T(90)=${t90}d supera el umbral de 45 días.`:''} Se requiere acción inmediata.</span></div>`;
+  }
+  document.getElementById('incident-alert').innerHTML = alertHtml;
+
+  // Store
+  state.incidents = {t50, t90, status: globalStatus, t50Status, t90Status, count: durations.length};
+  updateCounters();
+  updateDashboard();
+}
+
+/* ══════════════════════════════════════
+   EFFICIENCY
+══════════════════════════════════════ */
+function calcEfficiency() {
+  const hoursReal = parseFloat(document.getElementById('eff-hours-real').value) || 0;
+  const incResolved = parseFloat(document.getElementById('eff-resolved').value) || 0;
+  const budgetTotal = parseFloat(document.getElementById('eff-budget-total').value) || 0;
+  const budgetReal = parseFloat(document.getElementById('eff-budget-real').value) || 0;
+  const thrAmber = parseFloat(document.getElementById('eff-thr-amber').value) || 95;
+  const thrRed = parseFloat(document.getElementById('eff-thr-red').value) || 110;
+
+  let effHours = 0, effBudget = 0, costPerInc = 0;
+  let hoursStatus = 'grey', budgetStatus = 'grey';
+
+  if (hoursReal > 0 && incResolved > 0) {
+    effHours = (incResolved / hoursReal);
+    // Simple threshold: >0.15 = green, 0.08-0.15 = amber, <0.08 = red
+    hoursStatus = effHours >= 0.15 ? 'verde' : effHours >= 0.08 ? 'amarillo' : 'rojo';
+    document.getElementById('eff-res-hours').textContent = effHours.toFixed(3);
+  }
+
+  if (budgetTotal > 0) {
+    effBudget = (budgetReal / budgetTotal) * 100;
+    budgetStatus = effBudget <= thrAmber ? 'verde' : effBudget <= thrRed ? 'amarillo' : 'rojo';
+    document.getElementById('eff-res-budget').textContent = effBudget.toFixed(1) + '%';
+    if (incResolved > 0) {
+      costPerInc = budgetReal / incResolved;
+      document.getElementById('eff-res-cost').textContent = formatCurrency(costPerInc);
+    }
+  }
+
+  const badgeClass = {verde:'badge-green',amarillo:'badge-amber',rojo:'badge-red',grey:'badge-grey'};
+  const badgeLabel = {verde:'✓ BUENA',amarillo:'⚠ ATENCIÓN',rojo:'🔴 CRÍTICO',grey:'Sin datos'};
+
+  document.getElementById('eff-hours-badge').innerHTML = `<span class="badge ${badgeClass[hoursStatus]}">${badgeLabel[hoursStatus]}</span>`;
+  document.getElementById('eff-budget-badge').innerHTML = `<span class="badge ${badgeClass[budgetStatus]}">${badgeLabel[budgetStatus]}</span>`;
+
+  const costClass = costPerInc === 0 ? 'grey' : costPerInc < 3000 ? 'verde' : costPerInc < 5000 ? 'amarillo' : 'rojo';
+  document.getElementById('eff-cost-badge').innerHTML = `<span class="badge ${badgeClass[costClass]}">${badgeLabel[costClass]}</span>`;
+
+  const globalStatus = (hoursStatus==='rojo'||budgetStatus==='rojo') ? 'rojo'
+                     : (hoursStatus==='amarillo'||budgetStatus==='amarillo') ? 'amarillo'
+                     : (hoursStatus==='grey'&&budgetStatus==='grey') ? 'grey' : 'verde';
+
+  let alertHtml = '';
+  if (globalStatus !== 'grey') {
+    const msgs = {
+      verde: `<div class="alert-row green"><span>✓</span><span><strong>Eficiencia aceptable.</strong> Los recursos se están utilizando dentro de los parámetros normales.</span></div>`,
+      amarillo: `<div class="alert-row amber"><span>⚠</span><span><strong>Eficiencia bajo revisión.</strong> Algún indicador supera los umbrales de alerta. Revisa la distribución de recursos.</span></div>`,
+      rojo: `<div class="alert-row red"><span>🔴</span><span><strong>Eficiencia crítica.</strong> Los recursos están siendo mal utilizados o el presupuesto se ha excedido. Intervención necesaria.</span></div>`,
+    };
+    alertHtml = msgs[globalStatus] || '';
+  }
+  document.getElementById('eff-alert').innerHTML = alertHtml;
+
+  state.efficiency = {effHours, effBudget, costPerInc, hoursStatus, budgetStatus, globalStatus};
+  updateCounters();
+  updateDashboard();
+}
+
+function saveEfficiencyRecord() {
+  const period = document.getElementById('eff-period-name').value || document.getElementById('eff-period').value;
+  const hoursReal = parseFloat(document.getElementById('eff-hours-real').value) || 0;
+  const incResolved = parseFloat(document.getElementById('eff-resolved').value) || 0;
+  const budgetTotal = parseFloat(document.getElementById('eff-budget-total').value) || 0;
+  const budgetReal = parseFloat(document.getElementById('eff-budget-real').value) || 0;
+  const effH = hoursReal > 0 && incResolved > 0 ? (incResolved/hoursReal).toFixed(3) : '—';
+  const effB = budgetTotal > 0 ? ((budgetReal/budgetTotal)*100).toFixed(1)+'%' : '—';
+
+  const rec = {period, hoursReal, incResolved, budgetTotal, budgetReal, effH, effB, status: state.efficiency?.globalStatus||'grey', date: new Date().toLocaleDateString('es-ES')};
+  state.effHistory.unshift(rec);
+  renderEffHistory();
+}
+
+function renderEffHistory() {
+  const tbody = document.getElementById('eff-history-body');
+  if (!state.effHistory.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--ink-4);padding:20px;font-family:var(--font-mono);font-size:12px">Sin registros históricos aún.</td></tr>';
+    return;
+  }
+  const statusClass = {verde:'badge-green',amarillo:'badge-amber',rojo:'badge-red',grey:'badge-grey'};
+  const statusLabel = {verde:'VERDE',amarillo:'AMARILLO',rojo:'ROJO',grey:'—'};
+  tbody.innerHTML = state.effHistory.map((r,i)=>`
+    <tr>
+      <td style="font-weight:500">${r.period}</td>
+      <td style="font-family:var(--font-mono)">${r.hoursReal}h</td>
+      <td style="font-family:var(--font-mono)">${r.incResolved}</td>
+      <td style="font-family:var(--font-mono)">${r.effH}</td>
+      <td style="font-family:var(--font-mono)">${r.budgetTotal ? formatCurrency(r.budgetTotal) : '—'}</td>
+      <td style="font-family:var(--font-mono)">${r.budgetReal ? formatCurrency(r.budgetReal) : '—'}</td>
+      <td style="font-family:var(--font-mono)">${r.effB}</td>
+      <td><span class="badge ${statusClass[r.status]}">${statusLabel[r.status]}</span></td>
+      <td><button class="btn btn-danger btn-xs" onclick="state.effHistory.splice(${i},1);renderEffHistory()">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ══════════════════════════════════════
+   BUILDER
+══════════════════════════════════════ */
+let varCounter = 0;
+function addVar() {
+  varCounter++;
+  const id = `var_${varCounter}`;
+  const item = {id, name:'', type:'number', label:'', unit:''};
+  state.builderVars.push(item);
+
+  const wrap = document.getElementById('b-vars-list');
+  const div = document.createElement('div');
+  div.dataset.varid = id;
+  div.style.cssText = 'background:var(--rule-2);border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--blue)">VAR ${varCounter}</span>
+      <button class="btn btn-danger btn-xs" onclick="removeVar('${id}')">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0;overflow:hidden">
+      <div class="field" style="min-width:0;overflow:hidden">
+        <label class="field-label">Nombre clave (código)</label>
+        <input class="field-input" style="font-family:var(--font-mono);font-size:11px;width:100%;min-width:0" placeholder="total_incidentes" oninput="updateVar('${id}','name',this.value);updateBuilderPreview()" data-field="name">
+      </div>
+      <div class="field" style="min-width:0;overflow:hidden">
+        <label class="field-label">Tipo</label>
+        <select class="field-select" style="font-size:12px;width:100%;min-width:0" onchange="updateVar('${id}','type',this.value)" data-field="type">
+          <option value="number">Número</option>
+          <option value="percent">Porcentaje</option>
+          <option value="currency">Moneda (€)</option>
+          <option value="text">Texto</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:0;overflow:hidden">
+        <label class="field-label">Etiqueta para el usuario</label>
+        <input class="field-input" style="font-size:12px;width:100%;min-width:0" placeholder="Total de incidentes" oninput="updateVar('${id}','label',this.value)" data-field="label">
+      </div>
+      <div class="field" style="min-width:0;overflow:hidden">
+        <label class="field-label">Unidad (opcional)</label>
+        <input class="field-input" style="font-size:12px;width:100%;min-width:0" placeholder="Ej: días, %" oninput="updateVar('${id}','unit',this.value)" data-field="unit">
+      </div>
+    </div>
+  `;
+  wrap.appendChild(div);
+  updateFormulaVars();
+  updateBuilderTestInputs();
+}
+
+function removeVar(id) {
+  state.builderVars = state.builderVars.filter(v=>v.id !== id);
+  document.querySelector(`[data-varid="${id}"]`)?.remove();
+  updateFormulaVars();
+  updateBuilderTestInputs();
+}
+
+function updateVar(id, field, value) {
+  const v = state.builderVars.find(v=>v.id===id);
+  if (v) v[field] = value;
+  updateFormulaVars();
+  updateBuilderTestInputs();
+}
+
+function updateFormulaVars() {
+  const wrap = document.getElementById('b-fvars');
+  wrap.innerHTML = state.builderVars.filter(v=>v.name).map(v=>`
+    <span class="fvar" onclick="insertVarInFormula('${v.name}')" title="${v.label||v.name}">{${v.name}}</span>
+  `).join('');
+}
+
+function insertVarInFormula(name) {
+  const ta = document.getElementById('b-formula');
+  const pos = ta.selectionStart;
+  const val = ta.value;
+  ta.value = val.slice(0,pos) + name + val.slice(pos);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + name.length;
+}
+
+let condCounter = 0;
+function addCondition(color) {
+  condCounter++;
+  const listId = `b-thr-${color}-list`;
+  const condId = `cond_${color}_${condCounter}`;
+  const list = document.getElementById(listId);
+  const vars = state.builderVars.filter(v=>v.name);
+
+  const div = document.createElement('div');
+  div.dataset.condid = condId;
+  div.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  div.innerHTML = `
+    <select class="cond-select" data-field="var">
+      ${vars.length ? vars.map(v=>`<option value="${v.name}">${v.name}</option>`).join('') : '<option value="resultado">resultado</option>'}
+    </select>
+    <select class="cond-select" data-field="op">
+      <option value=">">&gt;</option>
+      <option value=">=">&gt;=</option>
+      <option value="<">&lt;</option>
+      <option value="<=">&lt;=</option>
+      <option value="==">==</option>
+    </select>
+    <input class="cond-input" type="number" data-field="val" placeholder="valor">
+    <button class="btn btn-danger btn-xs" onclick="this.parentElement.remove()">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+function getConditions(color) {
+  const listId = `b-thr-${color}-list`;
+  const rows = document.querySelectorAll(`#${listId} [data-condid]`);
+  const conds = [];
+  rows.forEach(row => {
+    const varEl = row.querySelector('[data-field="var"]');
+    const opEl = row.querySelector('[data-field="op"]');
+    const valEl = row.querySelector('[data-field="val"]');
+    if (varEl && opEl && valEl && valEl.value !== '') {
+      conds.push({var: varEl.value, op: opEl.value, val: parseFloat(valEl.value)});
+    }
+  });
+  return conds;
+}
+
+function evalConditions(conds, vars) {
+  return conds.every(c => {
+    const v = vars[c.var];
+    if (v === undefined) return false;
+    switch(c.op) {
+      case '>':  return v > c.val;
+      case '>=': return v >= c.val;
+      case '<':  return v < c.val;
+      case '<=': return v <= c.val;
+      case '==': return v == c.val;
+      default: return false;
+    }
+  });
+}
+
+function selectColor(el) {
+  document.querySelectorAll('.color-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedColor = el.dataset.color;
+  updateBuilderPreview();
+}
+
+function updateBuilderPreview() {
+  const name = document.getElementById('b-name').value.trim();
+  const desc = document.getElementById('b-desc').value.trim();
+  const icon = document.getElementById('b-icon').value.trim() || '📊';
+  const unit = document.getElementById('b-unit').value.trim() || '';
+  const goal = document.getElementById('b-goal').value.trim() || '—';
+  const category = document.getElementById('b-category').value;
+  const color = state.selectedColor;
+
+  const preview = document.getElementById('builder-preview');
+  if (!name) {
+    preview.innerHTML = `<div class="preview-empty"><div class="preview-empty-icon">✦</div>Rellena el formulario de la izquierda para ver<br>cómo quedará tu métrica.</div>`;
+    document.getElementById('builder-test-card').style.display = 'none';
+    return;
+  }
+
+  preview.innerHTML = `
+    <div style="border:1px solid var(--rule);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm)">
+      <div style="background:${color};padding:16px 20px;display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px">${icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:#fff">${name}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;font-family:var(--font-mono)">${category.toUpperCase()} · ${unit||'sin unidad'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:#fff">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.6);font-family:var(--font-mono)">${unit}</div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;background:var(--white);border-bottom:1px solid var(--rule-2)">
+        ${desc ? `<p style="font-size:12px;color:var(--ink-3);line-height:1.6;margin-bottom:8px">${desc}</p>` : ''}
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">🎯 Objetivo: <strong style="color:var(--ink-2)">${goal}</strong></span>
+          <span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">🔢 Variables: <strong style="color:var(--ink-2)">${state.builderVars.filter(v=>v.name).length}</strong></span>
+        </div>
+      </div>
+      <div style="padding:14px 20px;background:var(--paper);display:flex;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div>Verde → OK</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></div>Amarillo → Atención</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--red)"></div>Rojo → Crítico</div>
+      </div>
+    </div>
+  `;
+
+  const testCard = document.getElementById('builder-test-card');
+  if (state.builderVars.filter(v=>v.name).length > 0) {
+    testCard.style.display = '';
+    updateBuilderTestInputs();
+  } else {
+    testCard.style.display = 'none';
+  }
+}
+
+function updateBuilderTestInputs() {
+  const wrap = document.getElementById('builder-test-inputs');
+  wrap.innerHTML = '';
+  state.builderVars.filter(v=>v.name).forEach(v=>{
+    const div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = `
+      <label class="field-label">${v.label || v.name} ${v.unit ? `(${v.unit})`:''}</label>
+      <input class="field-input" id="test-${v.name}" type="${v.type==='text'?'text':'number'}" placeholder="Introduce ${v.name}">
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function testFormula() {
+  const formula = document.getElementById('b-formula').value.trim();
+  if (!formula) { document.getElementById('test-result').innerHTML = '<span style="color:var(--red)">Define una fórmula primero.</span>'; return; }
+
+  const vars = {};
+  state.builderVars.filter(v=>v.name).forEach(v=>{
+    const el = document.getElementById(`test-${v.name}`);
+    vars[v.name] = el ? (v.type==='text' ? el.value : parseFloat(el.value)||0) : 0;
+  });
+
+  try {
+    const fn = new Function(...Object.keys(vars), `return (${formula})`);
+    const result = fn(...Object.values(vars));
+    const unit = document.getElementById('b-unit').value.trim();
+    const amberConds = getConditions('amber');
+    const redConds = getConditions('red');
+    let status = 'verde';
+    if (redConds.length && evalConditions(redConds, {...vars, resultado: result})) status = 'rojo';
+    else if (amberConds.length && evalConditions(amberConds, {...vars, resultado: result})) status = 'amarillo';
+
+    const statusColor = {verde:'var(--green)',amarillo:'var(--amber)',rojo:'var(--red)'};
+    const statusLabel = {verde:'✓ VERDE',amarillo:'⚠ AMARILLO',rojo:'🔴 ROJO'};
+    document.getElementById('test-result').innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--rule-2);border-radius:8px;border:1px solid var(--rule)">
+        <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:${statusColor[status]}">${typeof result==='number' ? (Number.isInteger(result)?result:result.toFixed(3)) : result}</div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--ink-4)">${unit}</div>
+          <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:${statusColor[status]}">${statusLabel[status]}</div>
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('test-result').innerHTML = `<span style="color:var(--red);font-family:var(--font-mono);font-size:11px">Error en fórmula: ${e.message}</span>`;
+  }
+}
+
+function saveMetric() {
+  const name = document.getElementById('b-name').value.trim();
+  if (!name) { alert('El nombre de la métrica es obligatorio.'); return; }
+
+  const formula = document.getElementById('b-formula').value.trim();
+  const metric = {
+    id: state.editingMetricId || `m_${Date.now()}`,
+    name,
+    desc: document.getElementById('b-desc').value.trim(),
+    icon: document.getElementById('b-icon').value.trim() || '📊',
+    category: document.getElementById('b-category').value,
+    unit: document.getElementById('b-unit').value.trim(),
+    color: state.selectedColor,
+    formula,
+    goal: document.getElementById('b-goal').value.trim(),
+    vars: state.builderVars.filter(v=>v.name).map(v=>({...v})),
+    amberConditions: getConditions('amber'),
+    redConditions: getConditions('red'),
+    currentValue: null,
+    currentStatus: 'grey',
+    lastUpdated: null,
+  };
+
+  if (state.editingMetricId) {
+    const idx = state.customMetrics.findIndex(m=>m.id===state.editingMetricId);
+    if (idx >= 0) state.customMetrics[idx] = metric;
+    state.editingMetricId = null;
+  } else {
+    state.customMetrics.push(metric);
+  }
+
+  clearBuilder();
+  updateCounters();
+  showPage('custom', document.querySelectorAll('.ntab')[3]);
+}
+
+function clearBuilder() {
+  document.getElementById('b-name').value = '';
+  document.getElementById('b-desc').value = '';
+  document.getElementById('b-icon').value = '';
+  document.getElementById('b-unit').value = '';
+  document.getElementById('b-goal').value = '';
+  document.getElementById('b-formula').value = '';
+  document.getElementById('b-vars-list').innerHTML = '';
+  document.getElementById('b-thr-amber-list').innerHTML = '';
+  document.getElementById('b-thr-red-list').innerHTML = '';
+  document.getElementById('b-fvars').innerHTML = '';
+  state.builderVars = [];
+  state.editingMetricId = null;
+  varCounter = 0;
+  updateBuilderPreview();
+}
+
+/* ══════════════════════════════════════
+   CUSTOM METRICS PANEL
+══════════════════════════════════════ */
+function renderCustomMetrics() {
+  const list = document.getElementById('custom-metrics-list');
+  if (!state.customMetrics.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🛠</div>
+      <div class="empty-title">Sin métricas personalizadas</div>
+      <div class="empty-desc">Usa el Constructor para crear métricas adaptadas a tu organización, con umbrales y fórmulas propias.</div>
+      <button class="btn btn-purple" onclick="showPage('builder', document.querySelectorAll('.ntab')[4])">✦ Ir al Constructor</button>
+    </div>`;
+    return;
+  }
+
+  const statusColor = {verde:'var(--green)',amarillo:'var(--amber)',rojo:'var(--red)',grey:'var(--ink-4)'};
+  const statusLabel = {verde:'VERDE',amarillo:'AMARILLO',rojo:'ROJO',grey:'Sin datos'};
+  const badgeClass = {verde:'badge-green',amarillo:'badge-amber',rojo:'badge-red',grey:'badge-grey'};
+
+  list.innerHTML = state.customMetrics.map(m => `
+    <div class="metric-row ${m.currentValue !== null ? 'open' : ''}" id="mrow-${m.id}">
+      <div class="metric-row-header" onclick="toggleMetricRow('${m.id}')">
+        <div class="metric-indicator" style="background:${statusColor[m.currentStatus]}"></div>
+        <div class="metric-icon" style="background:${m.color}20;color:${m.color}">${m.icon}</div>
+        <div class="metric-info">
+          <div class="metric-name">${m.name}</div>
+          <div class="metric-meta">${m.category.toUpperCase()} · ${m.vars.length} var${m.vars.length!==1?'s':''} · ${m.formula ? 'Fórmula definida' : 'Sin fórmula'}</div>
+        </div>
+        <div class="metric-value-display">
+          <div class="mvd-val" style="color:${m.currentValue!==null?statusColor[m.currentStatus]:'var(--ink-4)'}">${m.currentValue !== null ? (typeof m.currentValue==='number'?m.currentValue.toFixed(2):m.currentValue) : '—'}</div>
+          <div class="mvd-unit">${m.unit}</div>
+          <div class="mvd-status s-${m.currentStatus}">${statusLabel[m.currentStatus]}</div>
+        </div>
+        <span class="m-chevron">›</span>
+      </div>
+      <div class="metric-row-body">
+        <div class="metric-detail-panel">
+          ${m.desc ? `<p style="font-size:12px;color:var(--ink-3);line-height:1.6;margin-bottom:14px">${m.desc}</p>` : ''}
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+            ${m.goal ? `<span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">🎯 Objetivo: <strong style="color:var(--ink-2)">${m.goal}</strong></span>` : ''}
+            ${m.lastUpdated ? `<span style="font-size:11px;font-family:var(--font-mono);color:var(--ink-4)">🕐 Último cálculo: <strong style="color:var(--ink-2)">${m.lastUpdated}</strong></span>` : ''}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="openDataModal('${m.id}')">↻ Introducir datos y calcular</button>
+            <button class="btn btn-outline btn-sm" onclick="editMetric('${m.id}')">✎ Editar métrica</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteMetric('${m.id}')">✕ Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleMetricRow(id) {
+  const row = document.getElementById(`mrow-${id}`);
+  if (row) row.classList.toggle('open');
+}
+
+function openDataModal(metricId) {
+  const m = state.customMetrics.find(x=>x.id===metricId);
+  if (!m) return;
+  state.activeModalMetricId = metricId;
+  document.getElementById('data-modal-title').textContent = `Calcular: ${m.name}`;
+  const body = document.getElementById('data-modal-body');
+  body.innerHTML = `
+    <div class="info-box"><strong>${m.icon} ${m.name}</strong><br>Fórmula: <code style="font-family:var(--font-mono);font-size:11px">${m.formula || '—'}</code></div>
+    ${m.vars.map(v=>`
+      <div class="field">
+        <label class="field-label">${v.label || v.name} ${v.unit?`(${v.unit})`:''}</label>
+        <input class="field-input" id="modal-var-${v.name}" type="${v.type==='text'?'text':'number'}" placeholder="Introduce ${v.label||v.name}">
+      </div>
+    `).join('')}
+  `;
+  document.getElementById('data-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('data-modal').classList.remove('open');
+  state.activeModalMetricId = null;
+}
+
+function submitDataModal() {
+  const m = state.customMetrics.find(x=>x.id===state.activeModalMetricId);
+  if (!m) return closeModal();
+
+  const vars = {};
+  m.vars.forEach(v=>{
+    const el = document.getElementById(`modal-var-${v.name}`);
+    vars[v.name] = el ? (v.type==='text' ? el.value : parseFloat(el.value)||0) : 0;
+  });
+
+  try {
+    const fn = new Function(...Object.keys(vars), `return (${m.formula})`);
+    const result = fn(...Object.values(vars));
+    const amberConds = m.amberConditions || [];
+    const redConds = m.redConditions || [];
+    let status = 'verde';
+    if (redConds.length && evalConditions(redConds, {...vars, resultado:result})) status = 'rojo';
+    else if (amberConds.length && evalConditions(amberConds, {...vars, resultado:result})) status = 'amarillo';
+
+    m.currentValue = typeof result==='number' ? result : result;
+    m.currentStatus = status;
+    m.lastUpdated = new Date().toLocaleString('es-ES');
+  } catch(e) {
+    alert('Error evaluando la fórmula: ' + e.message);
+    return;
+  }
+
+  closeModal();
+  renderCustomMetrics();
+  updateCounters();
+  updateDashboard();
+}
+
+function editMetric(id) {
+  const m = state.customMetrics.find(x=>x.id===id);
+  if (!m) return;
+  state.editingMetricId = id;
+  showPage('builder', document.querySelectorAll('.ntab')[4]);
+
+  // Populate builder
+  setTimeout(()=>{
+    document.getElementById('b-name').value = m.name;
+    document.getElementById('b-desc').value = m.desc || '';
+    document.getElementById('b-icon').value = m.icon;
+    document.getElementById('b-unit').value = m.unit || '';
+    document.getElementById('b-goal').value = m.goal || '';
+    document.getElementById('b-formula').value = m.formula || '';
+    document.getElementById('b-category').value = m.category || 'otro';
+    state.selectedColor = m.color;
+    document.querySelectorAll('.color-chip').forEach(c=>{
+      c.classList.toggle('selected', c.dataset.color === m.color);
+    });
+
+    // Vars
+    document.getElementById('b-vars-list').innerHTML = '';
+    state.builderVars = [];
+    m.vars.forEach(v=>{
+      state.builderVars.push({...v});
+      varCounter++;
+      const wrap = document.getElementById('b-vars-list');
+      const div = document.createElement('div');
+      div.dataset.varid = v.id;
+      div.style.cssText = 'background:var(--rule-2);border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px';
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--blue)">VAR ${varCounter}</span>
+          <button class="btn btn-danger btn-xs" onclick="removeVar('${v.id}')">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0;overflow:hidden">
+          <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Nombre clave</label><input class="field-input" style="font-family:var(--font-mono);font-size:11px;width:100%;min-width:0" value="${v.name}" oninput="updateVar('${v.id}','name',this.value);updateBuilderPreview()" data-field="name"></div>
+          <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Tipo</label><select class="field-select" style="font-size:12px;width:100%;min-width:0" onchange="updateVar('${v.id}','type',this.value)" data-field="type"><option value="number" ${v.type==='number'?'selected':''}>Número</option><option value="percent" ${v.type==='percent'?'selected':''}>Porcentaje</option><option value="currency" ${v.type==='currency'?'selected':''}>Moneda</option><option value="text" ${v.type==='text'?'selected':''}>Texto</option></select></div>
+          <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Etiqueta</label><input class="field-input" style="font-size:12px;width:100%;min-width:0" value="${v.label||''}" oninput="updateVar('${v.id}','label',this.value)" data-field="label"></div>
+          <div class="field" style="min-width:0;overflow:hidden"><label class="field-label">Unidad</label><input class="field-input" style="font-size:12px;width:100%;min-width:0" value="${v.unit||''}" oninput="updateVar('${v.id}','unit',this.value)" data-field="unit"></div>
+        </div>
+      `;
+      wrap.appendChild(div);
+    });
+
+    updateFormulaVars();
+    updateBuilderPreview();
+  }, 50);
+}
+
+function deleteMetric(id) {
+  if (!confirm('¿Eliminar esta métrica?')) return;
+  state.customMetrics = state.customMetrics.filter(m=>m.id!==id);
+  updateCounters();
+  renderCustomMetrics();
+  updateDashboard();
+}
+
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+function updateDashboard() {
+  document.getElementById('dash-time').textContent = new Date().toLocaleString('es-ES');
+
+  // T50 / T90
+  if (state.incidents && state.incidents.t50 !== undefined) {
+    const inc = state.incidents;
+    document.getElementById('kpi-t50').textContent = inc.t50;
+    document.getElementById('kpi-t90').textContent = inc.t90;
+    const dotClass = {verde:'s-green',amarillo:'s-amber',rojo:'s-red'};
+    document.getElementById('kpi-t50-dot').className = `status-dot ${dotClass[inc.t50Status]||'s-grey'}`;
+    document.getElementById('kpi-t90-dot').className = `status-dot ${dotClass[inc.t90Status]||'s-grey'}`;
+    document.getElementById('kpi-t50-status').textContent = inc.t50Status.toUpperCase();
+    document.getElementById('kpi-t90-status').textContent = inc.t90Status.toUpperCase();
+    document.getElementById('nb-incidents').textContent = inc.t50Status.toUpperCase().slice(0,1);
+  }
+
+  if (state.efficiency) {
+    const eff = state.efficiency;
+    document.getElementById('kpi-eff-h').textContent = eff.effHours > 0 ? eff.effHours.toFixed(2) : '—';
+    document.getElementById('kpi-eff-b').textContent = eff.effBudget > 0 ? eff.effBudget.toFixed(1)+'%' : '—';
+    const dotClass = {verde:'s-green',amarillo:'s-amber',rojo:'s-red',grey:'s-grey'};
+    document.getElementById('kpi-eff-h-dot').className = `status-dot ${dotClass[eff.hoursStatus]}`;
+    document.getElementById('kpi-eff-b-dot').className = `status-dot ${dotClass[eff.budgetStatus]}`;
+    document.getElementById('kpi-eff-h-status').textContent = eff.hoursStatus.toUpperCase();
+    document.getElementById('kpi-eff-b-status').textContent = eff.budgetStatus.toUpperCase();
+    document.getElementById('nb-efficiency').textContent = eff.globalStatus.slice(0,1).toUpperCase();
+  }
+
+  // Global status
+  const statuses = [
+    state.incidents?.status,
+    state.efficiency?.globalStatus,
+    ...state.customMetrics.map(m=>m.currentStatus)
+  ].filter(Boolean).filter(s=>s!=='grey');
+
+  const globalStatus = statuses.includes('rojo') ? 'rojo'
+                     : statuses.includes('amarillo') ? 'amarillo'
+                     : statuses.length ? 'verde' : 'grey';
+
+  const dotEl = document.getElementById('tb-global-dot');
+  const lblEl = document.getElementById('tb-global-status');
+  const dotCols = {verde:'var(--green)',amarillo:'var(--amber)',rojo:'var(--red)',grey:'var(--ink-4)'};
+  const lblText = {verde:'OK',amarillo:'ATENCIÓN',rojo:'ALERTA',grey:'—'};
+  dotEl.style.background = dotCols[globalStatus];
+  lblEl.textContent = lblText[globalStatus];
+
+  // Dashboard table
+  const tbody = document.getElementById('dash-table-body');
+  const rows = [];
+
+  const statusBadge = (s) => {
+    const cls = {verde:'badge-green',amarillo:'badge-amber',rojo:'badge-red',grey:'badge-grey'};
+    const lbl = {verde:'✓ VERDE',amarillo:'⚠ AMARILLO',rojo:'🔴 ROJO',grey:'—'};
+    return `<span class="badge ${cls[s]||'badge-grey'}">${lbl[s]||'—'}</span>`;
+  };
+
+  if (state.incidents && state.incidents.t50 !== undefined) {
+    rows.push(`<tr><td style="font-weight:500">Tiempo de cierre T(50)</td><td><span class="badge badge-blue">Incidentes</span></td><td style="font-family:var(--font-mono)">${state.incidents.t50} días</td><td style="font-family:var(--font-mono)">0 días</td><td>${statusBadge(state.incidents.t50Status)}</td><td style="font-family:var(--font-mono);color:var(--ink-4)">${new Date().toLocaleDateString('es-ES')}</td></tr>`);
+    rows.push(`<tr><td style="font-weight:500">Tiempo de cierre T(90)</td><td><span class="badge badge-blue">Incidentes</span></td><td style="font-family:var(--font-mono)">${state.incidents.t90} días</td><td style="font-family:var(--font-mono)">0 días</td><td>${statusBadge(state.incidents.t90Status)}</td><td style="font-family:var(--font-mono);color:var(--ink-4)">${new Date().toLocaleDateString('es-ES')}</td></tr>`);
+  }
+  if (state.efficiency) {
+    const eff = state.efficiency;
+    if (eff.effHours > 0) rows.push(`<tr><td style="font-weight:500">Eficiencia en horas</td><td><span class="badge badge-blue">Eficiencia</span></td><td style="font-family:var(--font-mono)">${eff.effHours.toFixed(3)} inc/h</td><td style="font-family:var(--font-mono)">≥ 0.15</td><td>${statusBadge(eff.hoursStatus)}</td><td style="font-family:var(--font-mono);color:var(--ink-4)">${new Date().toLocaleDateString('es-ES')}</td></tr>`);
+    if (eff.effBudget > 0) rows.push(`<tr><td style="font-weight:500">Eficiencia presupuestaria</td><td><span class="badge badge-blue">Eficiencia</span></td><td style="font-family:var(--font-mono)">${eff.effBudget.toFixed(1)}%</td><td style="font-family:var(--font-mono)">≤ 95%</td><td>${statusBadge(eff.budgetStatus)}</td><td style="font-family:var(--font-mono);color:var(--ink-4)">${new Date().toLocaleDateString('es-ES')}</td></tr>`);
+  }
+  state.customMetrics.forEach(m=>{
+    if (m.currentValue !== null) {
+      rows.push(`<tr><td style="font-weight:500">${m.icon} ${m.name}</td><td><span class="badge badge-blue">${m.category}</span></td><td style="font-family:var(--font-mono)">${typeof m.currentValue==='number'?m.currentValue.toFixed(2):m.currentValue} ${m.unit}</td><td style="font-family:var(--font-mono)">${m.goal||'—'}</td><td>${statusBadge(m.currentStatus)}</td><td style="font-family:var(--font-mono);color:var(--ink-4)">${m.lastUpdated||'—'}</td></tr>`);
+    }
+  });
+
+  tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" style="text-align:center;color:var(--ink-4);padding:24px;font-family:var(--font-mono);font-size:12px">Introduce datos en las pestañas de métricas para ver el resumen.</td></tr>';
+}
+
+function updateCounters() {
+  const active = (state.incidents ? 2 : 0) + (state.efficiency ? 1 : 0) + state.customMetrics.filter(m=>m.currentValue!==null).length;
+  const base = 2 + state.customMetrics.length;
+  document.getElementById('tb-active').textContent = base;
+  document.getElementById('nb-custom').textContent = state.customMetrics.length;
+}
+
+function refreshAll() {
+  updateDashboard();
+}
+
+/* ══════════════════════════════════════
+   EXPORT
+══════════════════════════════════════ */
+function exportReport() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES');
+  const rows = [];
+
+  const addRow = (metrica, categoria, valor, objetivo, estado) => {
+    rows.push(`<tr><td>${metrica}</td><td>${categoria}</td><td>${valor}</td><td>${objetivo}</td><td>${estado}</td><td>${dateStr}</td></tr>`);
+  };
+
+  if (state.incidents?.t50 !== undefined) {
+    addRow('Tiempo de cierre T(50)', 'Incidentes', state.incidents.t50+'d', '0d', state.incidents.t50Status.toUpperCase());
+    addRow('Tiempo de cierre T(90)', 'Incidentes', state.incidents.t90+'d', '0d', state.incidents.t90Status.toUpperCase());
+  }
+  if (state.efficiency?.effHours > 0) {
+    addRow('Eficiencia en horas', 'Eficiencia', state.efficiency.effHours.toFixed(3)+' inc/h', '≥0.15', state.efficiency.hoursStatus.toUpperCase());
+    addRow('Eficiencia presupuestaria', 'Eficiencia', state.efficiency.effBudget.toFixed(1)+'%', '≤95%', state.efficiency.budgetStatus.toUpperCase());
+  }
+  state.customMetrics.forEach(m=>{
+    if (m.currentValue !== null) addRow(m.icon+' '+m.name, m.category, m.currentValue+(m.unit?' '+m.unit:''), m.goal||'—', m.currentStatus.toUpperCase());
+  });
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>SecMetrics — Informe ${dateStr}</title>
+  <style>body{font-family:sans-serif;color:#111;padding:40px;max-width:960px;margin:0 auto}
+  h1{font-size:24px;margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:24px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#111;color:#fff;padding:10px 14px;text-align:left;font-size:11px;letter-spacing:0.06em}
+  td{padding:9px 14px;border-bottom:1px solid #eee}tr:hover td{background:#f8f8f8}
+  footer{margin-top:40px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:16px}
+  </style></head><body>
+  <h1>📊 Informe de Métricas de Seguridad</h1>
+  <p>Generado el ${dateStr} · SecMetrics · Procesamiento local</p>
+  <table><thead><tr><th>Métrica</th><th>Categoría</th><th>Valor</th><th>Objetivo</th><th>Estado</th><th>Fecha</th></tr></thead>
+  <tbody>${rows.join('')}</tbody></table>
+  <footer>SecMetrics — Todas las métricas procesadas localmente, sin transmisión de datos externos.</footer>
+  </body></html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `SecMetrics-Informe-${now.toISOString().split('T')[0]}.html`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════════
+   UTILS
+══════════════════════════════════════ */
+function formatCurrency(n) {
+  return new Intl.NumberFormat('es-ES', {style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+}
+
+// Init
+updateCounters();
+updateDashboard();
+renderTemplateGrid();
+</script>
+</body>
+</html>
