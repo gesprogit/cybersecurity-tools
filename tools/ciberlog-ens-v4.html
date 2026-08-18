@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CiberLog ENS — Gestión de Ciberincidentes · CCN-STIC-817</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum:        #814e83;
+  --plum-deep:   #60345e;
+  --plum-darker: #4a2648;
+  --gold:        #ffe855;
+  --gold-mid:    #fcc123;
+  --gold-dark:   #b18a20;
+  --blush:       #dca0b5;
+  --rose:        #ca7191;
+  --magenta:     #b33f76;
+  --green:       #1a7a4a;
+  --green-light: #22a860;
+  --amber:       #b18a20;
+  --red:         #b83232;
+  --red-light:   #d44444;
+  --orange:      #c25a1a;
+  --bg:          #f9f5fa;
+  --surface:     #ffffff;
+  --surface2:    #f3edf5;
+  --surface3:    #ecddf0;
+  --border:      rgba(96,52,94,0.13);
+  --border-med:  rgba(96,52,94,0.22);
+  --text:        #2e1430;
+  --text-mid:    #523658;
+  --text-muted:  #7a5080;
+  --text-dim:    #aa88b0;
+  --r4: 4px; --r6: 6px; --r8: 8px;
+  --shadow:    0 1px 4px rgba(96,52,94,0.09), 0 0 0 1px rgba(96,52,94,0.07);
+  --shadow-md: 0 4px 20px rgba(96,52,94,0.12), 0 0 0 1px rgba(96,52,94,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13.5px; line-height: 1.6; min-height: 100vh;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(179,63,118,0.055) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 5%, rgba(255,232,85,0.04) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgba(129,78,131,0.04) 0%, transparent 60%);
+}
+.classification-bar {
+  background: linear-gradient(90deg, var(--plum-darker) 0%, var(--plum-deep) 40%, var(--plum) 100%);
+  color: #fff; padding: 6px 20px 7px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+  letter-spacing: 3px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+}
+.classification-bar .pill {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,228,85,0.35);
+  border-radius: 2px; padding: 1px 8px; color: var(--gold);
+}
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface); border-bottom: 2px solid var(--plum-deep);
+  padding: 0 40px; display: flex; align-items: center; justify-content: space-between;
+  height: 54px; box-shadow: 0 2px 8px rgba(96,52,94,0.08);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+  border-radius: var(--r4); display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 600;
+  color: var(--gold); letter-spacing: -0.5px; flex-shrink: 0;
+}
+.brand-name { font-family: 'IBM Plex Serif', serif; font-size: 1.05rem; font-weight: 600; color: var(--plum-deep); letter-spacing: -0.3px; }
+.brand-sep { width: 1px; height: 22px; background: var(--border-med); margin: 0 4px; }
+.brand-norm { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 1px; }
+.local-badge {
+  font-size: 0.65rem; font-family: 'IBM Plex Mono', monospace;
+  background: rgba(26,122,74,0.1); color: var(--green);
+  border: 1px solid rgba(26,122,74,0.25);
+  padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;
+}
+.app { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 36px 32px 80px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
+.page-eyebrow { font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace; color: var(--plum); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.page-title { font-family: 'IBM Plex Serif', serif; font-size: 2rem; font-weight: 600; color: var(--plum-deeper, #3a1b38); line-height: 1.15; margin-bottom: 12px; }
+.page-desc { color: var(--text-mid); max-width: 560px; font-size: 0.88rem; line-height: 1.65; }
+.norm-ref {
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--plum);
+  border-radius: var(--r6); padding: 14px 18px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-muted);
+  line-height: 1.9; min-width: 240px; flex-shrink: 0;
+}
+.norm-ref strong { color: var(--plum-deep); display: block; margin-bottom: 6px; font-size: 0.72rem; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r8); padding: 14px 16px; box-shadow: var(--shadow); }
+.stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 1.7rem; font-weight: 600; color: var(--plum-deep); line-height: 1; margin-bottom: 3px; }
+.stat-value.green  { color: var(--green-light); }
+.stat-value.red    { color: var(--red); }
+.stat-value.amber  { color: var(--amber); }
+.stat-value.orange { color: var(--orange); }
+.stat-sub { font-size: 0.68rem; color: var(--text-dim); }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
+.tab {
+  padding: 10px 18px; font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
+  border: none; background: none; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color .15s, border-color .15s; font-family: 'IBM Plex Sans', sans-serif;
+}
+.tab:hover { color: var(--plum); }
+.tab.active { color: var(--plum-deep); border-bottom-color: var(--plum-deep); font-weight: 600; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* PANEL */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r8); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+.panel-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 0.78rem; font-weight: 600; color: var(--plum-deep); letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-med); }
+.dot.green  { background: var(--green-light); }
+.dot.amber  { background: var(--gold-mid); }
+.dot.red    { background: var(--red-light); }
+.dot.blue   { background: var(--plum); }
+.dot.orange { background: var(--orange); }
+.panel-body { padding: 18px 16px; }
+
+/* FORM */
+.field-group { margin-bottom: 16px; }
+.field-row { display: grid; gap: 12px; }
+.field-row.cols2 { grid-template-columns: 1fr 1fr; }
+.field-row.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.field-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; letter-spacing: 0.3px; }
+.field-label .norm-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--plum); background: rgba(129,78,131,0.08); border: 1px solid rgba(129,78,131,0.2); padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
+input[type="text"], input[type="date"], input[type="time"], select, textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border-med); border-radius: var(--r6);
+  padding: 8px 12px; font-size: 0.85rem; font-family: 'IBM Plex Sans', sans-serif; color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--plum); box-shadow: 0 0 0 3px rgba(129,78,131,0.12); }
+textarea { resize: vertical; min-height: 80px; }
+input[type="checkbox"] { accent-color: var(--plum); width: 14px; height: 14px; cursor: pointer; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--r6); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: 'IBM Plex Sans', sans-serif; border: none; }
+.btn-primary   { background: var(--plum-deep); color: #fff; }
+.btn-primary:hover   { background: var(--plum-darker); }
+.btn-secondary { background: transparent; color: var(--plum-deep); border: 1px solid var(--border-med); }
+.btn-secondary:hover { background: var(--surface2); border-color: var(--plum); }
+.btn-danger    { background: var(--red); color: #fff; }
+.btn-danger:hover    { background: #9a2020; }
+.btn-sm  { padding: 5px 12px; font-size: 0.75rem; }
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* TABLES */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+.data-table th { background: var(--surface2); padding: 9px 12px; text-align: left; font-size: 0.67rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-mid); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+.mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.73rem; }
+.ens-code { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 600; color: var(--plum); background: rgba(129,78,131,0.08); border: 1px solid rgba(129,78,131,0.2); padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
+
+/* SEVERITY BADGES */
+.badge { display: inline-block; font-size: 0.63rem; font-family: 'IBM Plex Mono', monospace; font-weight: 600; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+.badge-bajo     { background: rgba(177,138,32,0.13); color: #7a5800; border: 1px solid rgba(177,138,32,0.3); }
+.badge-medio    { background: rgba(129,78,131,0.12); color: var(--plum-deep); border: 1px solid rgba(129,78,131,0.25); }
+.badge-alto     { background: rgba(194,90,26,0.12); color: var(--orange); border: 1px solid rgba(194,90,26,0.3); }
+.badge-muy-alto { background: rgba(184,50,50,0.1); color: var(--red); border: 1px solid rgba(184,50,50,0.25); }
+.badge-critico  { background: rgba(184,50,50,0.9); color: #fff; border: 1px solid rgba(184,50,50,0.5); }
+.badge-sin-impacto { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* ── Peligrosidad cards ── */
+.pelig-card { display:flex; align-items:center; gap:10px; padding:9px 14px; border-radius:var(--r6); border:1.5px solid var(--border); cursor:pointer; transition:border-color .15s, background .15s; user-select:none; }
+.pelig-card:hover { border-color:var(--plum); background:var(--surface2); }
+.pelig-card.selected { border-color:var(--plum-deep); background:rgba(96,52,94,0.07); }
+.pelig-card .pc-tag  { font-family:'IBM Plex Mono',monospace; font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:3px; white-space:nowrap; min-width:94px; text-align:center; flex-shrink:0; }
+.pelig-card .pc-name { font-weight:600; font-size:0.83rem; color:var(--plum-deep); flex-shrink:0; min-width:70px; }
+.pelig-card .pc-desc { font-size:0.75rem; color:var(--text-dim); flex:1; line-height:1.4; }
+.pelig-card .pc-chk  { font-size:0.85rem; opacity:0; transition:opacity .15s; flex-shrink:0; }
+.pelig-card.selected .pc-chk { opacity:1; }
+.pelig-info { border-radius:var(--r6); padding:12px 16px; font-size:0.8rem; line-height:1.65; margin-top:10px; display:none; }
+.pelig-info strong { display:block; margin-bottom:4px; }
+.pelig-info ul { margin:6px 0 0 16px; } .pelig-info li { margin-bottom:2px; }
+.badge-ok       { background: rgba(26,122,74,0.1); color: var(--green); border: 1px solid rgba(26,122,74,0.25); }
+.badge-warn     { background: rgba(177,138,32,0.12); color: #7a5800; border: 1px solid rgba(177,138,32,0.3); }
+
+/* STATUS badges */
+.badge-abierto  { background: rgba(26,122,74,0.1); color: var(--green); border: 1px solid rgba(26,122,74,0.25); }
+.badge-cerrado  { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* NOTIFICATION BLOCK */
+.notif-block { border-radius: var(--r8); padding: 16px 20px; margin-bottom: 12px; border: 1px solid; }
+.notif-block.required  { background: rgba(184,50,50,0.06); border-color: rgba(184,50,50,0.25); }
+.notif-block.optional  { background: rgba(177,138,32,0.06); border-color: rgba(177,138,32,0.25); }
+.notif-block.no-notif  { background: rgba(26,122,74,0.05); border-color: rgba(26,122,74,0.2); }
+.notif-block.personal-data { background: rgba(179,63,118,0.07); border-color: rgba(179,63,118,0.3); }
+.notif-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.notif-block.required  .notif-title { color: var(--red); }
+.notif-block.optional  .notif-title { color: var(--amber); }
+.notif-block.no-notif  .notif-title { color: var(--green); }
+.notif-block.personal-data .notif-title { color: var(--magenta); }
+.notif-detail { font-size: 0.78rem; color: var(--text-mid); line-height: 1.55; }
+.notif-deadline { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 6px; }
+.notif-block.required .notif-deadline { color: var(--red); }
+.notif-block.personal-data .notif-deadline { color: var(--magenta); }
+
+/* IMPACT MATRIX */
+.matrix-wrap { overflow-x: auto; }
+.impact-matrix { border-collapse: collapse; font-size: 0.73rem; min-width: 580px; }
+.impact-matrix th, .impact-matrix td { padding: 7px 10px; text-align: center; border: 1px solid var(--border); }
+.impact-matrix th { background: var(--surface2); font-size: 0.64rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.impact-matrix td { font-family: 'IBM Plex Mono', monospace; font-weight: 600; cursor: pointer; transition: all .15s; }
+.impact-matrix td:hover { filter: brightness(0.9); }
+.cell-l1 { background: rgba(26,122,74,0.15); color: #0f5c35; }
+.cell-l2 { background: rgba(177,138,32,0.2); color: #7a5800; }
+.cell-l3 { background: rgba(194,90,26,0.2); color: #8b3e00; }
+.cell-l4 { background: rgba(184,50,50,0.2); color: #8a1a1a; }
+.cell-l5 { background: rgba(184,50,50,0.75); color: #fff; }
+.cell-selected { outline: 3px solid var(--plum); outline-offset: -2px; }
+.peligrosidad-row-label { background: var(--surface2) !important; text-align: left !important; font-size: 0.67rem; font-weight: 600; color: var(--text-mid); font-family: 'IBM Plex Sans', sans-serif; cursor: default !important; white-space: nowrap; padding-left: 12px !important; }
+
+/* IMPACT CRITERIA */
+.criteria-section { margin-bottom: 18px; }
+.criteria-section-title { font-size: 0.72rem; font-weight: 700; color: var(--plum-deep); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; }
+.criteria-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r6); margin-bottom: 6px; cursor: pointer; transition: border-color .15s, background .15s; }
+.criteria-item:hover { border-color: var(--plum); background: var(--surface2); }
+.criteria-item.checked { background: rgba(184,50,50,0.05); border-color: rgba(184,50,50,0.3); }
+.criteria-item.checked.level-critico { background: rgba(184,50,50,0.08); border-color: rgba(184,50,50,0.4); }
+.criteria-item.checked.level-muy-alto { background: rgba(194,90,26,0.07); border-color: rgba(194,90,26,0.3); }
+.criteria-item.checked.level-alto { background: rgba(194,90,26,0.06); border-color: rgba(194,90,26,0.25); }
+.criteria-item.checked.level-medio { background: rgba(177,138,32,0.06); border-color: rgba(177,138,32,0.25); }
+.criteria-item.checked.level-bajo { background: rgba(26,122,74,0.05); border-color: rgba(26,122,74,0.2); }
+.criteria-text { font-size: 0.79rem; color: var(--text-mid); line-height: 1.4; }
+
+/* VERDICT */
+.verdict { display: flex; align-items: center; gap: 14px; padding: 18px 20px; border-radius: var(--r8); margin-bottom: 16px; border: 2px solid; }
+.verdict.critico   { background: rgba(184,50,50,0.07); border-color: rgba(184,50,50,0.4); }
+.verdict.muy-alto  { background: rgba(184,50,50,0.05); border-color: rgba(184,50,50,0.3); }
+.verdict.alto      { background: rgba(194,90,26,0.06); border-color: rgba(194,90,26,0.35); }
+.verdict.medio     { background: rgba(177,138,32,0.06); border-color: rgba(177,138,32,0.3); }
+.verdict.bajo      { background: rgba(26,122,74,0.05); border-color: rgba(26,122,74,0.25); }
+.verdict.neutral   { background: var(--surface2); border-color: var(--border-med); }
+.verdict-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
+.verdict-body { flex: 1; }
+.verdict-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.verdict.critico  .verdict-title { color: var(--red); }
+.verdict.muy-alto .verdict-title { color: var(--red); }
+.verdict.alto     .verdict-title { color: var(--orange); }
+.verdict.medio    .verdict-title { color: var(--amber); }
+.verdict.bajo     .verdict-title { color: var(--green); }
+.verdict.neutral  .verdict-title { color: var(--text-muted); }
+.verdict-sub { font-size: 0.81rem; color: var(--text-mid); }
+
+/* LOG */
+.log-panel { background: var(--plum-darker); border-radius: var(--r8); padding: 14px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--blush); max-height: 140px; overflow-y: auto; line-height: 1.7; }
+.log-entry { display: flex; gap: 12px; }
+.log-time { color: var(--text-dim); flex-shrink: 0; }
+.log-msg.ok   { color: #6ee09a; }
+.log-msg.warn { color: var(--gold); }
+.log-msg.err  { color: #f08080; }
+.log-msg.info { color: var(--blush); }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(74,38,72,0.55); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--r8); max-width: 700px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: var(--shadow-md); }
+.modal-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; }
+.modal-title { font-weight: 700; color: var(--plum-deep); font-size: 0.9rem; }
+.modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1; padding: 2px 6px; }
+.modal-close:hover { color: var(--plum-deep); }
+.modal-body { padding: 20px; }
+
+/* MAIN COLS */
+.main-cols  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.main-cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* STEP NAV */
+.step-nav { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border-med); border-radius: var(--r6); overflow: hidden; }
+.step-btn { flex: 1; padding: 10px 14px; text-align: center; background: var(--surface); border: none; border-right: 1px solid var(--border-med); cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--text-muted); transition: background .15s, color .15s; }
+.step-btn:last-child { border-right: none; }
+.step-btn.active { background: var(--plum-deep); color: #fff; font-weight: 600; }
+.step-btn.done   { background: rgba(26,122,74,0.1); color: var(--green); }
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-dim); }
+.empty-icon  { font-size: 2.4rem; margin-bottom: 12px; opacity: 0.6; }
+.empty-title { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+.empty-sub   { font-size: 0.78rem; }
+
+/* REPORT */
+.report-out { background: var(--plum-darker); color: var(--blush); font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; line-height: 1.7; padding: 20px 24px; border-radius: var(--r8); white-space: pre-wrap; overflow: auto; max-height: 420px; }
+
+/* PHASE TIMELINE */
+.timeline { display: flex; gap: 0; margin-bottom: 20px; }
+.timeline-step { flex: 1; text-align: center; position: relative; }
+.timeline-step::after { content:''; position:absolute; top: 17px; left: 50%; width: 100%; height: 2px; background: var(--border-med); z-index: 0; }
+.timeline-step:last-child::after { display: none; }
+.tl-dot { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin: 0 auto 6px; border: 2px solid var(--border-med); background: var(--surface); position: relative; z-index: 1; transition: all .2s; }
+.tl-dot.done   { background: var(--green); border-color: var(--green); color: #fff; }
+.tl-dot.active { background: var(--plum-deep); border-color: var(--plum-deep); color: #fff; }
+.tl-label { font-size: 0.67rem; color: var(--text-dim); font-weight: 500; line-height: 1.3; }
+.tl-label.active { color: var(--plum-deep); font-weight: 700; }
+.tl-label.done   { color: var(--green); }
+
+/* ACTION LOG */
+.action-entry { display: flex; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
+.action-entry:last-child { border-bottom: none; }
+.action-date { font-family: 'IBM Plex Mono', monospace; color: var(--text-dim); font-size: 0.7rem; flex-shrink: 0; min-width: 120px; }
+.action-phase { flex-shrink: 0; }
+.action-desc { color: var(--text-mid); flex: 1; }
+
+/* RESPONSIVE */
+@media (max-width: 820px) {
+  .main-cols, .main-cols3 { grid-template-columns: 1fr; }
+  .stats-row  { grid-template-columns: repeat(3, 1fr); }
+  .field-row.cols2, .field-row.cols3 { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; }
+  .topbar { padding: 0 16px; }
+  .app { padding: 24px 16px 60px; }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="classification-bar">
+  <span class="pill">SIN CLASIFICAR</span>
+  <span>CCN-STIC-817 · Gestión de Ciberincidentes · ENS art. 24</span>
+  <span class="pill">Procesamiento 100% local · Sin transferencia de datos</span>
+</div>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">CI</div>
+    <span class="brand-name">CiberLog ENS</span>
+    <div class="brand-sep"></div>
+    <span class="brand-norm">v1 · CCN-STIC-817 · ENS [op.exp.7]</span>
+  </div>
+  <div class="local-badge">Gestión 100% local · Sin servidores</div>
+</nav>
+
+<div class="app">
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">Herramienta de gestión de ciberincidentes</div>
+      <h1 class="page-title">Gestión de Ciberincidentes<br>conforme al ENS</h1>
+      <p class="page-desc">Registro, clasificación y evaluación de ciberincidentes según <strong>CCN-STIC-817</strong>. Determina el nivel de peligrosidad e impacto y genera la decisión de notificación obligatoria a <strong>CCN-CERT</strong>, <strong>INCIBE-CERT</strong> o <strong>AEPD</strong> conforme al ENS y al RGPD.</p>
+    </div>
+    <div class="norm-ref">
+      <strong>Base normativa</strong>
+      RD 311/2022 · ENS art. 24<br>
+      CCN-STIC-817 (Abril 2020)<br>
+      RD-ley 12/2018 · Directiva NIS<br>
+      LO 3/2018 · RGPD Art. 33/34<br>
+      Guía Nac. Notif. Ciberincidentes
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total incidentes</div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-sub">registrados en total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Abiertos</div>
+      <div class="stat-value green" id="statAbiertos">0</div>
+      <div class="stat-sub">en seguimiento activo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Crítico / Muy Alto</div>
+      <div class="stat-value red" id="statCriticos">0</div>
+      <div class="stat-sub">impacto elevado</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Notif. obligatoria</div>
+      <div class="stat-value orange" id="statNotif">0</div>
+      <div class="stat-sub">pendientes de notificar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Brecha datos pers.</div>
+      <div class="stat-value" id="statAepd" style="color:var(--magenta)">0</div>
+      <div class="stat-sub">→ AEPD (72h RGPD)</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('nuevo',this)">➕ Nuevo incidente</button>
+    <button class="tab" onclick="switchTab('evaluar',this)">⚖️ Evaluar impacto</button>
+    <button class="tab" onclick="switchTab('registro',this)">📋 Registro</button>
+    <button class="tab" onclick="switchTab('informe',this)">📄 Informe de cierre</button>
+  </div>
+
+  <!-- ═══════════════════════ TAB: DASHBOARD ═══════════════════════ -->
+  <div id="tab-dashboard" class="tab-panel active">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot red"></span>Incidentes abiertos — acción requerida</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div id="dashOpenList">
+              <div class="empty-state">
+                <div class="empty-icon">🛡️</div>
+                <div class="empty-title">Sin incidentes abiertos</div>
+                <div class="empty-sub">Registra un nuevo incidente para comenzar el seguimiento.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot amber"></span>Plazos de notificación CCN-STIC-817 §4.5</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Nivel</th><th>Notif. CCN-CERT</th><th>Cierre auto (días)</th>
+              </tr></thead>
+              <tbody>
+                <tr><td><span class="badge badge-critico">CRÍTICO</span></td><td>✅ Obligatoria</td><td class="mono">120</td></tr>
+                <tr><td><span class="badge badge-muy-alto">MUY ALTO</span></td><td>✅ Obligatoria</td><td class="mono">90</td></tr>
+                <tr><td><span class="badge badge-alto">ALTO</span></td><td>✅ Obligatoria</td><td class="mono">45</td></tr>
+                <tr><td><span class="badge badge-medio">MEDIO</span></td><td>— No obligatoria</td><td class="mono">30</td></tr>
+                <tr><td><span class="badge badge-bajo">BAJO</span></td><td>— No obligatoria</td><td class="mono">21</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot blue"></span>Ciclo de vida del ciberincidente</span>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid #22a860;">
+                <span style="font-size:1.2rem">🟢</span>
+                <div><div style="font-weight:700;font-size:0.8rem;color:var(--plum-deep)">PREPARACIÓN</div><div style="font-size:0.75rem;color:var(--text-muted)">Equipo ERC, medidas de seguridad, adhesión SAT</div></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--gold-mid);">
+                <span style="font-size:1.2rem">🟡</span>
+                <div><div style="font-weight:700;font-size:0.8rem;color:var(--plum-deep)">DETECCIÓN · ANÁLISIS · IDENTIFICACIÓN</div><div style="font-size:0.75rem;color:var(--text-muted)">Indicadores, precursores, notificación SAT-SARA/SAT-INET</div></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--red);">
+                <span style="font-size:1.2rem">🔴</span>
+                <div><div style="font-weight:700;font-size:0.8rem;color:var(--plum-deep)">CONTENCIÓN · MITIGACIÓN · RECUPERACIÓN</div><div style="font-size:0.75rem;color:var(--text-muted)">Limitar impacto, erradicar, restaurar normal funcionamiento</div></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:var(--r6);border-left:3px solid var(--plum);">
+                <span style="font-size:1.2rem">🟣</span>
+                <div><div style="font-weight:700;font-size:0.8rem;color:var(--plum-deep)">ACTIVIDAD POST-CIBERINCIDENTE</div><div style="font-size:0.75rem;color:var(--text-muted)">Informe de cierre, lecciones aprendidas, mejora continua</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot blue"></span>Log de actividad</span>
+            <button class="btn btn-secondary btn-sm" onclick="clearLog()">Limpiar</button>
+          </div>
+          <div class="panel-body" style="padding:10px;">
+            <div class="log-panel" id="actLog">
+              <div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">CiberLog ENS v1 iniciado · Procesamiento 100% local</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TAB: NUEVO INCIDENTE ═══════════════════════ -->
+  <div id="tab-nuevo" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Identificación del incidente</span></div>
+          <div class="panel-body">
+            <div class="field-group">
+              <label class="field-label">Título / Descripción breve <span class="norm-tag">obligatorio</span></label>
+              <input type="text" id="fTitulo" placeholder="Ej: Ransomware en servidor de ficheros — Departamento TIC">
+            </div>
+            <div class="field-row cols3" style="margin-bottom:16px;">
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Fecha detección</label>
+                <input type="date" id="fFecha">
+              </div>
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Hora detección</label>
+                <input type="time" id="fHora">
+              </div>
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Sector del organismo</label>
+                <select id="fSector">
+                  <option value="publico">Sector Público (ENS)</option>
+                  <option value="privado_esencial">Privado — Servicio Esencial (NIS)</option>
+                  <option value="privado_otro">Privado — Otro</option>
+                  <option value="ciudadano">Ciudadano / PYME</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Descripción detallada</label>
+              <textarea id="fDesc" placeholder="Describe el incidente: cómo se detectó, qué sistemas están afectados, indicadores observados..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot amber"></span>Clasificación — Taxonomía CCN-STIC-817 Tabla 1</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2" style="margin-bottom:0;">
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Categoría <span class="norm-tag">obligatorio</span></label>
+                <select id="fCategoria" onchange="updateTipos()">
+                  <option value="">— Seleccionar —</option>
+                  <option value="contenido_abusivo">Contenido abusivo</option>
+                  <option value="contenido_danino">Contenido dañino</option>
+                  <option value="obtencion_info">Obtención de información</option>
+                  <option value="intento_intrusion">Intento de intrusión</option>
+                  <option value="intrusion">Intrusión</option>
+                  <option value="disponibilidad">Disponibilidad</option>
+                  <option value="compromiso_info">Compromiso de la información</option>
+                  <option value="fraude">Fraude</option>
+                  <option value="vulnerable">Vulnerable</option>
+                  <option value="otros">Otros</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Tipo de incidente <span class="norm-tag">obligatorio</span></label>
+                <select id="fTipo">
+                  <option value="">— Primero selecciona categoría —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot orange"></span>Peligrosidad inicial — CCN-STIC-817 §4.3 Tabla 2 <span class="norm-tag" style="margin-left:6px;">obligatorio</span></span></div>
+          <div class="panel-body">
+            <p style="font-size:0.79rem;color:var(--text-muted);margin-bottom:12px;">Nivel de peligrosidad del atacante / amenaza observada. Pulsa un nivel para seleccionarlo y ver su descripción según la guía. La evaluación real (L1–L5) se obtiene en <strong>Evaluar impacto</strong> cruzando con el tipo de víctima.</p>
+            <div id="peligrosidadSel" style="display:flex;flex-direction:column;gap:5px;"></div>
+            <div class="pelig-info" id="peligInfoBox"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Contexto y alcance</span></div>
+          <div class="panel-body">
+            <div class="field-row cols2" style="margin-bottom:12px;">
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Origen de la amenaza</label>
+                <select id="fOrigen">
+                  <option value="externa">Externa</option>
+                  <option value="interna">Interna</option>
+                  <option value="desconocido">Desconocida</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin:0">
+                <label class="field-label">Tipo de víctima / organismo</label>
+                <select id="fVictima">
+                  <option value="ciudadanos">Ciudadanos</option>
+                  <option value="pequena_empresa">Pequeña empresa</option>
+                  <option value="mediana_empresa">Mediana empresa</option>
+                  <option value="gobierno_local_grande">Gob. local / Gran empresa / Infraestructuras</option>
+                  <option value="infraestructura_nacional">Infraestructura nacional / Crítica</option>
+                  <option value="gobierno_central">Gob. central / Sectores estratégicos / >1M usuarios</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Sistemas / activos afectados</label>
+              <input type="text" id="fSistemas" placeholder="Ej: Servidor de ficheros FS01, estaciones de trabajo del departamento contabilidad">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Número estimado de usuarios afectados</label>
+              <input type="text" id="fUsuarios" placeholder="Ej: 45 usuarios del departamento financiero">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Responsable del seguimiento</label>
+              <input type="text" id="fResponsable" placeholder="Ej: Responsable de Seguridad (CISO) — nombre/cargo">
+            </div>
+
+            <div style="padding:12px 14px;background:rgba(179,63,118,0.07);border:1px solid rgba(179,63,118,0.25);border-radius:var(--r6);margin-top:4px;">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.82rem;font-weight:600;color:var(--magenta);">
+                <input type="checkbox" id="fDatosPersonales">
+                ⚠️ El incidente involucra datos de carácter personal (brecha RGPD)
+              </label>
+              <p style="font-size:0.74rem;color:var(--text-muted);margin-top:6px;padding-left:24px;">Si hay indicios de acceso no autorizado, pérdida o destrucción de datos personales, puede ser obligatorio notificar a la <strong>AEPD</strong> en un plazo máximo de <strong>72 horas</strong> desde su conocimiento (RGPD art. 33).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot green"></span>Registrar incidente</span></div>
+          <div class="panel-body">
+            <p style="font-size:0.79rem;color:var(--text-muted);margin-bottom:14px;">Al registrar, se asignará un ID único y el incidente quedará en estado <strong>Abierto</strong>. Podrás añadir acciones y evaluar el impacto desde las otras pestañas.</p>
+            <div class="btn-group" style="margin:0;">
+              <button class="btn btn-primary" onclick="registrarIncidente()">✚ Registrar incidente</button>
+              <button class="btn btn-secondary" onclick="limpiarFormNuevo()">↺ Limpiar formulario</button>
+            </div>
+            <div id="registroMsg" style="margin-top:14px;display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TAB: EVALUAR IMPACTO ═══════════════════════ -->
+  <div id="tab-evaluar" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <!-- SELECTOR DE INCIDENTE -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Seleccionar incidente a evaluar</span></div>
+          <div class="panel-body">
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label">Incidente</label>
+              <select id="evalIncidente" onchange="cargarEvaluacion()">
+                <option value="">— Seleccionar incidente —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATRIZ DE PELIGROSIDAD -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot orange"></span>Matriz de peligrosidad real — CCN-STIC-817 Tabla 3</span></div>
+          <div class="panel-body">
+            <p style="font-size:0.77rem;color:var(--text-muted);margin-bottom:14px;">Cruza el nivel de peligrosidad del atacante (eje Y) con el tipo de víctima (eje X) para obtener el <strong>Nivel de Peligrosidad Real del Incidente</strong> (L1–L5).</p>
+            <div class="matrix-wrap">
+              <table class="impact-matrix" id="matrizPeligrosidad">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;min-width:110px;">Peligrosidad ↓ / Víctima →</th>
+                    <th>Ciudadanos</th>
+                    <th>Peq. empresa</th>
+                    <th>Med. empresa</th>
+                    <th>Gob. local / Grande</th>
+                    <th>Infraest. nacional</th>
+                    <th>Gob. central</th>
+                  </tr>
+                </thead>
+                <tbody id="matrizBody"></tbody>
+              </table>
+            </div>
+            <div id="matrizResult" style="margin-top:14px;display:none;">
+              <div class="verdict neutral" id="matrizVerdict">
+                <div class="verdict-icon">🎯</div>
+                <div class="verdict-body">
+                  <div class="verdict-title" id="matrizVerdictTitle">—</div>
+                  <div class="verdict-sub" id="matrizVerdictSub">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- CRITERIOS DE IMPACTO -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot red"></span>Nivel de impacto en la organización — CCN-STIC-817 Tabla 4</span></div>
+          <div class="panel-body">
+            <p style="font-size:0.77rem;color:var(--text-muted);margin-bottom:14px;">Marca todos los criterios que se cumplen. El nivel de impacto determinado es el <strong>más alto</strong> de los criterios marcados.</p>
+            <div id="criteriasContainer"></div>
+            <div id="impactoResult" style="margin-top:14px;display:none;">
+              <div class="verdict neutral" id="impactoVerdict">
+                <div class="verdict-icon" id="impactoIcon">⚡</div>
+                <div class="verdict-body">
+                  <div class="verdict-title" id="impactoVerdictTitle">—</div>
+                  <div class="verdict-sub" id="impactoVerdictSub">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DECISIÓN DE NOTIFICACIÓN -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot red"></span>Decisión de notificación obligatoria</span></div>
+          <div class="panel-body" id="notifDecision">
+            <div class="empty-state" style="padding:24px;">
+              <div class="empty-icon">📬</div>
+              <div class="empty-title">Evalúa el impacto para obtener la decisión</div>
+              <div class="empty-sub">Completa los criterios de impacto para determinar si es obligatorio notificar a CCN-CERT, INCIBE o AEPD.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:4px;" id="evalSaveBtn" style="display:none;">
+          <button class="btn btn-primary" onclick="guardarEvaluacion()" style="width:100%;">💾 Guardar evaluación en el incidente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TAB: REGISTRO ═══════════════════════ -->
+  <div id="tab-registro" class="tab-panel">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot blue"></span>Registro de incidentes</span>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="filtroEstado" onchange="renderRegistro()" style="font-size:0.75rem;padding:5px 10px;width:auto;">
+            <option value="">Todos los estados</option>
+            <option value="abierto">Abiertos</option>
+            <option value="cerrado">Cerrados</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="exportarJSON()" title="Exportar todos los incidentes como copia de seguridad JSON">⬇ Exportar JSON</button>
+          <button class="btn btn-secondary btn-sm" style="background:rgba(26,122,74,0.08);color:var(--green);border-color:rgba(26,122,74,0.3);" onclick="abrirModalImportar()" title="Importar incidentes desde fichero JSON">⬆ Importar JSON</button>
+        </div>
+      </div>
+      <div id="tablaRegistro" style="overflow-x:auto;"></div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="panel" id="detallePanel" style="display:none;">
+      <div class="panel-header">
+        <span class="panel-title" id="detallePanelTitle"><span class="dot blue"></span>Detalle del incidente</span>
+        <button class="btn btn-secondary btn-sm" onclick="cerrarDetalle()">✕ Cerrar</button>
+      </div>
+      <div class="panel-body" id="detallePanelBody"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TAB: INFORME DE CIERRE ═══════════════════════ -->
+  <div id="tab-informe" class="tab-panel">
+    <div class="main-cols">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title"><span class="dot blue"></span>Seleccionar incidente</span></div>
+          <div class="panel-body">
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Incidente</label>
+              <select id="informeIncidente" onchange="prepararInforme()">
+                <option value="">— Seleccionar —</option>
+              </select>
+            </div>
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Causa raíz identificada</label>
+              <textarea id="informeCausa" placeholder="Describe la causa raíz del incidente..." style="min-height:70px;"></textarea>
+            </div>
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Medidas correctoras adoptadas</label>
+              <textarea id="informeMedidas" placeholder="Medidas implantadas para prevenir futuros incidentes similares..." style="min-height:70px;"></textarea>
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label class="field-label">Lecciones aprendidas</label>
+              <textarea id="informeLecciones" placeholder="Lecciones aprendidas y mejoras de proceso..." style="min-height:60px;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="generarInforme()">📄 Generar informe de cierre</button>
+          <button class="btn btn-secondary" id="btnCerrarIncidente" onclick="cerrarIncidente()">✔ Marcar como cerrado</button>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot green"></span>Informe de cierre — Anexo B CCN-STIC-817</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="btn btn-secondary btn-sm" onclick="copiarInforme()" title="Copiar texto al portapapeles">📋 Copiar</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportarInforme()" title="Descargar informe como fichero JSON estructurado">⬇ Exportar</button>
+              <button class="btn btn-secondary btn-sm" style="background:rgba(26,122,74,0.08);color:var(--green);border-color:rgba(26,122,74,0.3);" onclick="document.getElementById('inputImportarInforme').click()" title="Cargar un informe JSON exportado anteriormente">⬆ Importar</button>
+              <input type="file" id="inputImportarInforme" accept=".json" style="display:none" onchange="importarInforme(event)">
+            </div>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <pre class="report-out" id="informeOut">Selecciona un incidente para generar el informe de cierre...</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /app -->
+
+<!-- ═══ TOAST ═══ -->
+<div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;"></div>
+
+<!-- ═══ MODAL: IMPORTAR JSON ═══ -->
+<div id="modalImportar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:8000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);box-shadow:var(--shadow-md);width:min(520px,94vw);max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+      <span style="font-weight:700;font-size:0.95rem;color:var(--plum-deep);">⬆ Importar incidentes (JSON)</span>
+      <button onclick="cerrarModalImportar()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1;">×</button>
+    </div>
+    <div style="padding:20px;">
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;">Selecciona un fichero <strong>.json</strong> exportado desde CiberLog ENS. Se validará el formato antes de importar.</p>
+      <!-- Drop zone -->
+      <div id="impDropZone" onclick="document.getElementById('inputImportarJSON').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--plum)'"
+           ondragleave="this.style.borderColor=''"
+           ondrop="event.preventDefault();this.style.borderColor='';procesarFicheroImport(event.dataTransfer.files[0])"
+           style="border:2px dashed var(--border-med);border-radius:var(--r8);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .15s;">
+        <div style="font-size:2rem;margin-bottom:8px;">📂</div>
+        <div style="font-size:0.84rem;color:var(--text-mid);margin-bottom:4px;">Arrastra el fichero aquí o haz clic para seleccionar</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);">Formato: ciberlog_ens_YYYY-MM-DD.json</div>
+      </div>
+      <input type="file" id="inputImportarJSON" accept=".json" style="display:none" onchange="procesarFicheroImport(this.files[0])">
+      <!-- Preview -->
+      <div id="impPreview" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);padding:12px 14px;margin-top:12px;font-size:0.78rem;color:var(--text-mid);"></div>
+      <!-- Modo -->
+      <div id="impOpciones" style="display:none;margin-top:14px;">
+        <p style="font-size:0.78rem;font-weight:600;color:var(--plum-deep);margin-bottom:8px;">Modo de importación:</p>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:0.81rem;color:var(--text-mid);margin-bottom:7px;cursor:pointer;">
+          <input type="radio" name="impModo" value="combinar" checked style="margin-top:2px;">
+          <span><strong>Combinar</strong> — añade los incidentes nuevos (por ID); mantiene los actuales intactos</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:0.81rem;color:var(--text-mid);cursor:pointer;">
+          <input type="radio" name="impModo" value="reemplazar" style="margin-top:2px;">
+          <span><strong>Reemplazar todo</strong> — sustituye todos los incidentes actuales por los del fichero</span>
+        </label>
+        <div id="impAvisoReemplazar" style="display:none;margin-top:10px;padding:9px 12px;background:rgba(184,50,50,0.07);border:1px solid rgba(184,50,50,0.22);border-radius:var(--r6);font-size:0.75rem;color:var(--red);">
+          ⚠️ Esto eliminará <strong id="impAvisoCuenta"></strong> incidente(s) actuales. No se puede deshacer.
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button id="impBtnConfirmar" class="btn btn-primary" onclick="confirmarImportar()" disabled>⬆ Importar</button>
+        <button class="btn btn-secondary" onclick="cerrarModalImportar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DETALLE ACCIÓN -->
+<div class="modal-overlay" id="modalAccion" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Añadir acción al incidente</span>
+      <button class="modal-close" onclick="document.getElementById('modalAccion').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Fase</label>
+        <select id="accionFase">
+          <option value="deteccion">Detección / Análisis / Identificación</option>
+          <option value="contencion">Contención / Mitigación</option>
+          <option value="recuperacion">Recuperación</option>
+          <option value="post">Actividad post-ciberincidente</option>
+          <option value="notificacion">Notificación a autoridad</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descripción de la acción realizada</label>
+        <textarea id="accionDesc" placeholder="Describe la acción tomada..." style="min-height:90px;"></textarea>
+      </div>
+      <div class="btn-group" style="margin:0;">
+        <button class="btn btn-primary" onclick="guardarAccion()">✚ Añadir acción</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('modalAccion').classList.remove('open')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════
+
+const TIPOS_POR_CATEGORIA = {
+  contenido_abusivo: ['Spam','Delito de odio','Pornografía infantil / Contenido sexual o violento inadecuado'],
+  contenido_danino:  ['Sistema infectado','Servidor C&C (Mando y Control)','Distribución de malware','Configuración de malware'],
+  obtencion_info:    ['Escaneo de redes (scanning)','Análisis de paquetes (sniffing)','Ingeniería social'],
+  intento_intrusion: ['Explotación de vulnerabilidades conocidas','Intento de acceso con vulneración de credenciales','Ataque desconocido'],
+  intrusion:         ['Compromiso de cuenta con privilegios','Compromiso de cuenta sin privilegios','Compromiso de aplicaciones','Robo (intrusión física)'],
+  disponibilidad:    ['DoS (Denegación de servicio)','DDoS (Denegación distribuida de servicio)','Mala configuración','Sabotaje','Interrupciones por causas ajenas'],
+  compromiso_info:   ['Acceso no autorizado a información','Modificación no autorizada de información','Pérdida de datos'],
+  fraude:            ['Uso no autorizado de recursos','Derechos de autor','Suplantación','Phishing'],
+  vulnerable:        ['Criptografía débil','Amplificador DDoS','Servicios con acceso potencial no deseado','Revelación de información','Sistema vulnerable'],
+  otros:             ['Otros','APT (Amenaza Persistente Avanzada)']
+};
+
+// Matriz de peligrosidad: [pelig-1 a pelig-5][victima 0-5] → nivel L1-L5
+const PELIGROSIDAD_MATRIX = [
+  [1,1,1,1,2,2], // BAJO (pelig=1)
+  [1,1,2,2,3,3], // MEDIO (pelig=2)
+  [1,1,2,3,3,4], // ALTO (pelig=3)
+  [1,2,3,3,4,5], // MUY ALTO (pelig=4)
+  [2,2,3,4,5,5], // CRÍTICO (pelig=5)
+];
+
+const PELIG_LABELS = ['BAJO','MEDIO','ALTO','MUY ALTO','CRÍTICO'];
+const VICTIMA_LABELS = ['Ciudadanos','Peq. empresa','Med. empresa','Gob. local / Grande','Infraest. nacional','Gob. central'];
+const VICTIMA_KEYS = ['ciudadanos','pequena_empresa','mediana_empresa','gobierno_local_grande','infraestructura_nacional','gobierno_central'];
+
+// Criterios de impacto (Tabla 4)
+const CRITERIOS_IMPACTO = {
+  critico: {
+    label:'CRÍTICO', cls:'critico', icon:'🔴',
+    items:[
+      'Afecta apreciablemente a la Seguridad Nacional',
+      'Afecta a la seguridad ciudadana, con potencial peligro para la vida de las personas',
+      'Afecta a una Infraestructura Crítica',
+      'Afecta a sistemas clasificados SECRETO',
+      'Afecta a más del 90% de los sistemas de la organización',
+      'Interrupción del servicio superior a 24 horas y superior al 50% de los usuarios',
+      'Requiere más de 100 Jornadas-Persona para resolverse',
+      'Impacto económico superior al 0,1% del P.I.B. actual',
+      'Extensión geográfica supranacional',
+      'Daños reputacionales muy elevados con cobertura internacional continua'
+    ]
+  },
+  muy_alto: {
+    label:'MUY ALTO', cls:'muy-alto', icon:'🟠',
+    items:[
+      'Afecta a la seguridad ciudadana con peligro para bienes materiales',
+      'Afecta apreciablemente a actividades oficiales o misiones en el extranjero',
+      'Afecta a un servicio esencial',
+      'Afecta a sistemas clasificados RESERVADO',
+      'Afecta a más del 75% de los sistemas de la organización',
+      'Interrupción del servicio superior a 8 horas y superior al 35% de usuarios',
+      'Requiere entre 30 y 100 Jornadas-Persona para resolverse',
+      'Impacto económico entre el 0,07% y el 0,1% del P.I.B.',
+      'Extensión geográfica superior a 4 CC.AA. o 1 T.I.S.',
+      'Daños reputacionales a la imagen del país (marca España)'
+    ]
+  },
+  alto: {
+    label:'ALTO', cls:'alto', icon:'🟡',
+    items:[
+      'Afecta a más del 50% de los sistemas de la organización',
+      'Interrupción del servicio superior a 1 hora y superior al 10% de usuarios',
+      'Requiere entre 5 y 30 Jornadas-Persona para resolverse',
+      'Impacto económico entre el 0,03% y el 0,07% del P.I.B.',
+      'Extensión geográfica superior a 3 CC.AA.',
+      'Daños reputacionales de difícil reparación con amplio eco mediático'
+    ]
+  },
+  medio: {
+    label:'MEDIO', cls:'medio', icon:'🔵',
+    items:[
+      'Afecta a más del 20% de los sistemas de la organización',
+      'Interrupción de la prestación del servicio superior al 5% de usuarios',
+      'Requiere entre 1 y 5 Jornadas-Persona para resolverse',
+      'Impacto económico entre el 0,001% y el 0,03% del P.I.B.',
+      'Extensión geográfica superior a 2 CC.AA.',
+      'Daños reputacionales apreciables con eco mediático'
+    ]
+  },
+  bajo: {
+    label:'BAJO', cls:'bajo', icon:'🟢',
+    items:[
+      'Afecta a los sistemas de la organización (sin otros criterios superiores)',
+      'Interrupción de la prestación de un servicio (sin criterios superiores)',
+      'Requiere menos de 1 Jornada-Persona para resolverse',
+      'Impacto económico entre el 0,0001% y el 0,001% del P.I.B.',
+      'Extensión geográfica superior a 1 CC.AA.',
+      'Daños reputacionales puntuales, sin eco mediático'
+    ]
+  },
+  sin_impacto: {
+    label:'SIN IMPACTO', cls:'sin-impacto', icon:'⚪',
+    items:[
+      'No hay ningún impacto apreciable en la organización'
+    ]
+  }
+};
+
+const NIVEL_ORDER = ['critico','muy_alto','alto','medio','bajo','sin_impacto'];
+
+// ══════════════════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════════════════
+
+let incidentes = JSON.parse(localStorage.getItem('ciberlog_ens_v1') || '[]');
+let incidenteIdCounter = parseInt(localStorage.getItem('ciberlog_ens_counter') || '0');
+let accionTargetId = null;
+
+function save() {
+  localStorage.setItem('ciberlog_ens_v1', JSON.stringify(incidentes));
+  localStorage.setItem('ciberlog_ens_counter', String(incidenteIdCounter));
+  updateStats();
+  refreshSelects();
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date
+  document.getElementById('fFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fHora').value = new Date().toTimeString().slice(0,5);
+  buildPeligCards();
+  buildMatriz();
+  buildCriterias();
+  updateStats();
+  refreshSelects();
+  renderRegistro();
+  renderDashOpen();
+  log('info', 'CiberLog ENS v1 iniciado · Procesamiento 100% local');
+});
+
+// ══════════════════════════════════════════════════════
+//  TAB SYSTEM
+// ══════════════════════════════════════════════════════
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'registro') renderRegistro();
+  if (id === 'evaluar') refreshSelects();
+  if (id === 'informe') refreshSelects();
+  if (id === 'dashboard') renderDashOpen();
+}
+
+// ══════════════════════════════════════════════════════
+//  LOG
+// ══════════════════════════════════════════════════════
+
+function log(type, msg) {
+  const el = document.getElementById('actLog');
+  const t = new Date().toTimeString().slice(0,8);
+  el.innerHTML += `<div class="log-entry"><span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span></div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog() {
+  document.getElementById('actLog').innerHTML = '<div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">Log limpiado</span></div>';
+}
+
+// ══════════════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════════════
+
+function updateStats() {
+  const total = incidentes.length;
+  const abiertos = incidentes.filter(i => i.estado === 'abierto').length;
+  const criticos = incidentes.filter(i => ['critico','muy_alto'].includes(i.nivelImpacto) && i.estado === 'abierto').length;
+  const notifPend = incidentes.filter(i => i.estado === 'abierto' && i.requiereNotifCCN && !i.notificadoCCN).length;
+  const aepd = incidentes.filter(i => i.datosPersonales && i.estado === 'abierto').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAbiertos').textContent = abiertos;
+  document.getElementById('statCriticos').textContent = criticos;
+  document.getElementById('statNotif').textContent = notifPend;
+  document.getElementById('statAepd').textContent = aepd;
+}
+
+// ══════════════════════════════════════════════════════
+//  TIPOS TAXONOMÍA
+// ══════════════════════════════════════════════════════
+
+function updateTipos() {
+  const cat = document.getElementById('fCategoria').value;
+  const sel = document.getElementById('fTipo');
+  sel.innerHTML = '<option value="">— Seleccionar tipo —</option>';
+  if (cat && TIPOS_POR_CATEGORIA[cat]) {
+    TIPOS_POR_CATEGORIA[cat].forEach(t => {
+      sel.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  PELIGROSIDAD SELECTOR
+// ══════════════════════════════════════════════════════
+
+// ── Datos de peligrosidad con descripciones (CCN-STIC-817 §4.3 Tabla 3) ──
+const PELIG_CARDS = [
+  { val:1, label:'BAJO',     tagCls:'badge-bajo',     icon:'🟢',
+    resumen:'Spam, escaneo de redes, análisis de paquetes (sniffing) y otros de baja criticidad.',
+    ejemplos:['Spam / correo no solicitado','Escaneo de puertos (scanning)','Análisis de paquetes (sniffing)','Otros incidentes de impacto mínimo'],
+    bg:'rgba(177,138,32,0.07)', bd:'rgba(177,138,32,0.3)' },
+  { val:2, label:'MEDIO',    tagCls:'badge-medio',    icon:'🔵',
+    resumen:'Ingeniería social, vulnerabilidades conocidas, intentos de credenciales, phishing, criptografía débil, sistema vulnerable, suplantación.',
+    ejemplos:['Ingeniería social','Explotación de vulnerabilidades conocidas (CVE)','Intento de acceso con fuerza bruta / credenciales','Compromiso de cuenta sin privilegios','Phishing / suplantación','Criptografía débil · Sistema vulnerable · Revelación de información'],
+    bg:'rgba(129,78,131,0.07)', bd:'rgba(129,78,131,0.25)' },
+  { val:3, label:'ALTO',     tagCls:'badge-alto',     icon:'🟡',
+    resumen:'Sistema infectado, servidor C&C, compromiso con privilegios, exploit desconocido, DoS, acceso/modificación/pérdida de información.',
+    ejemplos:['Sistema infectado con malware / rootkit','Servidor C&C (mando y control)','Compromiso de cuenta con privilegios','Ataque con exploit desconocido','DoS (denegación de servicio)','Acceso no autorizado a información','Modificación o pérdida de datos'],
+    bg:'rgba(194,90,26,0.07)', bd:'rgba(194,90,26,0.3)' },
+  { val:4, label:'MUY ALTO', tagCls:'badge-muy-alto', icon:'🟠',
+    resumen:'Distribución / configuración de malware, robo físico, DDoS, sabotaje, interrupciones por causas ajenas.',
+    ejemplos:['Distribución de malware','Configuración de malware (webinjects troyano)','Robo / intrusión física en CPD','DDoS (denegación distribuida de servicio)','Sabotaje físico','Interrupciones por causas ajenas (desastre natural)'],
+    bg:'rgba(184,50,50,0.07)', bd:'rgba(184,50,50,0.3)' },
+  { val:5, label:'CRÍTICO',  tagCls:'badge-critico',  icon:'🔴',
+    resumen:'APT (Amenaza Persistente Avanzada): ataques dirigidos con mecanismos sofisticados de ocultación, anonimato y persistencia.',
+    ejemplos:['APT — Amenaza Persistente Avanzada','Ciberespionaje / cibersabotaje dirigido por Estado','Ataque con alto grado de sofisticación, ocultación y persistencia'],
+    bg:'rgba(184,50,50,0.12)', bd:'rgba(184,50,50,0.55)' }
+];
+
+let peligrosidadSelVal = 0;
+
+function buildPeligCards() {
+  const container = document.getElementById('peligrosidadSel');
+  container.innerHTML = '';
+  PELIG_CARDS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pelig-card';
+    card.dataset.val = p.val;
+    card.innerHTML =
+      `<span class="badge ${p.tagCls} pc-tag">${p.val} — ${p.label}</span>` +
+      `<span class="pc-name">${p.icon} ${p.label}</span>` +
+      `<span class="pc-desc">${p.resumen}</span>` +
+      `<span class="pc-chk">✔</span>`;
+    card.addEventListener('click', () => setPeligrosidad(p.val, card));
+    container.appendChild(card);
+  });
+}
+
+function setPeligrosidad(val, cardEl) {
+  peligrosidadSelVal = val;
+  document.querySelectorAll('#peligrosidadSel .pelig-card').forEach(c => c.classList.remove('selected'));
+  if (cardEl) cardEl.classList.add('selected');
+  const p = PELIG_CARDS.find(x => x.val === val);
+  const box = document.getElementById('peligInfoBox');
+  if (!p) { box.style.display = 'none'; return; }
+  box.style.cssText = `display:block;border:1px solid ${p.bd};background:${p.bg};`;
+  box.innerHTML =
+    `<strong>${p.icon} Nivel ${p.val} — ${p.label} · CCN-STIC-817 §4.3</strong>` +
+    `<span style="color:var(--text-mid);">${p.resumen}</span>` +
+    `<ul>${p.ejemplos.map(e => `<li>${e}</li>`).join('')}</ul>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  REGISTRAR INCIDENTE
+// ══════════════════════════════════════════════════════
+
+function registrarIncidente() {
+  const titulo    = document.getElementById('fTitulo').value.trim();
+  const categoria = document.getElementById('fCategoria').value;
+  const tipo      = document.getElementById('fTipo').value;
+
+  // Validar todos los campos obligatorios y acumular errores
+  const errores = [];
+  if (!titulo)    errores.push('Título / descripción breve');
+  if (!categoria) errores.push('Categoría (taxonomía CCN-STIC-817)');
+  if (!tipo)      errores.push('Tipo de incidente');
+  if (!peligrosidadSelVal) errores.push('Nivel de peligrosidad inicial');
+
+  if (errores.length) {
+    showMsg('registroMsg', 'err',
+      `⚠ Campos obligatorios sin completar:<ul style="margin:6px 0 0 16px;">` +
+      errores.map(e => `<li>${e}</li>`).join('') +
+      `</ul>`
+    );
+    return;
+  }
+
+  incidenteIdCounter++;
+  const fecha = document.getElementById('fFecha').value || new Date().toISOString().split('T')[0];
+  const id = 'INC-' + fecha.replace(/-/g,'') + '-' + String(incidenteIdCounter).padStart(3,'0');
+  const inc = {
+    id, titulo,
+    fecha, hora: document.getElementById('fHora').value,
+    sector: document.getElementById('fSector').value,
+    descripcion: document.getElementById('fDesc').value,
+    categoria,
+    tipo,
+    origen: document.getElementById('fOrigen').value,
+    victimaTipo: document.getElementById('fVictima').value,
+    sistemas: document.getElementById('fSistemas').value,
+    usuarios: document.getElementById('fUsuarios').value,
+    responsable: document.getElementById('fResponsable').value,
+    datosPersonales: document.getElementById('fDatosPersonales').checked,
+    peligrosidadInicial: peligrosidadSelVal,
+    // evaluación
+    peligrosidadReal: null,
+    nivelImpacto: null,
+    criteriosMarcados: [],
+    requiereNotifCCN: false,
+    notificadoCCN: false,
+    notificadoAEPD: false,
+    // seguimiento
+    estado: 'abierto',
+    acciones: [],
+    fechaRegistro: new Date().toISOString(),
+    fechaCierre: null
+  };
+  incidentes.unshift(inc);
+  save();
+  log('ok', `✚ ${id} registrado — ${titulo.slice(0,50)}`);
+  showMsg('registroMsg', 'ok', `✅ Incidente <strong>${id}</strong> registrado correctamente.`);
+  renderRegistro();
+  renderDashOpen();
+}
+
+function showMsg(elId, type, html) {
+  const el = document.getElementById(elId);
+  const colors = { ok: 'rgba(26,122,74,0.08)', err: 'rgba(184,50,50,0.08)', warn: 'rgba(177,138,32,0.08)' };
+  const border = { ok: 'rgba(26,122,74,0.3)', err: 'rgba(184,50,50,0.3)', warn: 'rgba(177,138,32,0.3)' };
+  el.style.display = 'block';
+  el.innerHTML = `<div style="padding:10px 14px;background:${colors[type]};border:1px solid ${border[type]};border-radius:var(--r6);font-size:0.8rem;color:var(--text-mid);">${html}</div>`;
+}
+
+function limpiarFormNuevo() {
+  document.getElementById('fTitulo').value = '';
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fCategoria').value = '';
+  document.getElementById('fTipo').innerHTML = '<option value="">— Primero selecciona categoría —</option>';
+  document.getElementById('fSistemas').value = '';
+  document.getElementById('fUsuarios').value = '';
+  document.getElementById('fResponsable').value = '';
+  document.getElementById('fDatosPersonales').checked = false;
+  peligrosidadSelVal = 0;
+  document.querySelectorAll('#peligrosidadSel .pelig-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('peligInfoBox').style.display = 'none';
+  document.getElementById('registroMsg').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+//  MATRIZ DE PELIGROSIDAD
+// ══════════════════════════════════════════════════════
+
+function buildMatriz() {
+  const tbody = document.getElementById('matrizBody');
+  PELIG_LABELS.forEach((plabel, pi) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="peligrosidad-row-label">${pi+1} — ${plabel}</td>`;
+    VICTIMA_KEYS.forEach((_, vi) => {
+      const val = PELIGROSIDAD_MATRIX[pi][vi];
+      const cls = `cell-l${val}`;
+      const td = document.createElement('td');
+      td.className = cls;
+      td.dataset.pi = pi;
+      td.dataset.vi = vi;
+      td.dataset.val = val;
+      td.textContent = `L${val}`;
+      td.title = `Peligrosidad ${plabel} × ${VICTIMA_LABELS[vi]} → Nivel Real L${val}`;
+      td.addEventListener('click', () => selectMatrizCell(pi, vi, val, td));
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+let matrizSelPi = -1, matrizSelVi = -1;
+function selectMatrizCell(pi, vi, val, td) {
+  document.querySelectorAll('.impact-matrix td').forEach(c => c.classList.remove('cell-selected'));
+  td.classList.add('cell-selected');
+  matrizSelPi = pi; matrizSelVi = vi;
+  const lvlNames = ['','BAJO','MEDIO','ALTO','MUY ALTO','CRÍTICO'];
+  const lvlCls   = ['','bajo','medio','alto','muy-alto','critico'];
+  document.getElementById('matrizResult').style.display = 'block';
+  const verd = document.getElementById('matrizVerdict');
+  verd.className = `verdict ${lvlCls[val]}`;
+  document.getElementById('matrizVerdictTitle').textContent = `Nivel de Peligrosidad Real: L${val} — ${lvlNames[val]}`;
+  document.getElementById('matrizVerdictSub').textContent = `Atacante: ${PELIG_LABELS[pi]} × Víctima: ${VICTIMA_LABELS[vi]}. Este nivel se usa para el seguimiento del CCN-CERT y determina los plazos de cierre.`;
+  computeNotifDecision();
+}
+
+// ══════════════════════════════════════════════════════
+//  CRITERIOS DE IMPACTO
+// ══════════════════════════════════════════════════════
+
+let checkedCriterias = {};
+
+function buildCriterias() {
+  const container = document.getElementById('criteriasContainer');
+  container.innerHTML = '';
+  NIVEL_ORDER.forEach(nivel => {
+    const data = CRITERIOS_IMPACTO[nivel];
+    const section = document.createElement('div');
+    section.className = 'criteria-section';
+    const isSinImpacto = nivel === 'sin_impacto';
+    const titleExtra = isSinImpacto
+      ? ' style="color:var(--text-muted);border-top:1px dashed var(--border);margin-top:6px;padding-top:10px;"'
+      : '';
+    section.innerHTML = `<div class="criteria-section-title"${titleExtra}>${data.icon} Nivel ${data.label}</div>`;
+    data.items.forEach((item, idx) => {
+      const key = `${nivel}_${idx}`;
+      const div = document.createElement('div');
+      div.className = 'criteria-item';
+      div.dataset.key = key;
+      div.dataset.nivel = nivel;
+      div.innerHTML = `<input type="checkbox" id="crit_${key}" onchange="toggleCriteria('${key}','${nivel}',this)"><label for="crit_${key}" class="criteria-text">${item}</label>`;
+      section.appendChild(div);
+    });
+    container.appendChild(section);
+  });
+}
+
+function toggleCriteria(key, nivel, cb) {
+  // sin_impacto es mutuamente exclusivo con todos los demás niveles
+  if (nivel === 'sin_impacto' && cb.checked) {
+    Object.keys(checkedCriterias).forEach(k => {
+      const el = document.getElementById(`crit_${k}`);
+      if (el) el.checked = false;
+      const it = document.querySelector(`.criteria-item[data-key="${k}"]`);
+      if (it) it.className = 'criteria-item';
+    });
+    checkedCriterias = {};
+  } else if (nivel !== 'sin_impacto' && cb.checked) {
+    // Si estaba marcado sin_impacto, desmarcarlo
+    const sinKey = 'sin_impacto_0';
+    const sinCb = document.getElementById(`crit_${sinKey}`);
+    if (sinCb && sinCb.checked) {
+      sinCb.checked = false;
+      delete checkedCriterias[sinKey];
+      const sinIt = document.querySelector(`.criteria-item[data-key="${sinKey}"]`);
+      if (sinIt) sinIt.className = 'criteria-item';
+    }
+  }
+  if (cb.checked) checkedCriterias[key] = nivel;
+  else delete checkedCriterias[key];
+  const item = document.querySelector(`.criteria-item[data-key="${key}"]`);
+  const cls = nivel.replace(/_/g, '-');
+  if (cb.checked) { item.classList.add('checked', `level-${cls}`); }
+  else            { item.classList.remove('checked','level-critico','level-muy-alto','level-alto','level-medio','level-bajo','level-sin-impacto'); }
+  computeImpactoLevel();
+}
+
+function computeImpactoLevel() {
+  if (Object.keys(checkedCriterias).length === 0) {
+    document.getElementById('impactoResult').style.display = 'none';
+    computeNotifDecision();
+    return;
+  }
+  // El nivel más alto de los marcados es el resultado (sin_impacto es el más bajo)
+  let highest = null;
+  for (const lvl of NIVEL_ORDER) {
+    if (Object.values(checkedCriterias).includes(lvl)) { highest = lvl; break; }
+  }
+  const data = CRITERIOS_IMPACTO[highest];
+  const cls = highest.replace(/_/g, '-');
+  document.getElementById('impactoResult').style.display = 'block';
+  const verd = document.getElementById('impactoVerdict');
+  verd.className = `verdict ${cls}`;
+  document.getElementById('impactoIcon').textContent = data.icon;
+  document.getElementById('impactoVerdictTitle').textContent = `Nivel de Impacto: ${data.label}`;
+  const count = Object.keys(checkedCriterias).length;
+  document.getElementById('impactoVerdictSub').textContent = highest === 'sin_impacto'
+    ? 'Sin impacto apreciable en la organización. No se genera obligación de notificación formal, pero el incidente debe quedar registrado internamente.'
+    : `${count} criterio(s) marcado(s). El nivel determinante es el más alto de los seleccionados. Este nivel rige la obligación de notificación (CCN-STIC-817 §4.5).`;
+  computeNotifDecision(highest);
+}
+
+// ══════════════════════════════════════════════════════
+//  DECISIÓN DE NOTIFICACIÓN
+// ══════════════════════════════════════════════════════
+
+let currentImpactoLevel = null;
+
+function computeNotifDecision(nivelImpacto) {
+  if (nivelImpacto) currentImpactoLevel = nivelImpacto;
+  const nivel = currentImpactoLevel;
+  const incSel = document.getElementById('evalIncidente').value;
+  const inc = incidentes.find(i => i.id === incSel);
+  const hasDatosPersonales = inc ? inc.datosPersonales : false;
+  const sector = inc ? inc.sector : 'publico';
+  const container = document.getElementById('notifDecision');
+
+  if (!nivel && !hasDatosPersonales) {
+    container.innerHTML = `<div class="empty-state" style="padding:24px;"><div class="empty-icon">📬</div><div class="empty-title">Evalúa el impacto para obtener la decisión</div><div class="empty-sub">Marca criterios de impacto para determinar si es obligatorio notificar.</div></div>`;
+    return;
+  }
+
+  // Sin impacto: veredicto inmediato sin notificación
+  if (nivel === 'sin_impacto' && !hasDatosPersonales) {
+    container.innerHTML = `<div class="notif-block no-notif" style="border-left:4px solid var(--border);background:var(--surface2);padding:14px 16px;border-radius:var(--r6);">
+      <div class="notif-title" style="color:var(--text-muted);">⚪ SIN IMPACTO — Sin obligación de notificación</div>
+      <div class="notif-detail" style="margin-top:6px;font-size:0.8rem;color:var(--text-dim);">El incidente no tiene impacto apreciable en la organización. No se genera obligación de notificación formal a ninguna autoridad. Registra el incidente internamente e inclúyelo en el resumen anual al CCN-CERT (CCN-STIC-817 §4.5).</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  const requiereNotif = ['critico','muy_alto','alto'].includes(nivel);
+
+  // CCN-CERT / INCIBE
+  if (nivel) {
+    if (sector === 'publico') {
+      if (requiereNotif) {
+        html += `<div class="notif-block required">
+          <div class="notif-title">🚨 Notificación OBLIGATORIA — CCN-CERT</div>
+          <div class="notif-detail">El nivel de impacto <strong>${CRITERIOS_IMPACTO[nivel].label}</strong> exige notificación al <strong>CCN-CERT</strong> (Centro Criptológico Nacional), CERT de referencia para el Sector Público según el RD-ley 12/2018 y la CCN-STIC-817 §4.5.</div>
+          <div class="notif-deadline">⏱ Canal: herramienta LUCIA o formulario de la Plataforma Nacional · Plazo: inmediato</div>
+        </div>`;
+      } else {
+        html += `<div class="notif-block no-notif">
+          <div class="notif-title">✅ Notificación NO obligatoria al CCN-CERT</div>
+          <div class="notif-detail">El nivel de impacto <strong>${CRITERIOS_IMPACTO[nivel].label}</strong> no genera obligación de notificación formal al CCN-CERT, aunque el organismo debe registrar el incidente y remitir un resumen anual (CCN-STIC-817 §4.5).</div>
+        </div>`;
+      }
+    } else if (sector === 'privado_esencial') {
+      if (requiereNotif) {
+        html += `<div class="notif-block required">
+          <div class="notif-title">🚨 Notificación OBLIGATORIA — INCIBE-CERT</div>
+          <div class="notif-detail">Operadores de Servicios Esenciales del sector privado deben notificar a <strong>INCIBE-CERT</strong> como CERT de referencia (RD-ley 12/2018). Nivel de impacto: <strong>${CRITERIOS_IMPACTO[nivel].label}</strong>.</div>
+          <div class="notif-deadline">⏱ Canal: incibe-cert.es · Plazo: sin demora justificada</div>
+        </div>`;
+      } else {
+        html += `<div class="notif-block optional">
+          <div class="notif-title">⚠️ Notificación voluntaria recomendada — INCIBE-CERT</div>
+          <div class="notif-detail">Nivel <strong>${CRITERIOS_IMPACTO[nivel].label}</strong>. No hay obligación formal, pero se recomienda notificar a INCIBE-CERT para contribuir al intercambio de información de ciberseguridad nacional.</div>
+        </div>`;
+      }
+    } else {
+      html += `<div class="notif-block optional">
+        <div class="notif-title">ℹ️ Notificación voluntaria — INCIBE-CERT / Fuerzas de Seguridad</div>
+        <div class="notif-detail">Para entidades privadas no esenciales, puedes notificar voluntariamente a <strong>INCIBE-CERT</strong>. Si hay indicios de actividad delictiva, denunciar a las <strong>Fuerzas y Cuerpos de Seguridad del Estado</strong>.</div>
+      </div>`;
+    }
+  }
+
+  // AEPD
+  if (hasDatosPersonales) {
+    html += `<div class="notif-block personal-data">
+      <div class="notif-title">🔒 Notificación OBLIGATORIA — AEPD (Brecha de datos personales)</div>
+      <div class="notif-detail">El incidente involucra datos de carácter personal. Debes evaluar si constituye una <strong>brecha de seguridad</strong> que ponga en riesgo los derechos y libertades de personas físicas. Si es así, notificación obligatoria a la <strong>AEPD</strong> conforme al <strong>RGPD art. 33</strong> y LOPDGDD.</div>
+      <div class="notif-deadline">⏱ Plazo máximo: <strong>72 horas</strong> desde el conocimiento de la brecha · Canal: sedeagpd.gob.es</div>
+    </div>
+    <div class="notif-block personal-data" style="margin-top:-4px;">
+      <div class="notif-title">🔔 Posible comunicación a afectados — RGPD art. 34</div>
+      <div class="notif-detail">Si la brecha entraña un <strong>alto riesgo</strong> para los derechos de los interesados, también es obligatorio <strong>comunicárselo a los propios afectados</strong> sin dilación indebida.</div>
+    </div>`;
+  }
+
+  if (!html) {
+    html = `<div class="notif-block no-notif"><div class="notif-title">✅ Sin obligación de notificación identificada</div><div class="notif-detail">Con los criterios actuales no se detecta obligación de notificación formal a ninguna autoridad. Recuerda registrar el incidente internamente y reportarlo en el resumen anual al CCN-CERT.</div></div>`;
+  }
+
+  // Summary table
+  html += `<div style="margin-top:14px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r6);">
+    <div style="font-size:0.72rem;font-weight:700;color:var(--plum-deep);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;">Resumen de notificaciones</div>
+    <table style="width:100%;font-size:0.77rem;border-collapse:collapse;">
+      <tr><td style="padding:4px 0;color:var(--text-muted);width:120px;">CCN-CERT</td><td style="padding:4px 0;font-weight:600;color:${requiereNotif&&sector==='publico'?'var(--red)':'var(--green)'};">${requiereNotif&&sector==='publico'?'🔴 OBLIGATORIA':'🟢 No obligatoria'}</td></tr>
+      <tr><td style="padding:4px 0;color:var(--text-muted);">INCIBE-CERT</td><td style="padding:4px 0;font-weight:600;color:${requiereNotif&&sector==='privado_esencial'?'var(--red)':'var(--text-muted)'};">${requiereNotif&&sector==='privado_esencial'?'🔴 OBLIGATORIA':'⚪ No aplica / Voluntaria'}</td></tr>
+      <tr><td style="padding:4px 0;color:var(--text-muted);">AEPD (RGPD)</td><td style="padding:4px 0;font-weight:600;color:${hasDatosPersonales?'var(--magenta)':'var(--text-muted)'};">${hasDatosPersonales?'🔒 OBLIGATORIA — 72 horas':'⚪ No aplica'}</td></tr>
+    </table>
+  </div>`;
+
+  container.innerHTML = html;
+
+  // Show save button
+  document.getElementById('evalSaveBtn').innerHTML = `<button class="btn btn-primary" onclick="guardarEvaluacion()" style="width:100%;margin-top:10px;">💾 Guardar evaluación en el incidente</button>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  CARGAR / GUARDAR EVALUACIÓN
+// ══════════════════════════════════════════════════════
+
+function cargarEvaluacion() {
+  const id = document.getElementById('evalIncidente').value;
+  if (!id) return;
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+
+  // Reset matrix
+  document.querySelectorAll('.impact-matrix td').forEach(c => c.classList.remove('cell-selected'));
+  matrizSelPi = -1; matrizSelVi = -1;
+  document.getElementById('matrizResult').style.display = 'none';
+
+  // Reset criterias
+  document.querySelectorAll('.criteria-item').forEach(c => {
+    c.classList.remove('checked','level-critico','level-muy-alto','level-alto','level-medio','level-bajo');
+    c.querySelector('input').checked = false;
+  });
+  checkedCriterias = {};
+  currentImpactoLevel = null;
+  document.getElementById('impactoResult').style.display = 'none';
+
+  // Restore saved
+  if (inc.peligrosidadInicial > 0 && inc.victimaTipo) {
+    const pi = inc.peligrosidadInicial - 1;
+    const vi = VICTIMA_KEYS.indexOf(inc.victimaTipo);
+    if (pi >= 0 && vi >= 0) {
+      const cell = document.querySelector(`.impact-matrix td[data-pi="${pi}"][data-vi="${vi}"]`);
+      if (cell) selectMatrizCell(pi, vi, PELIGROSIDAD_MATRIX[pi][vi], cell);
+    }
+  }
+
+  if (inc.criteriosMarcados && inc.criteriosMarcados.length) {
+    inc.criteriosMarcados.forEach(key => {
+      const cb = document.getElementById(`crit_${key}`);
+      if (cb) { cb.checked = true; const nivel = key.split('_').slice(0,-1).join('_'); toggleCriteria(key, nivel, cb); }
+    });
+  }
+
+  computeNotifDecision(inc.nivelImpacto);
+}
+
+function guardarEvaluacion() {
+  const id = document.getElementById('evalIncidente').value;
+  if (!id) { alert('Selecciona un incidente primero.'); return; }
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+
+  if (matrizSelPi >= 0) inc.peligrosidadReal = PELIGROSIDAD_MATRIX[matrizSelPi][matrizSelVi];
+  inc.criteriosMarcados = Object.keys(checkedCriterias);
+  inc.nivelImpacto = currentImpactoLevel;
+
+  const sector = inc.sector;
+  const requiereNotif = ['critico','muy_alto','alto'].includes(currentImpactoLevel);
+  inc.requiereNotifCCN = requiereNotif && sector === 'publico';
+  inc.requiereNotifINCIBE = requiereNotif && sector === 'privado_esencial';
+  inc.requiereNotifAEPD = inc.datosPersonales;
+
+  save();
+  log('ok', `💾 Evaluación guardada — ${id} · Impacto: ${currentImpactoLevel || '—'}`);
+  alert(`Evaluación guardada correctamente para ${id}.`);
+}
+
+// ══════════════════════════════════════════════════════
+//  REGISTRO
+// ══════════════════════════════════════════════════════
+
+function renderRegistro() {
+  const filtro = document.getElementById('filtroEstado').value;
+  const lista = filtro ? incidentes.filter(i => i.estado === filtro || (filtro === 'cerrado' && i.estado !== 'abierto')) : incidentes;
+  const container = document.getElementById('tablaRegistro');
+
+  if (!lista.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-title">Sin incidentes registrados</div><div class="empty-sub">Registra tu primer incidente en la pestaña "Nuevo incidente".</div></div>`;
+    return;
+  }
+
+  let html = `<table class="data-table"><thead><tr>
+    <th>ID</th><th>Fecha</th><th>Título</th><th>Categoría / Tipo</th><th>Impacto</th><th>Estado</th><th>Notif.</th><th>Acciones</th>
+  </tr></thead><tbody>`;
+
+  lista.forEach(inc => {
+    const impBadge = inc.nivelImpacto
+      ? `<span class="badge badge-${inc.nivelImpacto.replace('_','-')}">${CRITERIOS_IMPACTO[inc.nivelImpacto]?.label || inc.nivelImpacto}</span>`
+      : '<span style="color:var(--text-dim);font-size:0.73rem;">No evaluado</span>';
+    const estBadge = inc.estado === 'abierto'
+      ? '<span class="badge badge-abierto">Abierto</span>'
+      : '<span class="badge badge-cerrado">Cerrado</span>';
+    const notifIco = inc.requiereNotifCCN && !inc.notificadoCCN ? '🔴' : (inc.datosPersonales && !inc.notificadoAEPD ? '🟣' : '✅');
+    html += `<tr>
+      <td class="mono">${inc.id}</td>
+      <td class="mono" style="white-space:nowrap;">${inc.fecha}</td>
+      <td><strong style="font-size:0.8rem;">${esc(inc.titulo)}</strong></td>
+      <td><span style="font-size:0.75rem;color:var(--text-muted);">${esc(inc.tipo || inc.categoria || '—')}</span></td>
+      <td>${impBadge}</td>
+      <td>${estBadge}</td>
+      <td style="text-align:center;">${notifIco}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="verDetalle('${inc.id}')">Ver</button>
+        <button class="btn btn-secondary btn-sm" onclick="abrirModalAccion('${inc.id}')">+ Acción</button>
+        ${inc.requiereNotifCCN&&!inc.notificadoCCN?`<button class="btn btn-sm" style="background:rgba(184,50,50,0.12);color:var(--red);border:1px solid rgba(184,50,50,0.3);" onclick="marcarNotificado('${inc.id}','ccn')">CCN ✓</button>`:''}
+        ${inc.datosPersonales&&!inc.notificadoAEPD?`<button class="btn btn-sm" style="background:rgba(179,63,118,0.1);color:var(--magenta);border:1px solid rgba(179,63,118,0.3);" onclick="marcarNotificado('${inc.id}','aepd')">AEPD ✓</button>`:''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function verDetalle(id) {
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+  const panel = document.getElementById('detallePanel');
+  panel.style.display = 'block';
+  document.getElementById('detallePanelTitle').innerHTML = `<span class="dot blue"></span>${esc(inc.id)} — ${esc(inc.titulo)}`;
+
+  const impBadge = inc.nivelImpacto
+    ? `<span class="badge badge-${inc.nivelImpacto.replace('_','-')}">${CRITERIOS_IMPACTO[inc.nivelImpacto]?.label}</span>`
+    : '<em style="color:var(--text-dim)">No evaluado</em>';
+
+  // Phase indicator
+  const faseActual = inc.acciones.length ? inc.acciones[inc.acciones.length-1].fase : null;
+  const fases = ['deteccion','contencion','recuperacion','post'];
+  const faseIdx = faseActual ? fases.indexOf(faseActual) : -1;
+
+  const accionesHTML = inc.acciones.length
+    ? inc.acciones.map(a => `<div class="action-entry">
+        <div class="action-date">${a.fecha}</div>
+        <div class="action-phase"><span class="badge badge-medio">${a.fase}</span></div>
+        <div class="action-desc">${esc(a.desc)}</div>
+      </div>`).join('')
+    : '<div style="padding:14px;color:var(--text-dim);font-size:0.79rem;">Sin acciones registradas.</div>';
+
+  document.getElementById('detallePanelBody').innerHTML = `
+    <div class="main-cols" style="margin-bottom:16px;">
+      <div>
+        <table style="width:100%;font-size:0.79rem;border-collapse:collapse;">
+          <tr><td style="padding:6px 0;color:var(--text-muted);width:130px;">ID</td><td class="mono" style="font-weight:600;">${esc(inc.id)}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Fecha</td><td>${inc.fecha} ${inc.hora}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Sector</td><td>${inc.sector}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Categoría</td><td>${esc(inc.categoria||'—')}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Tipo</td><td>${esc(inc.tipo||'—')}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Origen</td><td>${inc.origen}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Peligrosidad inicial</td><td>${inc.peligrosidadInicial ? `${inc.peligrosidadInicial} — ${PELIG_LABELS[inc.peligrosidadInicial-1]}` : '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Nivel de impacto</td><td>${impBadge}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Datos personales</td><td>${inc.datosPersonales ? '⚠️ Sí — posible brecha RGPD' : 'No'}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Notif. CCN-CERT</td><td>${inc.requiereNotifCCN ? (inc.notificadoCCN ? '✅ Notificado' : '🔴 Pendiente') : '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Notif. AEPD</td><td>${inc.datosPersonales ? (inc.notificadoAEPD ? '✅ Notificado' : '🔒 Pendiente (72h)') : '—'}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Responsable</td><td>${esc(inc.responsable||'—')}</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Descripción</div>
+        <div style="font-size:0.8rem;color:var(--text-mid);line-height:1.6;background:var(--bg);border:1px solid var(--border);border-radius:var(--r6);padding:12px 14px;">${esc(inc.descripcion||'Sin descripción.')}</div>
+        <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 8px;">Sistemas afectados</div>
+        <div style="font-size:0.8rem;color:var(--text-mid);">${esc(inc.sistemas||'—')}</div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="irEvaluacion('${inc.id}')">⚖️ Evaluar impacto</button>
+          <button class="btn btn-secondary btn-sm" onclick="abrirModalAccion('${inc.id}')">+ Añadir acción</button>
+          <button class="btn btn-secondary btn-sm" onclick="irInforme('${inc.id}')">📄 Informe cierre</button>
+          ${inc.estado==='abierto'?`<button class="btn btn-danger btn-sm" onclick="cerrarDirecto('${inc.id}')">Cerrar incidente</button>`:''}
+        </div>
+      </div>
+    </div>
+    <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;">Registro de acciones</div>
+    <div style="border:1px solid var(--border);border-radius:var(--r6);overflow:hidden;">${accionesHTML}</div>
+  `;
+  panel.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function cerrarDetalle() {
+  document.getElementById('detallePanel').style.display = 'none';
+}
+
+function irEvaluacion(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab:nth-child(3)').classList.add('active');
+  document.getElementById('tab-evaluar').classList.add('active');
+  document.getElementById('evalIncidente').value = id;
+  cargarEvaluacion();
+  cerrarDetalle();
+}
+
+function irInforme(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab:nth-child(5)').classList.add('active');
+  document.getElementById('tab-informe').classList.add('active');
+  document.getElementById('informeIncidente').value = id;
+  prepararInforme();
+  cerrarDetalle();
+}
+
+// ══════════════════════════════════════════════════════
+//  ACCIONES
+// ══════════════════════════════════════════════════════
+
+function abrirModalAccion(id) {
+  accionTargetId = id;
+  document.getElementById('accionDesc').value = '';
+  document.getElementById('modalAccion').classList.add('open');
+}
+
+function guardarAccion() {
+  const desc = document.getElementById('accionDesc').value.trim();
+  if (!desc) { alert('Escribe una descripción de la acción.'); return; }
+  const inc = incidentes.find(i => i.id === accionTargetId);
+  if (!inc) return;
+  const fase = document.getElementById('accionFase').value;
+  inc.acciones.push({ fase, desc, fecha: new Date().toISOString().slice(0,16).replace('T',' ') });
+  save();
+  document.getElementById('modalAccion').classList.remove('open');
+  log('ok', `Acción registrada en ${accionTargetId} · Fase: ${fase}`);
+  renderRegistro();
+  if (document.getElementById('detallePanel').style.display !== 'none') verDetalle(accionTargetId);
+}
+
+function marcarNotificado(id, tipo) {
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+  if (tipo === 'ccn') { inc.notificadoCCN = true; inc.acciones.push({ fase:'notificacion', desc:'Incidente notificado al CCN-CERT', fecha: new Date().toISOString().slice(0,16).replace('T',' ') }); }
+  if (tipo === 'aepd') { inc.notificadoAEPD = true; inc.acciones.push({ fase:'notificacion', desc:'Brecha notificada a la AEPD (RGPD art. 33)', fecha: new Date().toISOString().slice(0,16).replace('T',' ') }); }
+  save();
+  log('ok', `Notificación marcada (${tipo.toUpperCase()}) para ${id}`);
+  renderRegistro();
+}
+
+function cerrarDirecto(id) {
+  if (!confirm('¿Marcar este incidente como cerrado?')) return;
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+  inc.estado = 'cerrado_resuelto';
+  inc.fechaCierre = new Date().toISOString().split('T')[0];
+  save();
+  log('ok', `Incidente ${id} cerrado`);
+  renderRegistro();
+  renderDashOpen();
+  cerrarDetalle();
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD — ABIERTOS
+// ══════════════════════════════════════════════════════
+
+function renderDashOpen() {
+  const abiertos = incidentes.filter(i => i.estado === 'abierto');
+  const el = document.getElementById('dashOpenList');
+  if (!abiertos.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🛡️</div><div class="empty-title">Sin incidentes abiertos</div><div class="empty-sub">Registra un nuevo incidente para comenzar el seguimiento.</div></div>`;
+    return;
+  }
+  el.innerHTML = abiertos.slice(0,8).map(inc => {
+    const impBadge = inc.nivelImpacto
+      ? `<span class="badge badge-${inc.nivelImpacto.replace('_','-')}">${CRITERIOS_IMPACTO[inc.nivelImpacto]?.label}</span>`
+      : '<span class="badge badge-warn">Sin evaluar</span>';
+    const alerts = [];
+    if (inc.requiereNotifCCN && !inc.notificadoCCN) alerts.push('🔴 Notif. CCN-CERT pendiente');
+    if (inc.datosPersonales && !inc.notificadoAEPD) alerts.push('🔒 Notif. AEPD 72h');
+    return `<div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+      <div style="flex:1;">
+        <div style="font-size:0.77rem;font-weight:700;color:var(--plum-deep);margin-bottom:2px;">${esc(inc.titulo)}</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;">${inc.id} · ${inc.fecha}</div>
+        ${alerts.length ? `<div style="margin-top:4px;">${alerts.map(a=>`<span style="font-size:0.68rem;margin-right:8px;font-weight:600;">${a}</span>`).join('')}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">${impBadge}<button class="btn btn-secondary btn-sm" onclick="switchTab('registro',document.querySelectorAll('.tab')[3]);verDetalle('${inc.id}')">Ver</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  INFORME DE CIERRE
+// ══════════════════════════════════════════════════════
+
+function prepararInforme() {
+  const id = document.getElementById('informeIncidente').value;
+  const btn = document.getElementById('btnCerrarIncidente');
+
+  if (!id) {
+    // Sin incidente seleccionado: botón en estado neutro
+    btn.disabled = false;
+    btn.textContent = '✔ Marcar como cerrado';
+    btn.style.cssText = '';
+    btn.title = '';
+    return;
+  }
+
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+
+  // Solo limpiar los campos de texto si el incidente cambia y aún no hay contenido
+  // (no borrar lo que el usuario ya haya escrito en la misma sesión)
+  if (!document.getElementById('informeCausa').value &&
+      !document.getElementById('informeMedidas').value &&
+      !document.getElementById('informeLecciones').value) {
+    document.getElementById('informeCausa').value = '';
+    document.getElementById('informeMedidas').value = '';
+    document.getElementById('informeLecciones').value = '';
+  }
+
+  // Actualizar el botón según el estado del incidente
+  const estaCerrado = inc.estado !== 'abierto';
+  if (estaCerrado) {
+    btn.disabled = true;
+    btn.textContent = `✔ Cerrado el ${inc.fechaCierre || '—'}`;
+    btn.style.cssText = 'opacity:0.5;cursor:not-allowed;';
+    btn.title = `Este incidente ya fue cerrado el ${inc.fechaCierre || '—'}. No se puede cerrar de nuevo.`;
+  } else {
+    btn.disabled = false;
+    btn.textContent = '✔ Marcar como cerrado';
+    btn.style.cssText = '';
+    btn.title = 'Marcar este incidente como cerrado (resuelto)';
+  }
+}
+
+function generarInforme() {
+  const id = document.getElementById('informeIncidente').value;
+  if (!id) { alert('Selecciona un incidente.'); return; }
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+  const causa = document.getElementById('informeCausa').value || 'Pendiente de determinar';
+  const medidas = document.getElementById('informeMedidas').value || 'Pendiente de documentar';
+  const lecciones = document.getElementById('informeLecciones').value || 'Pendiente de documentar';
+  const nivelLabel = inc.nivelImpacto ? CRITERIOS_IMPACTO[inc.nivelImpacto]?.label : 'NO EVALUADO';
+  const peligLabel = inc.peligrosidadInicial ? `${inc.peligrosidadInicial} — ${PELIG_LABELS[inc.peligrosidadInicial-1]}` : 'No determinado';
+  const acciones = inc.acciones.map(a => `    [${a.fecha}] [${a.fase.toUpperCase()}] ${a.desc}`).join('\n') || '    Sin acciones registradas.';
+
+  const txt = `${'═'.repeat(70)}
+INFORME DE CIERRE DE CIBERINCIDENTE — CCN-STIC-817 ANEXO B
+${'═'.repeat(70)}
+
+IDENTIFICACIÓN
+─────────────────────────────────────────────────────────────
+  ID del incidente:       ${inc.id}
+  Título:                 ${inc.titulo}
+  Fecha de detección:     ${inc.fecha} ${inc.hora}
+  Fecha de cierre:        ${inc.fechaCierre || new Date().toISOString().split('T')[0]}
+  Responsable:            ${inc.responsable || 'No indicado'}
+  Sector del organismo:   ${inc.sector}
+
+CLASIFICACIÓN
+─────────────────────────────────────────────────────────────
+  Categoría (taxonomía):  ${inc.categoria || '—'}
+  Tipo de incidente:      ${inc.tipo || '—'}
+  Origen de la amenaza:   ${inc.origen}
+  Tipo de víctima:        ${inc.victimaTipo}
+  Peligrosidad inicial:   ${peligLabel}
+
+EVALUACIÓN DE IMPACTO
+─────────────────────────────────────────────────────────────
+  Nivel de peligrosidad real (Tabla 3): L${inc.peligrosidadReal || '—'}
+  Nivel de impacto potencial (Tabla 4): ${nivelLabel}
+  Datos de carácter personal afectados: ${inc.datosPersonales ? 'SÍ — Brecha RGPD' : 'No'}
+  Sistemas afectados:     ${inc.sistemas || '—'}
+  Usuarios afectados:     ${inc.usuarios || '—'}
+
+NOTIFICACIONES
+─────────────────────────────────────────────────────────────
+  CCN-CERT:   ${inc.requiereNotifCCN ? (inc.notificadoCCN ? '✔ Notificado' : '✗ Pendiente (obligatoria)') : 'No requerida'}
+  INCIBE-CERT:${inc.requiereNotifINCIBE ? (inc.notificadoINCIBE ? '✔ Notificado' : '✗ Pendiente (obligatoria)') : 'No requerida'}
+  AEPD (RGPD):${inc.datosPersonales ? (inc.notificadoAEPD ? '✔ Notificado' : '✗ Pendiente (72h — art. 33 RGPD)') : 'No aplica'}
+
+RESUMEN DE ACCIONES REALIZADAS
+─────────────────────────────────────────────────────────────
+${acciones}
+
+CAUSA RAÍZ
+─────────────────────────────────────────────────────────────
+${causa.split('\n').map(l=>'  '+l).join('\n')}
+
+MEDIDAS CORRECTORAS ADOPTADAS
+─────────────────────────────────────────────────────────────
+${medidas.split('\n').map(l=>'  '+l).join('\n')}
+
+LECCIONES APRENDIDAS
+─────────────────────────────────────────────────────────────
+${lecciones.split('\n').map(l=>'  '+l).join('\n')}
+
+${'─'.repeat(70)}
+Generado por CiberLog ENS v1 · CCN-STIC-817 · Procesamiento 100% local
+${'═'.repeat(70)}`;
+
+  document.getElementById('informeOut').textContent = txt;
+  log('ok', `📄 Informe de cierre generado — ${id}`);
+}
+
+function cerrarIncidente() {
+  const id = document.getElementById('informeIncidente').value;
+  if (!id) { alert('Selecciona un incidente.'); return; }
+  const inc = incidentes.find(i => i.id === id);
+  if (!inc) return;
+
+  // Guardia: no permitir cerrar dos veces
+  if (inc.estado !== 'abierto') {
+    alert(`El incidente ${id} ya está cerrado (${inc.fechaCierre || '—'}). No es posible cerrarlo de nuevo.`);
+    return;
+  }
+
+  if (!confirm(`¿Marcar el incidente ${id} como cerrado?`)) return;
+  inc.estado = 'cerrado_resuelto';
+  inc.fechaCierre = new Date().toISOString().split('T')[0];
+  save();
+  log('ok', `✔ Incidente ${id} cerrado`);
+  renderRegistro();
+  renderDashOpen();
+  // Actualizar el botón inmediatamente sin esperar a que el usuario cambie el select
+  prepararInforme();
+  alert(`Incidente ${id} marcado como cerrado.`);
+}
+
+function copiarInforme() {
+  const txt = document.getElementById('informeOut').textContent;
+  navigator.clipboard.writeText(txt).then(() => { log('ok', '📋 Informe copiado al portapapeles'); });
+}
+
+// ══════════════════════════════════════════════════════
+//  REFRESH SELECTS / EXPORT
+// ══════════════════════════════════════════════════════
+
+function refreshSelects() {
+  ['evalIncidente','informeIncidente'].forEach(selId => {
+    const sel = document.getElementById(selId);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Seleccionar incidente —</option>';
+    incidentes.forEach(inc => {
+      sel.innerHTML += `<option value="${inc.id}">${inc.id} — ${inc.titulo.slice(0,50)}</option>`;
+    });
+    if (cur) sel.value = cur;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  UTILIDADES COMUNES
+// ══════════════════════════════════════════════════════
+
+function descargarBlob(blob, nombre) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+function hoy() { return new Date().toISOString().split('T')[0]; }
+
+function toast(msg, tipo) {
+  // tipo: 'ok' | 'warn' | 'err'
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  const colores = { ok:'#1a7a4a', warn:'#7a5800', err:'#b83232' };
+  t.style.cssText = `background:${colores[tipo]||colores.ok};color:#fff;padding:11px 16px;border-radius:8px;` +
+    `font-size:0.81rem;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,0.18);` +
+    `pointer-events:auto;max-width:360px;animation:toastIn .2s ease;`;
+  const iconos = { ok:'✅', warn:'⚠️', err:'❌' };
+  t.textContent = (iconos[tipo] || 'ℹ️') + '  ' + msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 320); }, 3200);
+}
+
+// Inyectar keyframe una sola vez
+(function() {
+  if (!document.getElementById('_toastKf')) {
+    const s = document.createElement('style'); s.id = '_toastKf';
+    s.textContent = '@keyframes toastIn{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}';
+    document.head.appendChild(s);
+  }
+})();
+
+// ══════════════════════════════════════════════════════
+//  EXPORTAR JSON (incidentes)
+// ══════════════════════════════════════════════════════
+
+function exportarJSON() {
+  if (!incidentes.length) { toast('No hay incidentes para exportar', 'warn'); return; }
+  const payload = {
+    _meta: {
+      app: 'CiberLog ENS', version: 2, norma: 'CCN-STIC-817',
+      exportadoEn: new Date().toISOString(),
+      totalIncidentes: incidentes.length
+    },
+    incidentes: incidentes,
+    idCounter: incidenteIdCounter
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+  descargarBlob(blob, `ciberlog_ens_${hoy()}.json`);
+  log('ok', `⬇ JSON exportado — ${incidentes.length} incidente(s)`);
+  toast(`JSON exportado (${incidentes.length} incidentes)`, 'ok');
+}
+
+// ══════════════════════════════════════════════════════
+//  IMPORTAR JSON (incidentes) — modal
+// ══════════════════════════════════════════════════════
+
+let _impParsed = null;
+
+function abrirModalImportar() {
+  _impParsed = null;
+  document.getElementById('impPreview').style.display = 'none';
+  document.getElementById('impOpciones').style.display = 'none';
+  document.getElementById('impAvisoReemplazar').style.display = 'none';
+  document.getElementById('impBtnConfirmar').disabled = true;
+  document.getElementById('inputImportarJSON').value = '';
+  document.querySelector('input[name="impModo"][value="combinar"]').checked = true;
+  document.getElementById('modalImportar').style.display = 'flex';
+
+  // Listener de cambio de modo para el aviso de reemplazar
+  document.querySelectorAll('input[name="impModo"]').forEach(r => {
+    r.onchange = () => {
+      const aviso = document.getElementById('impAvisoReemplazar');
+      if (r.value === 'reemplazar' && r.checked && incidentes.length > 0) {
+        document.getElementById('impAvisoCuenta').textContent = incidentes.length;
+        aviso.style.display = 'block';
+      } else { aviso.style.display = 'none'; }
+    };
+  });
+}
+
+function cerrarModalImportar() {
+  document.getElementById('modalImportar').style.display = 'none';
+  _impParsed = null;
+}
+
+function procesarFicheroImport(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.json')) { toast('Solo se admiten ficheros .json', 'err'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw = JSON.parse(ev.target.result);
+      let lista, counter = incidenteIdCounter;
+      if (Array.isArray(raw)) {
+        lista = raw;
+      } else if (raw._meta && Array.isArray(raw.incidentes)) {
+        lista = raw.incidentes;
+        if (raw.idCounter) counter = raw.idCounter;
+      } else {
+        throw new Error('Formato no reconocido — ¿es un fichero de informe en vez de incidentes?');
+      }
+      const invalidos = lista.filter(i => !i.id || !i.titulo);
+      if (invalidos.length) throw new Error(`${invalidos.length} registro(s) sin ID o título válido`);
+
+      _impParsed = { lista, counter, meta: raw._meta || null };
+      const idsActuales = new Set(incidentes.map(i => i.id));
+      const nuevos    = lista.filter(i => !idsActuales.has(i.id)).length;
+      const duplicados = lista.length - nuevos;
+
+      const prev = document.getElementById('impPreview');
+      prev.style.display = 'block';
+      prev.innerHTML =
+        `<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:6px;">` +
+        `<span>📦 <strong>${lista.length}</strong> incidente(s) en el fichero</span>` +
+        `<span style="color:var(--green);">✚ <strong>${nuevos}</strong> nuevos</span>` +
+        (duplicados > 0 ? `<span style="color:var(--amber);">⚠ <strong>${duplicados}</strong> ya existen (mismo ID)</span>` : '') +
+        `</div>` +
+        (raw._meta ? `<div style="font-size:0.71rem;color:var(--text-dim);">Exportado el ${new Date(raw._meta.exportadoEn).toLocaleString('es-ES')} · v${raw._meta.version||'?'} · ${raw._meta.norma||''}</div>` : '');
+
+      document.getElementById('impOpciones').style.display = 'block';
+      document.getElementById('impAvisoReemplazar').style.display = 'none';
+      document.querySelector('input[name="impModo"][value="combinar"]').checked = true;
+      document.getElementById('impBtnConfirmar').disabled = false;
+
+    } catch (err) {
+      const prev = document.getElementById('impPreview');
+      prev.style.display = 'block';
+      prev.innerHTML = `<span style="color:var(--red);">❌ ${err.message}</span>`;
+      document.getElementById('impOpciones').style.display = 'none';
+      document.getElementById('impBtnConfirmar').disabled = true;
+      toast('Error al leer el fichero: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function confirmarImportar() {
+  if (!_impParsed) return;
+  const modo = document.querySelector('input[name="impModo"]:checked')?.value || 'combinar';
+  const { lista, counter } = _impParsed;
+  let importados = 0, omitidos = 0;
+
+  if (modo === 'reemplazar') {
+    incidentes = lista.map(_normalizarInc);
+    incidenteIdCounter = Math.max(counter, ...lista.map(i => parseInt(i.id.replace(/\D/g,''))||0));
+    importados = lista.length;
+  } else {
+    const idsActuales = new Set(incidentes.map(i => i.id));
+    lista.forEach(inc => {
+      if (!idsActuales.has(inc.id)) { incidentes.push(_normalizarInc(inc)); importados++; }
+      else omitidos++;
+    });
+    const maxId = Math.max(...incidentes.map(i => parseInt(i.id.replace(/\D/g,''))||0));
+    if (maxId > incidenteIdCounter) incidenteIdCounter = maxId;
+  }
+
+  save(); renderRegistro(); renderDashOpen(); updateTipos(); cerrarModalImportar();
+
+  const msg = modo === 'reemplazar'
+    ? `Reemplazo: ${importados} incidente(s) importados`
+    : `Combinación: ${importados} añadidos${omitidos ? `, ${omitidos} omitidos (ID duplicado)` : ''}`;
+  log('ok', '⬆ ' + msg);
+  toast(msg, 'ok');
+}
+
+function _normalizarInc(inc) {
+  return {
+    id: inc.id, fecha: inc.fecha || hoy(), hora: inc.hora || '',
+    titulo: inc.titulo || '', descripcion: inc.descripcion || '',
+    sistemas: inc.sistemas || '', categoria: inc.categoria || '',
+    tipo: inc.tipo || '', origen: inc.origen || 'externo',
+    sector: inc.sector || 'publico',
+    peligrosidadInicial: inc.peligrosidadInicial || 0,
+    victimaTipo: inc.victimaTipo || null,
+    peligrosidadReal: inc.peligrosidadReal || null,
+    nivelImpacto: inc.nivelImpacto || null,
+    criteriosMarcados: inc.criteriosMarcados || [],
+    datosPersonales: !!inc.datosPersonales,
+    requiereNotifCCN: !!inc.requiereNotifCCN, notificadoCCN: !!inc.notificadoCCN,
+    requiereNotifINCIBE: !!inc.requiereNotifINCIBE, notificadoINCIBE: !!inc.notificadoINCIBE,
+    requiereNotifAEPD: !!inc.requiereNotifAEPD, notificadoAEPD: !!inc.notificadoAEPD,
+    estado: inc.estado || 'abierto', fechaCierre: inc.fechaCierre || null,
+    acciones: Array.isArray(inc.acciones) ? inc.acciones : [],
+    notas: inc.notas || '', responsable: inc.responsable || '',
+    usuarios: inc.usuarios || ''
+  };
+}
+
+// ══════════════════════════════════════════════════════
+//  EXPORTAR INFORME DE CIERRE (JSON estructurado)
+// ══════════════════════════════════════════════════════
+
+function exportarInforme() {
+  const txt = document.getElementById('informeOut').textContent || '';
+  if (!txt || txt.startsWith('Selecciona un incidente')) {
+    toast('Genera primero el informe de cierre', 'warn'); return;
+  }
+  const id = document.getElementById('informeIncidente').value;
+  const inc = incidentes.find(i => i.id === id);
+
+  const payload = {
+    _meta: {
+      tipo: 'informe_cierre', app: 'CiberLog ENS', version: 2,
+      norma: 'CCN-STIC-817 Anexo B', generadoEn: new Date().toISOString()
+    },
+    incidenteId: id,
+    incidente: inc ? JSON.parse(JSON.stringify(inc)) : null,
+    cierre: {
+      causa:     (document.getElementById('informeCausa').value    || '').trim(),
+      medidas:   (document.getElementById('informeMedidas').value  || '').trim(),
+      lecciones: (document.getElementById('informeLecciones').value|| '').trim(),
+      fechaGeneracion: hoy()
+    },
+    textoCompleto: txt
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+  descargarBlob(blob, `informe_cierre_${id || 'sin-id'}_${hoy()}.json`);
+  log('ok', `⬇ Informe de cierre exportado — ${id}`);
+  toast(`Informe exportado: ${id}`, 'ok');
+}
+
+// ══════════════════════════════════════════════════════
+//  IMPORTAR INFORME DE CIERRE (JSON)
+// ══════════════════════════════════════════════════════
+
+function importarInforme(event) {
+  const file = event.target.files[0];
+  event.target.value = ''; // reset para poder volver a seleccionar el mismo fichero
+  if (!file) return;
+  if (!file.name.endsWith('.json')) { toast('Solo se admiten ficheros .json', 'err'); return; }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw = JSON.parse(ev.target.result);
+
+      // Validar que es un informe de cierre
+      if (!raw._meta || raw._meta.tipo !== 'informe_cierre') {
+        throw new Error('El fichero no es un informe de cierre de CiberLog ENS (¿es un fichero de incidentes?)');
+      }
+      if (!raw.incidenteId) throw new Error('El fichero no contiene un ID de incidente válido');
+
+      // Restaurar campos de texto en el formulario
+      if (raw.cierre) {
+        document.getElementById('informeCausa').value     = raw.cierre.causa     || '';
+        document.getElementById('informeMedidas').value   = raw.cierre.medidas   || '';
+        document.getElementById('informeLecciones').value = raw.cierre.lecciones || '';
+      }
+
+      // Mostrar el texto del informe
+      if (raw.textoCompleto) {
+        document.getElementById('informeOut').textContent = raw.textoCompleto;
+      }
+
+      // Intentar seleccionar el incidente en el desplegable
+      const sel = document.getElementById('informeIncidente');
+      const optionExiste = Array.from(sel.options).some(o => o.value === raw.incidenteId);
+      if (optionExiste) {
+        sel.value = raw.incidenteId;
+      } else {
+        // El incidente puede no estar cargado en esta sesión; avisar
+        toast(`Incidente ${raw.incidenteId} no encontrado en el registro local. Se han restaurado los textos del informe.`, 'warn');
+      }
+
+      // Si el fichero incluye los datos del incidente y no existe localmente, ofrecemos importarlo
+      if (!optionExiste && raw.incidente) {
+        const idsActuales = new Set(incidentes.map(i => i.id));
+        if (!idsActuales.has(raw.incidente.id)) {
+          if (confirm(`El incidente ${raw.incidenteId} no está en el registro local.\n¿Deseas añadirlo automáticamente?`)) {
+            incidentes.push(_normalizarInc(raw.incidente));
+            save(); renderRegistro(); renderDashOpen(); updateTipos(); refreshSelects();
+            // Intentar seleccionar ahora
+            const sel2 = document.getElementById('informeIncidente');
+            if (Array.from(sel2.options).some(o => o.value === raw.incidente.id)) sel2.value = raw.incidente.id;
+            toast(`Incidente ${raw.incidenteId} añadido al registro`, 'ok');
+          }
+        }
+      }
+
+      const fechaGen = raw.cierre?.fechaGeneracion || (raw._meta?.generadoEn ? raw._meta.generadoEn.split('T')[0] : '');
+      log('ok', `⬆ Informe de cierre importado — ${raw.incidenteId} (generado el ${fechaGen})`);
+      toast(`Informe importado: ${raw.incidenteId}`, 'ok');
+
+    } catch (err) {
+      toast('Error al importar informe: ' + err.message, 'err');
+      log('err', '❌ Error importando informe: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+</script>
+</body>
+</html>
