@@ -1969,3 +1969,210 @@ function filterMap(val){
 }
 
 // ==== FIN PARTE 3 ====
+function esc(t){ const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
+
+// ── NAV ─
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelector(`[onclick="showView('${id}')"]`).classList.add('active');
+  if (id==='geomap') renderMap(DB);
+  if (id==='incidents') renderKanban();
+}
+
+// ── SPARK CHART ──
+(function(){
+  const spark = document.getElementById('spark');
+  const vals = [2,5,3,7,4,6,8,5,9,10];
+  const max = Math.max(...vals);
+  vals.forEach((v,i) => {
+    const b = document.createElement('div');
+    b.className = 'spark-bar';
+    const pct = (v/max)*100;
+    const colors = ['#60345e','#814e83','#b33f76','#b33f76','#814e83'];
+    b.style.cssText = `height:${pct}%;background:${colors[Math.floor(i/2)%colors.length]};opacity:${0.5+v/max*0.5}`;
+    spark.appendChild(b);
+  });
+})();
+
+// ── SEARCH ──
+function doSearch() {
+  const term = document.getElementById('searchInput').value.toLowerCase().trim();
+  const type = document.getElementById('threatType').value;
+  const sev  = document.getElementById('severity').value;
+  const days = parseInt(document.getElementById('dateRange').value);
+  const src  = document.getElementById('source').value;
+  const sort = document.getElementById('sortBy').value;
+  const conf = parseInt(document.getElementById('minConf').value);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
+
+  let results = DB.filter(t => {
+    if(term && ![t.name,t.desc,...t.iocs,...t.tags,...t.techniques].some(v=>v.toLowerCase().includes(term))) return false;
+    if(type && t.type!==type) return false;
+    if(sev  && sevOrder[t.severity]<sevOrder[sev]) return false;
+    if(src  && !t.source.toLowerCase().includes(src)) return false;
+    if(new Date(t.date)<cutoff) return false;
+    if(t.confidence<conf) return false;
+    return true;
+  });
+
+  results = [...results].sort((a,b)=>{
+    switch(sort){
+      case 'date-desc': return new Date(b.date)-new Date(a.date);
+      case 'date-asc':  return new Date(a.date)-new Date(b.date);
+      case 'severity-desc': return sevOrder[b.severity]-sevOrder[a.severity];
+      case 'confidence-desc': return b.confidence-a.confidence;
+      case 'affects-desc':    return b.affects-a.affects;
+      default: return 0;
+    }
+  });
+
+  renderStats(results);
+  renderResults(results);
+}
+
+function clearSearch(){
+  ['searchInput','threatType','severity','source','sortBy','minConf'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=el.tagName==='SELECT'&&id==='dateRange'?'30':'';
+  });
+  document.getElementById('searchStats').innerHTML='';
+  document.getElementById('searchResults').innerHTML=`<div class="hint-box"><div class="ic">🔎</div><h3>Filtros limpiados</h3><p>Inicia una nueva búsqueda.</p></div>`;
+}
+
+function renderStats(r){
+  const total=r.length, crit=r.filter(x=>x.severity==='critical').length;
+  const hi=r.filter(x=>x.severity==='high').length;
+  const aff=r.reduce((s,x)=>s+x.affects,0);
+  const avgC=r.length?Math.round(r.reduce((s,x)=>s+x.confidence,0)/r.length):0;
+  document.getElementById('searchStats').innerHTML=`
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="card"><div class="card-title">Resultados</div><div class="kpi-val">${total}</div></div>
+      <div class="card"><div class="card-title">Críticas</div><div class="kpi-val" style="color:var(--sev-critical);">${crit}</div></div>
+      <div class="card"><div class="card-title">Afectados</div><div class="kpi-val">${aff.toLocaleString('es-ES')}</div></div>
+      <div class="card"><div class="card-title">Confianza media</div><div class="kpi-val">${avgC}%</div></div>
+    </div>`;
+}
+
+function renderResults(results){
+  const el=document.getElementById('searchResults');
+  if(!results.length){
+    el.innerHTML=`<div class="hint-box"><div class="ic">🔦</div><h3>Sin resultados</h3><p>Prueba con otros parámetros o amplía el rango de fechas.</p></div>`;
+    return;
+  }
+  let html=`<div class="results-hdr"><h3>Resultados de búsqueda</h3><span class="result-count">${results.length} resultado${results.length!==1?'s':''}</span></div>`;
+  results.forEach((t,i)=>{
+    const d = new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+    html+=`
+    <div class="threat-card c-${t.severity}" style="animation-delay:${i*0.04}s">
+      <div class="tc-header">
+        <div class="tc-title">${esc(t.name)}</div>
+        <div class="tc-badges">
+          <span class="badge b-type">${esc(t.type)}</span>
+          <span class="badge b-${t.severity}">${t.severity.toUpperCase()}</span>
+        </div>
+      </div>
+      <div class="tc-desc">${esc(t.desc)}</div>
+      <div class="tc-meta">
+        <div class="tc-meta-item"><div class="tc-meta-label">Fuente</div><div class="tc-meta-val">${esc(t.source)}</div></div>
+        <div class="tc-meta-item"><div class="tc-meta-label">Detección</div><div class="tc-meta-val">${d}</div></div>
+        <div class="tc-meta-item"><div class="tc-meta-label">Origen</div><div class="tc-meta-val">${esc(t.origin)}</div></div>
+        <div class="tc-meta-item"><div class="tc-meta-label">Afectados</div><div class="tc-meta-val">${t.affects.toLocaleString('es-ES')}</div></div>
+        <div class="tc-meta-item">
+          <div class="tc-meta-label">Confianza</div>
+          <div class="tc-meta-val">${t.confidence}%
+            <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${t.confidence}%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span class="chip-label">🔴 IOCs · Técnicas MITRE</span>
+        <div class="chips">
+          ${t.iocs.map(x=>`<span class="chip chip-ioc">${esc(x)}</span>`).join('')}
+          ${t.techniques.map(x=>`<span class="chip chip-mitre">${esc(x)}</span>`).join('')}
+        </div>
+      </div>
+      <div>
+        <span class="chip-label">🏷 Etiquetas</span>
+        <div class="chips">${t.tags.map(x=>`<span class="chip chip-tag">#${esc(x)}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+// ── MODALS ──
+function openExport(){ document.getElementById('exportModal').classList.add('open'); }
+function closeExport(){ document.getElementById('exportModal').classList.remove('open'); }
+function openNewIncident(){ document.getElementById('incidentModal').classList.add('open'); }
+function openAddWatchlist(){ document.getElementById('watchlistModal').classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function doExport(fmt){
+  closeExport();
+  if(fmt==='csv'){
+    const rows=['ID,Nombre,Tipo,Severidad,Fuente,Fecha,Afectados,Confianza,IOCs,Técnicas,Etiquetas',
+      ...DB.map(t=>`${t.id},"${t.name}",${t.type},${t.severity},"${t.source}",${t.date},${t.affects},${t.confidence}%,"${t.iocs.join('|')}","${t.techniques.join('|')}","${t.tags.join('|')}"`)
+    ];
+    const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='threatintel-export.csv';
+    a.click();
+  } else if(fmt==='json'){
+    const stix={type:'bundle',id:'bundle--threatintel-pro',spec_version:'2.1',objects:DB.map(t=>({type:'indicator',id:`indicator--${t.id}`,name:t.name,labels:[t.type,t.severity],pattern:t.iocs.map(i=>`[network-traffic:dst_ref.type = 'ipv4-addr' AND network-traffic:dst_ref.value = '${i}']`).join(' OR '),confidence:t.confidence,modified:t.date}))};
+    const blob=new Blob([JSON.stringify(stix,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='threatintel-stix2.json';
+    a.click();
+  } else {
+    alert(`Exportación a ${fmt.toUpperCase()} iniciada.\n(En producción genera el informe completo con gráficas, KPIs y firma digital.)`);
+  }
+}
+
+function createIncident(){
+  const title = document.getElementById('incTitle').value.trim();
+  if(!title){ alert('El título es obligatorio'); return; }
+  const newInc = {
+    id: 'INC-00'+(incidentList.length+1),
+    title,
+    severity: document.getElementById('incPriority').value,
+    status:'new',
+    assigned: document.getElementById('incAssigned').value,
+    date: new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short'}),
+    tags: document.getElementById('incIocs').value.split(',').map(s=>s.trim()).filter(Boolean).slice(0,3)
+  };
+  incidentList.unshift(newInc);
+  closeModal('incidentModal');
+  document.getElementById('incTitle').value='';
+  document.getElementById('incDesc').value='';
+  document.getElementById('incIocs').value='';
+  renderKanban();
+}
+
+function refreshData(){
+  const btn = event.target;
+  btn.textContent='↻ Actualizando…';
+  btn.disabled=true;
+  setTimeout(()=>{ btn.textContent='↻ Actualizar'; btn.disabled=false; }, 1800);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && document.activeElement===document.getElementById('searchInput')) doSearch();
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
+  }
+});
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+</script>
+</div><!-- /app-layout -->
+<script src="/static/intel-live.js"></script>
+</body>
+</html>
