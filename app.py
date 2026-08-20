@@ -1,6 +1,5 @@
 """
 Suite ENS — Plataforma de Herramientas de Ciberseguridad
-Login + panel + herramientas originales + motores Python reales
 """
 import os
 import re
@@ -84,7 +83,6 @@ def dashboard():
                            usuario=session.get("usuario", "usuario"))
 
 
-# ── Catálogo de herramientas ──
 HERRAMIENTAS = {
     "metalimpio": {"nombre": "MetaLimpio ENS", "norma": "CCN-STIC-835 · [mp.info.5]",
                    "desc": "Borrado de metadatos en documentos", "archivo": "metalimpio.html"},
@@ -95,8 +93,8 @@ HERRAMIENTAS = {
     "securevault": {"nombre": "CCN SecureVault", "norma": "CCN-STIC-807 · CAT-R",
                     "desc": "Cifrado local de archivos AES-256-GCM", "archivo": "securevault.html"},
     "tls_checker": {"nombre": "TLS Privacy Checker", "norma": "RGPD · LOPD-GDD",
-                    "desc": "Verificador REAL de cifrado TLS/SSL con mapeo RGPD",
-                    "activa_real": True},
+                    "desc": "Verificador de cifrado TLS/SSL con mapeo RGPD",
+                    "disponible": False},
     "envio_pass": {"nombre": "Envío Seguro de Contraseñas", "norma": "CCN-STIC-807",
                    "desc": "Envío de credenciales mediante enlaces cifrados de un solo uso",
                    "disponible": False},
@@ -138,7 +136,7 @@ def herramienta(clave):
     if not info.get("disponible", True):
         return render_template("herramienta.html", info=info)
     if info.get("activa_real"):
-        if clave == "tls_checker":
+        if clave == "tls_checker" and tls_checker is not None:
             return render_template("tls_checker.html", info=info)
         if clave == "intel":
             return render_template("threatintel.html", info=info)
@@ -148,7 +146,6 @@ def herramienta(clave):
     return render_template("herramienta.html", info=info)
 
 
-# ── Endpoints TLS Privacy Checker (análisis REAL) ──
 @app.route("/tls/scan", methods=["POST"])
 @login_required
 def tls_scan():
@@ -168,7 +165,6 @@ def tls_scan():
     return jsonify(resultado)
 
 
-# ── Endpoints ThreatIntel Pro (fuentes oficiales reales) ──
 @app.route("/threatintel/feeds")
 @login_required
 def threatintel_feeds():
@@ -221,7 +217,6 @@ def threatintel_watchlist_delete(ioc_id):
 
 @app.route("/threatintel/digest")
 def threatintel_digest():
-    """Lo dispara cron-job.org 1 vez al día para enviar el email resumen."""
     token = request.args.get("token", "")
     esperado = os.environ.get("DIGEST_TOKEN", "")
     if not esperado or not secrets.compare_digest(token, esperado):
